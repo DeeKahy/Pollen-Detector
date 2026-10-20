@@ -1,0 +1,2 @@
+"""Pollen sampler device software."""
+__version__ = "0.1.0"

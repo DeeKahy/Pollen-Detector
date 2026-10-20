@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+Claude outputs/
+device/config.yaml
+device/data/
+server/server-data/
+hwtest_*.png
+hwtest_*.jpg
+*.dng

@@ -1,0 +1,5 @@
+# For running in mock mode on a laptop. On the Pi, install.sh uses apt packages instead.
+flask>=2.2
+requests>=2.28
+pyyaml>=6
+pillow>=9
