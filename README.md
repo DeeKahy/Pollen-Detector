@@ -52,6 +52,7 @@ Start with the [build guide](docs/build-guide.md). In short:
 | `docs/` | Wiring diagram, build guide, design ideas, links to research |
 | `iterations/` | Photos and notes from each version we build |
 | `ml/` | Pollen recognition (not started yet) |
+| `report/` | Our project report in LaTeX. See [report/README.md](report/README.md) |
 | `CLAUDE.md` | Full project notes and decisions. Also used as context for AI assistants |
 
 ## Contributing
@@ -67,4 +68,10 @@ Ideas, test results and photos are very welcome. If you build one, add a folder 
 
 ## License
 
-Not decided yet.
+- **Software** (everything except `hardware/` and `report/`): [GNU AGPL v3](LICENSE).
+  You can use, change and share it. If you share it, or run a changed version as a
+  service others use over a network, you must also share your source under the AGPL.
+- **3D models and hardware files** (`hardware/`): public domain, [CC0 1.0](hardware/LICENSE).
+  Do whatever you want with them. No credit needed.
+- **Report** (`report/`): built on the AAU template (BSD 3-Clause, `report/LICENSE-template`).
+  The license for our own text is not decided yet.

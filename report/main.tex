@@ -1,0 +1,30 @@
+\input{setup/preamble.tex}% package inclusion and set up of the document
+\input{setup/hyphenations.tex}%
+\input{setup/macros.tex}% my new macros
+
+\begin{document}
+%frontmatter
+\pagestyle{empty} %disable headers and footers
+\pagenumbering{roman} %use roman page numbering in the frontmatter
+\input{frontmatter/frontpageImage.tex}
+\input{frontmatter/frontpage.tex}
+\input{frontmatter/colophon.tex}
+\input{frontmatter/titlepages.tex}
+\cleardoublepage
+\pdfbookmark[0]{Contents}{label:contents}
+\pagestyle{fancy} %enable headers and footers again
+\tableofcontents
+\listoftodos
+\input{frontmatter/preface.tex}
+\cleardoublepage
+%mainmatter
+\pagenumbering{arabic} %use arabic page numbering in the mainmatter
+% Every file in chapters/ is included here, sorted by its number (1.0, 1.1, 2.0, ...).
+% The list is made by latexmk (see latexmkrc). You do not need to edit this file.
+\input{build/chapters.tex}
+\printbibliography[heading=bibintoc, title=Bibliography]
+\label{bib:mybiblio}
+\appendix
+% Every file in appendices/ (A.0, A.1, B.0, ...).
+\input{build/appendices.tex}
+\end{document}

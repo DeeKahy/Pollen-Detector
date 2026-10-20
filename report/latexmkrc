@@ -1,0 +1,46 @@
+# latexmk settings for the report. Run `latexmk` in this folder.
+#
+# Before building, this makes build/chapters.tex and build/appendices.tex.
+# They \input every .tex file in chapters/ and appendices/, sorted by the
+# number at the start of the file name:
+#   1.0-introduction.tex, 1.1-background.tex, 2.0-design.tex, 10.0-...
+# Appendices use a letter: A.0-..., A.1-..., B.0-...
+
+$pdf_mode = 1;
+@default_files = ('main.tex');
+
+# Compare "1.10" and "1.2" part by part, as numbers where possible.
+sub number_cmp {
+    my @a = split /\./, $_[0];
+    my @b = split /\./, $_[1];
+    while (@a && @b) {
+        my ($x, $y) = (shift @a, shift @b);
+        my $c = ($x =~ /^\d+$/ && $y =~ /^\d+$/) ? $x <=> $y : $x cmp $y;
+        return $c if $c;
+    }
+    return @a <=> @b;
+}
+
+sub write_list {
+    my ($dir, $out) = @_;
+    my %number;
+    for my $file (glob("$dir/*.tex")) {
+        my ($name) = $file =~ m{([^/]+)$};
+        if ($name =~ /\s/) {
+            die "latexmkrc: '$file' has a space in its name. Use - instead, e.g. 1.0-introduction.tex\n";
+        }
+        if ($name !~ /^([0-9A-Za-z]+(?:\.[0-9]+)*)[-_]/) {
+            die "latexmkrc: '$file' must start with a number like 1.0- or A.0-\n";
+        }
+        $number{$file} = $1;
+    }
+    my @files = sort { number_cmp($number{$a}, $number{$b}) or $a cmp $b } keys %number;
+    open(my $fh, '>', $out) or die "latexmkrc: cannot write $out: $!\n";
+    print $fh "% Made by latexmkrc. Do not edit.\n";
+    print $fh "\\input{$_}\n" for @files;
+    close($fh);
+}
+
+mkdir 'build' unless -d 'build';
+write_list('chapters', 'build/chapters.tex');
+write_list('appendices', 'build/appendices.tex');
