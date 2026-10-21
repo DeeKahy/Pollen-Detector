@@ -6,10 +6,28 @@ No router and no internet are needed.
 
 The examples use the hostname `pollen-01`. Use your own Pi's hostname.
 
+## 0. Set up the Pi once (do this while it still has a network)
+
+On a bare cable nobody answers the Pi's DHCP request. By default NetworkManager gives up
+after 45 seconds, resets the port and tries again. After 4 tries (about 3 minutes after
+boot) it shuts the port down for 5 minutes. The Pi keeps running, but you cannot reach it.
+It looks like a power problem, but it is not.
+
+Fix it once, on the Pi:
+
+```bash
+sudo nmcli con mod "Wired connection 1" ipv4.dhcp-timeout infinity ipv4.link-local fallback
+sudo nmcli -w 0 con up "Wired connection 1"
+```
+
+Now the Pi waits for DHCP forever and uses a `169.254.x.x` address meanwhile. At home with a
+router it still gets a normal address. Check the name of the connection with `nmcli con show`
+if yours is different.
+
 ## 1. SSH into the Pi
 
-With no router, nobody hands out IPv4 addresses. The Pi still gets an IPv6 link-local
-address and announces its name, so this works:
+With no router, the Pi and the laptop give themselves link-local addresses (`169.254.x.x`
+and IPv6 `fe80::`). The Pi announces its name, so this works:
 
 ```bash
 ssh pi@pollen-01.local
@@ -29,8 +47,11 @@ or `2c:cf:67`.
 
 ## 2. Open the web UI
 
-The web UI only listens on IPv4, and the Pi has no IPv4 address on a bare cable. So
-`http://pollen-01.local:8080` will not load. Use an SSH tunnel instead:
+With the setup from step 0, just open http://pollen-01.local:8080. The first load can take
+a few seconds while the laptop looks up the name.
+
+Without step 0 the Pi has no IPv4 address, and the web UI only listens on IPv4. Then use an
+SSH tunnel instead:
 
 ```bash
 ssh -f -N -L 8080:localhost:8080 pi@pollen-01.local
