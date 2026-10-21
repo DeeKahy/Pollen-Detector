@@ -170,7 +170,7 @@ Choose based on data, not intuition.
 - Which Pi for deployment (3 B+, 4, 5, Zero 2 W)?
 - Who are the biology/aerobiology partners? (Astma-Allergi Danmark, university botany/
   aerobiology groups, DMI for forecasting.)
-- Licensing: open hardware (CERN-OHL) + open source software + open data?
+- Licensing for docs, photos and collected data (code and hardware are decided)?
 
 ## 10. Decisions log
 
@@ -181,7 +181,9 @@ Choose based on data, not intuition.
 | 2026-10-03 | Team designs the 3D model themselves (they already have a semi-simple design); Claude gives ideas in `docs/mechanical-ideas.md`. | |
 | 2026-10-03 | Pin assignment (BCM): stepper IN1-4 = GPIO17/27/22/23, fan MOSFET = GPIO18, LED = GPIO24. | See `docs/wiring.md`. |
 | 2026-10-07 | LED runs straight from GPIO24 through a 47 Ω resistor (150 Ω for red/green) to GND pin 20. No MOSFET for the LED. Only the fan uses a MOSFET. | Simpler. A dim LED is fine, use longer exposure. |
-| 2026-10-20 | Project moved to GitHub (DeeKahy/Pollen-Detector). Added README, build guide, parts list, iterations log. License not decided yet. | So others can build it. |
+| 2026-10-20 | Project moved to GitHub (DeeKahy/Pollen-Detector). Added README, build guide, parts list, iterations log. | So others can build it. |
+| 2026-10-20 | License: software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
+| 2026-10-20 | Report moved from Overleaf to `report/` in this repo. Write via PRs; CI builds the PDF. | Easier for two people to write in parallel and review changes. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
 ## 11. Repo layout
@@ -199,6 +201,7 @@ Choose based on data, not intuition.
 - `hardware/`: `bom.md` parts list. CAD (STL + source), one folder per part. To be added by the team.
 - `iterations/`: one folder per built version with photos, example pictures and notes (`_template.md`).
 - `ml/`: recognition plan. Not started. Large datasets stay out of git.
+- `report/`: the project report (LaTeX, AAU template). Files in `report/chapters/` are auto-included in number order (`1.0-intro.tex`, `1.1-...`, `2.0-...`) by `report/latexmkrc`. CI (`.github/workflows/report.yml`) builds the PDF on every PR and links it in a comment. `main` is protected.
 - `README.md`: public front page of the repo.
 
 ## 12. Next steps

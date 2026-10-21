@@ -1,0 +1,70 @@
+name: Report PDF
+
+# Builds report/main.pdf on every pull request and on main.
+# The PDF is uploaded as an artifact you can open in the browser, and the
+# link is posted as a comment on the pull request.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: report-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: report
+
+      - name: Name the PDF
+        id: name
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            name="report-pr-${{ github.event.pull_request.number }}-${GITHUB_SHA::7}.pdf"
+          else
+            name="report-${GITHUB_REF_NAME}-${GITHUB_SHA::7}.pdf"
+          fi
+          name="${name//\//-}"
+          cp report/main.pdf "$name"
+          echo "file=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Upload PDF
+        id: upload
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.name.outputs.file }}
+          archive: false
+          retention-days: 30
+
+      - name: Comment on the pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.upload.outputs.artifact-url }}
+          FILE: ${{ steps.name.outputs.file }}
+        run: |
+          body="📄 **Report PDF built** for ${GITHUB_SHA::7}: [${FILE}](${URL})"
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none --body "$body"
+
+      - name: Upload log if the build failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: latex-log
+          path: report/main.log
+          if-no-files-found: ignore

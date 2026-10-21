@@ -30,3 +30,8 @@ For each part, include:
 
 When a part changes a lot, keep the old version in the iteration folder in `iterations/`
 instead of here, so this folder always has the current design.
+
+## License
+
+Everything in this folder is public domain ([CC0 1.0](LICENSE)). Use it for anything,
+no credit needed. By adding files here you agree to release them under CC0.

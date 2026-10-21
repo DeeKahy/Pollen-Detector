@@ -1,0 +1,46 @@
+\chapter{Introduction}\label{ch:introduction}
+
+
+Pollen allergy affects a large share of the population, and for many patients the symptoms depend on the day-to-day pollen concentration in the air around them. In Denmark, daily pollen counts are produced by manually analysing air samples collected in a small number of locations. Samples are examined under a microscope and the pollen grains are counted by hand. The national monitoring relies on two stations, in Copenhagen for eastern Denmark and Viborg for western Denmark (ref Astma-Allergi Danmark). Pollen levels for other cities are therefore estimates based on the nearest station and should be read as general trend rather than local meassurement. Because pollen concentrations vary with local vegetation, terrain and weather, a patient living far from a station may experience conditions quite different from the published figures.
+Automated pollen monitoring is one way  to close this gap. Commercial systems exist, such as the Swisens Poleno Jupiter (ref), but they are specialised instruments and not suited to dense, low-cost deployment. In other environmental domains, community-driven projects have shown that inexpensive open-source sensors can be deployes in large numbers. Sensor.Community, publishes open particulate-matter data from a network of low-cost, self-built sensors on a public map. No compareble low-cost, open apporach currently exists for pollen.
+
+(Mention this is further development on Florians project?) This project aims to contribute towards such a system by building on an open-source prototype of an automated pollen detector (ref florian?). The device draws in air with a fan and deposits airborne particles onto adhesive tape. A Raspberry Pi with a RPI-HQ Camera then captures images of the collected particles. In later stages, these images will be classifired by pollen type using image recognition and sent to a central server, where results can be shown to users in the form of a local daily pollen count.
+The overall vision is a network of affordavble, open pollen detectors that gives allergy sufferers locally relevant pollen information and complements the existing national stations. This report covers the first stage of that vision: the physical device. We descrive and evaluate the sampling and imaging hardware, with the aim of establishing whether it can reliably capture and image pollen-sized particles at a quality sufficient for later automated classification.
+
+
+
+
+
+
+
+
+% Here is the introduction. The next chapter is chapter~\ref{ch:ch2label}.
+
+
+% a new paragraph
+
+
+% \section{Examples}
+% You can also have examples in your document such as in example~\ref{ex:simple_example}.
+% \begin{example}{An Example of an Example}
+%   \label{ex:simple_example}
+%   Here is an example with some math
+%   \begin{equation}
+%     0 = \exp(i\pi)+1\ .
+%   \end{equation}
+%   You can adjust the colour and the line width in the {\tt macros.tex} file.
+% \end{example}
+
+% \section{How Does Sections, Subsections, and Subsections Look?}
+% Well, like this
+% \subsection{This is a Subsection}
+% and this
+% \subsubsection{This is a Subsubsection}
+% and this.
+
+% \paragraph{A Paragraph}
+% You can also use paragraph titles which look like this.
+
+% \subparagraph{A Subparagraph} Moreover, you can also use subparagraph titles which look like this\todo{Is it possible to add a subsubparagraph?}. They have a small indentation as opposed to the paragraph titles.
+
+% \todo[inline,color=green]{I think that a summary of this exciting chapter should be added.}
