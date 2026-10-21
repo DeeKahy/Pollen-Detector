@@ -37,7 +37,7 @@ ssh -f -N -L 8080:localhost:8080 pi@pollen-01.local
 ```
 
 Then open http://localhost:8080 in your browser. Add the `HostKeyAlias` flag from step 1 if
-you needed it there. The tunnel stops when you unplug the cable or restart the laptop. Run
+you needed it there. The tunnel stops when the Pi reboots, you unplug the cable or you restart the laptop. Run
 the command again to get it back.
 
 ## 3. Share your laptop's internet with the Pi (optional)
