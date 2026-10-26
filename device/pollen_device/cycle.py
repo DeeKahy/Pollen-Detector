@@ -66,7 +66,7 @@ class Controller:
     def _pipeline(self):
         return self.store.get_state("pipeline", [])
 
-    def _capture(self, kind, sample_id=None):
+    def _capture(self, kind, sample_id=None, note=""):
         cam_cfg = self.cfg["camera"]
         ts = utcnow()
         rel = self.store.new_image_path(ts)
@@ -87,12 +87,14 @@ class Controller:
             "sample_id": sample_id,
             "tape_steps": self.hw.stepper.position,
             "camera": cam_meta,
-            "camera_settings": {k: cam_cfg[k] for k in ("exposure_us", "analogue_gain", "resolution")},
+            "note": note,
+            "camera_settings": {**self.hw.camera.settings(), "resolution": cam_cfg["resolution"]},
             "mock": self.hw.mock or self.hw.camera.mock,
         }
         if sample_id is not None:
             meta["sample"] = self.store.get_sample(sample_id)
         cid = self.store.add_capture(ts, rel, kind, sample_id, meta)
+        self.store.write_sidecar(cid, rel, meta)
         log.info("Captured #%d (%s, sample %s) -> %s", cid, kind, sample_id, rel)
         return {"id": cid, "path": str(rel), "kind": kind, "sample_id": sample_id}
 
@@ -183,9 +185,9 @@ class Controller:
             self._shift_pipeline(None)
         return moved
 
-    def manual_capture(self):
+    def manual_capture(self, note=""):
         with self._action("capture"):
-            return self._capture("manual")
+            return self._capture("manual", note=note)
 
     def set_fan(self, value):
         with self._action("fan"):

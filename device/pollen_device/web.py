@@ -1,4 +1,5 @@
 """Debug web UI + JSON API. Open http://<pi-ip>:8080 in a browser on the same network."""
+import json
 import logging
 import shutil
 import time
@@ -23,6 +24,14 @@ def cpu_temp():
 def create_app(cfg, ctl, hw, store, uploader, logbuf):
     app = Flask(__name__)
     password = cfg["web"].get("password") or ""
+    # Camera settings changed in the web UI survive restarts.
+    saved = store.get_state("camera_settings")
+    if saved:
+        hw.camera.apply_settings(saved)
+
+    def set_camera(new):
+        hw.camera.apply_settings(new)
+        store.set_state("camera_settings", hw.camera.settings())
 
     @app.before_request
     def check_auth():
@@ -49,6 +58,7 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
             "stepper_moving": hw.stepper.moving,
             "exposure_us": cfg["camera"]["exposure_us"],
             "analogue_gain": cfg["camera"]["analogue_gain"],
+            "camera_settings": hw.camera.settings(),
             "controller": ctl.status(),
             "store": store.stats(),
             "upload": {"enabled": cfg["upload"]["enabled"], "server": cfg["upload"]["server_url"],
@@ -91,14 +101,23 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
 
     @app.post("/api/capture")
     def api_capture():
-        return jsonify(ok=True, capture=ctl.manual_capture())
+        note = str((request.json or {}).get("note", "")).strip()
+        return jsonify(ok=True, capture=ctl.manual_capture(note))
 
     @app.post("/api/exposure")
     def api_exposure():
         body = request.json or {}
-        hw.camera.set_exposure(int(body.get("exposure_us", cfg["camera"]["exposure_us"])),
-                               float(body.get("analogue_gain", cfg["camera"]["analogue_gain"])))
+        set_camera({k: body.get(k) for k in ("exposure_us", "analogue_gain")})
         return jsonify(ok=True)
+
+    @app.post("/api/camera/settings")
+    def api_camera_settings():
+        try:
+            set_camera(request.json or {})
+        except Exception as e:
+            log.exception("Camera settings failed")
+            return jsonify(ok=False, error=f"{type(e).__name__}: {e}"), 400
+        return jsonify(ok=True, settings=hw.camera.settings())
 
     @app.post("/api/cycle/<action>")
     def api_cycle(action):
@@ -168,7 +187,24 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
 
     @app.get("/api/captures")
     def api_captures():
-        return jsonify(store.recent_captures(int(request.args.get("limit", 24))))
+        caps = store.recent_captures(int(request.args.get("limit", 24)))
+        for c in caps:
+            c["note"] = json.loads(c["meta"]).get("note", "")
+        return jsonify(caps)
+
+    @app.post("/api/captures/<int:cid>/note")
+    def api_capture_note(cid):
+        meta = store.set_note(cid, str((request.json or {}).get("note", "")).strip())
+        if meta is None:
+            abort(404)
+        return jsonify(ok=True)
+
+    @app.post("/api/captures/<int:cid>/delete")
+    def api_capture_delete(cid):
+        if not store.delete_capture(cid):
+            abort(404)
+        log.info("Deleted capture #%d", cid)
+        return jsonify(ok=True)
 
     @app.get("/images/<path:rel>")
     def images(rel):
@@ -202,7 +238,11 @@ table{border-collapse:collapse;width:100%}td{padding:2px 4px;word-break:break-wo
 #pbar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:4px}#pbar div{height:100%;width:0;background:var(--acc)}
 #log{height:260px;overflow:auto;font:12px ui-monospace,monospace;white-space:pre-wrap;background:var(--bg);padding:6px;border-radius:6px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
-.grid a{font-size:11px;color:var(--mut);text-decoration:none}.grid img{width:100%;border-radius:4px;display:block}
+.grid>div{font-size:11px;color:var(--mut)}.grid a{color:inherit;text-decoration:none}.grid img{width:100%;border-radius:4px;display:block}
+.grid .note{color:var(--ink);white-space:pre-wrap;word-break:break-word}.grid button{font-size:11px;padding:1px 6px}
+textarea{font:inherit;width:100%;box-sizing:border-box;padding:5px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=checkbox]{width:auto}
+select{font:inherit;padding:4px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
 #msg{color:var(--warn);font-size:12px;min-height:1em}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--mut)}
@@ -223,8 +263,18 @@ table{border-collapse:collapse;width:100%}td{padding:2px 4px;word-break:break-wo
  <div id="pbar"><div></div></div>
  <div class="row"><label><input type="checkbox" id="live" onchange="if(this.checked)refreshPreview()"> live</label> <span id="fps"></span>
   <button onclick="refreshPreview()">Refresh</button>
-  <button onclick="post('/api/capture')">Capture full-res</button></div>
- <div class="row">Exposure µs <input id="exp"> gain <input id="gain"> <button onclick="setExp()">Set</button></div>
+  <button onclick="capture()">Capture full-res</button></div>
+ <textarea id="note" rows="2" placeholder="Note saved with the next manual picture (light, sample, weather…)"></textarea>
+ <details><summary>Camera settings</summary>
+ <div class="row">Exposure µs <input id="exp" title="0 = auto"> gain <input id="gain"></div>
+ <div class="row"><label><input type="checkbox" id="awb"> auto white balance</label>
+  red <input id="cgr" title="used when auto white balance is off"> blue <input id="cgb" title="used when auto white balance is off"></div>
+ <div class="row">brightness <input id="bri" title="-1..1, 0 = normal"> contrast <input id="con" title="1 = normal"></div>
+ <div class="row">saturation <input id="sat" title="1 = normal, 0 = greyscale"> sharpness <input id="shp" title="1 = normal, 0 = none"></div>
+ <div class="row">noise reduction <select id="nr"><option>off</option><option>fast</option><option>high_quality</option></select></div>
+ <div class="row">LED settle s <input id="settle"> <label><input type="checkbox" id="dng"> also save raw DNG</label></div>
+ </details>
+ <div class="row"><button onclick="setCam()">Set</button></div>
 </section>
 <section class="card"><h2>Manual control</h2>
  <div class="row">Fan <button onclick="post('/api/fan',{value:1})">On</button><button onclick="post('/api/fan',{value:0})">Off</button>
@@ -257,7 +307,18 @@ async function post(url,body){$('msg').textContent='';
  const j=await r.json().catch(()=>({}));if(!r.ok)$('msg').textContent=j.error||('HTTP '+r.status);
  tick();if(url=='/api/capture')loadCaps();return j}
 function jog(d){post('/api/jog',{steps:d*parseInt($('steps').value||0)})}
-function setExp(){post('/api/exposure',{exposure_us:+$('exp').value,analogue_gain:+$('gain').value}).then(refreshPreview)}
+// Camera settings: [field id, setting name, kind]
+const CAM=[['exp','exposure_us','n'],['gain','analogue_gain','n'],['awb','awb','b'],['cgr','colour_gain_red','n'],['cgb','colour_gain_blue','n'],
+ ['bri','brightness','n'],['con','contrast','n'],['sat','saturation','n'],['shp','sharpness','n'],['nr','noise_reduction','s'],['settle','led_settle_s','n'],['dng','save_dng','b']];
+function fillCam(s){for(const[id,k,t]of CAM){if(t=='b')$(id).checked=s[k];else $(id).value=s[k]}}
+function setCam(){const b={};for(const[id,k,t]of CAM)b[k]=t=='b'?$(id).checked:t=='n'?+$(id).value:$(id).value;
+ post('/api/camera/settings',b).then(j=>{if(j.settings)fillCam(j.settings);refreshPreview()})}
+function capture(){post('/api/capture',{note:$('note').value})}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let caps=[];
+async function editNote(id){const c=caps.find(x=>x.id==id);const t=prompt('Note for picture #'+id,c?c.note:'');
+ if(t!==null){await post('/api/captures/'+id+'/note',{note:t});loadCaps()}}
+async function delCap(id){if(confirm('Delete picture #'+id+' and its note? This cannot be undone.')){await post('/api/captures/'+id+'/delete');loadCaps()}}
 function setCycle(){post('/api/cycle/settings',{interval_min:+$('int').value,blow_s:+$('blow').value,pitch_steps:+$('pitch').value})}
 let prevT=0,frameMs=1000;
 // Progress bar: the server can't report progress, so fill towards 90 % over the last frame's time.
@@ -276,14 +337,15 @@ async function tick(){try{
  $('mode').textContent=s.mock_hardware?'MOCK hardware':(s.mock_camera?'MOCK camera':'real hardware');
  $('mode').className='pill'+(s.mock_hardware||s.mock_camera?' mock':'');
  $('fanst').textContent=s.fan?'● on':'○ off';$('ledst').textContent=s.led?'● on':'○ off';
- if(!filled){$('exp').value=s.exposure_us;$('gain').value=s.analogue_gain;$('int').value=c.cycle.interval_min;$('blow').value=c.cycle.blow_s;$('pitch').value=c.cycle.pitch_steps;filled=true}
+ if(!filled){fillCam(s.camera_settings);$('int').value=c.cycle.interval_min;$('blow').value=c.cycle.blow_s;$('pitch').value=c.cycle.pitch_steps;filled=true}
  rows($('cyc'),{'next cycle in':c.paused?'paused':c.next_run+' s','odometer (steps)':c.tape_steps,'samples in transit':JSON.stringify(c.pipeline),'fan→camera (pitches)':c.cycle.camera_offset_cycles,'last cycle':c.last_cycle});
  rows($('st'),{'camera error':s.camera_error||'none','captures':s.store.captures,'pending upload':s.store.pending_upload,'upload':s.upload.enabled?s.upload.server:'disabled','last upload':s.upload.last,'disk free':s.disk_free_gb+' GB','CPU temp':s.cpu_temp_c==null?'n/a':s.cpu_temp_c+' °C','uptime':s.uptime_s+' s'});
  const l=await (await fetch('/api/logs')).json();const el=$('log');const atEnd=el.scrollTop+el.clientHeight>=el.scrollHeight-5;
  el.textContent=l.join('\n');if(atEnd)el.scrollTop=el.scrollHeight;
 }catch(e){$('msg').textContent='device unreachable'}}
-async function loadCaps(){const c=await (await fetch('/api/captures?limit=24')).json();
- $('caps').innerHTML=c.map(x=>`<a href="/images/${x.path}" target="_blank"><img loading="lazy" src="/images/${x.path.replace(/\.png$/,'.thumb.jpg')}">#${x.id} ${x.kind}${x.sample_id?' s'+x.sample_id:''}<br>${x.ts.slice(5,16).replace('T',' ')}${x.uploaded_at?' ✓':''}</a>`).join('')}
+async function loadCaps(){caps=await (await fetch('/api/captures?limit=24')).json();
+ $('caps').innerHTML=caps.map(x=>`<div><a href="/images/${x.path}" target="_blank"><img loading="lazy" src="/images/${x.path.replace(/\.png$/,'.thumb.jpg')}">#${x.id} ${x.kind}${x.sample_id?' s'+x.sample_id:''}<br>${x.ts.slice(5,16).replace('T',' ')}${x.uploaded_at?' ✓':''}</a>
+ ${x.note?`<div class="note">${esc(x.note)}</div>`:''}<button onclick="editNote(${x.id})">note</button> <a href="/images/${x.path.replace(/\.png$/,'.json')}" target="_blank">json</a> <button onclick="delCap(${x.id})">delete</button></div>`).join('')}
 async function runChecks(){$('chkts').textContent='running…';
  try{const r=await fetch('/api/checks');const j=await r.json();
   $('chk').innerHTML=j.checks.map(c=>`<tr><td><span class="dot ${c.status}"></span>${c.name}</td><td>${c.detail}</td></tr>`).join('');

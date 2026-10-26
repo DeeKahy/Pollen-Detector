@@ -34,6 +34,16 @@ camera:
   save_dng: false         # also save the raw sensor data (~18 MB each) - useful for lensless reconstruction later
   led_settle_s: 0.5       # wait after LED on before capturing
   preview_width: 1014     # width of the live preview in the web UI
+  # Image tuning. All of these can also be changed in the web UI; changes there are kept
+  # across restarts and override the values here.
+  awb: true               # auto white balance. false = use the colour gains below
+  colour_gain_red: 2.0
+  colour_gain_blue: 2.0
+  brightness: 0.0         # -1..1, 0 = normal
+  contrast: 1.0           # 1 = normal
+  saturation: 1.0         # 1 = normal, 0 = greyscale
+  sharpness: 1.0          # 1 = normal, 0 = no sharpening (better for measuring raw shapes)
+  noise_reduction: high_quality  # off | fast | high_quality
 
 cycle:
   enabled: true

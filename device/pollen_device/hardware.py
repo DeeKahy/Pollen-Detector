@@ -154,6 +154,25 @@ class Output:
             self.dev.close()
 
 
+# Camera settings that can be changed from the web UI, with their types.
+SETTING_TYPES = {
+    "exposure_us": int,          # 0 = auto exposure
+    "analogue_gain": float,
+    "awb": bool,                 # auto white balance; off = use the colour gains below
+    "colour_gain_red": float,
+    "colour_gain_blue": float,
+    "brightness": float,         # -1..1, 0 = normal
+    "contrast": float,           # 0..32, 1 = normal
+    "saturation": float,         # 0..32, 1 = normal, 0 = greyscale
+    "sharpness": float,          # 0..16, 1 = normal, 0 = no sharpening
+    "noise_reduction": str,      # off | fast | high_quality
+    "led_settle_s": float,
+    "save_dng": bool,
+}
+# libcamera NoiseReductionMode values
+NOISE_REDUCTION = {"off": 0, "fast": 1, "high_quality": 2}
+
+
 class Camera:
     """Raspberry Pi HQ camera via picamera2, or a mock that draws fake particles."""
 
@@ -186,7 +205,7 @@ class Camera:
                 self.picam.start()
                 self.mock = False
                 self.error = None
-                self.set_exposure(self.cfg["exposure_us"], self.cfg["analogue_gain"])
+                self._apply_controls()
                 time.sleep(1.0)
                 log.info("Camera started: %s", self.picam.camera_properties.get("Model"))
             except Exception as e:  # keep running so the rest can still be debugged
@@ -196,18 +215,42 @@ class Camera:
                 self.mock = True
 
     def set_exposure(self, exposure_us, gain):
-        self.cfg["exposure_us"] = int(exposure_us)
-        self.cfg["analogue_gain"] = float(gain)
+        self.apply_settings({"exposure_us": exposure_us, "analogue_gain": gain})
+
+    def settings(self):
+        """The settings you can change in the web UI (also saved with every picture)."""
+        return {k: self.cfg[k] for k in SETTING_TYPES}
+
+    def apply_settings(self, new):
+        """Change settings (only known keys, converted to the right type) and send them to the camera."""
+        for k, v in new.items():
+            if k in SETTING_TYPES and v is not None:
+                self.cfg[k] = SETTING_TYPES[k](v)
+        if self.cfg["noise_reduction"] not in NOISE_REDUCTION:
+            self.cfg["noise_reduction"] = "high_quality"
+        with self.lock:
+            self._apply_controls()
+
+    def _apply_controls(self):
         if not self.picam:
             return
-        if int(exposure_us) > 0:
-            self.picam.set_controls({
-                "AeEnable": False,
-                "ExposureTime": int(exposure_us),
-                "AnalogueGain": float(gain),
-            })
+        c = self.cfg
+        ctrl = {
+            "Brightness": c["brightness"],
+            "Contrast": c["contrast"],
+            "Saturation": c["saturation"],
+            "Sharpness": c["sharpness"],
+            "NoiseReductionMode": NOISE_REDUCTION.get(c["noise_reduction"], 2),
+        }
+        if c["exposure_us"] > 0:
+            ctrl.update(AeEnable=False, ExposureTime=c["exposure_us"], AnalogueGain=c["analogue_gain"])
         else:
-            self.picam.set_controls({"AeEnable": True})
+            ctrl["AeEnable"] = True
+        if c["awb"]:
+            ctrl["AwbEnable"] = True
+        else:
+            ctrl.update(AwbEnable=False, ColourGains=(c["colour_gain_red"], c["colour_gain_blue"]))
+        self.picam.set_controls(ctrl)
 
     def capture(self, path, dng_path=None, thumb_path=None):
         """Save a full-resolution image to `path` (+ optional raw DNG and small JPEG thumbnail).
@@ -216,17 +259,26 @@ class Camera:
         path.parent.mkdir(parents=True, exist_ok=True)
         with self.lock:
             if self.picam:
-                req = self.picam.capture_request()
+                # flush=True: only a frame that started after this call (so after the LED came on).
+                # New settings take a few frames to apply, so skip frames until the exposure matches.
+                want = self.cfg["exposure_us"]
+                for skipped in range(6):
+                    req = self.picam.capture_request(flush=True)
+                    md = req.get_metadata()
+                    got = md.get("ExposureTime", want)
+                    if want <= 0 or abs(got - want) <= max(100, want * 0.05) or skipped == 5:
+                        break
+                    req.release()
                 try:
                     img = req.make_image("main")
                     if dng_path:
                         req.save_dng(str(dng_path))
-                    md = req.get_metadata()
                 finally:
                     req.release()
-                keep = ("ExposureTime", "AnalogueGain", "DigitalGain", "Lux",
-                        "SensorTemperature", "ColourGains", "FocusFoM")
+                keep = ("ExposureTime", "AnalogueGain", "DigitalGain", "Lux", "ColourTemperature",
+                        "SensorTemperature", "ColourGains", "FocusFoM", "FrameDuration")
                 meta = {k: md[k] for k in keep if k in md}
+                meta["frames_skipped"] = skipped
             else:
                 img = self._mock_image(full=True)
                 meta = {"mock": True}
