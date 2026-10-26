@@ -199,6 +199,7 @@ button.p{background:var(--acc);color:#fff;border-color:var(--acc)}button.w{color
 input{font:inherit;width:90px;padding:5px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 table{border-collapse:collapse;width:100%}td{padding:2px 4px;word-break:break-word;border-bottom:1px solid var(--line);vertical-align:top}td:first-child{color:var(--mut);white-space:nowrap}
 #preview{width:100%;background:#000;border-radius:6px;min-height:120px}
+#pbar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:4px}#pbar div{height:100%;width:0;background:var(--acc)}
 #log{height:260px;overflow:auto;font:12px ui-monospace,monospace;white-space:pre-wrap;background:var(--bg);padding:6px;border-radius:6px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
 .grid a{font-size:11px;color:var(--mut);text-decoration:none}.grid img{width:100%;border-radius:4px;display:block}
@@ -219,6 +220,7 @@ table{border-collapse:collapse;width:100%}td{padding:2px 4px;word-break:break-wo
 </section>
 <section class="card"><h2>Live preview</h2>
  <img id="preview" alt="preview">
+ <div id="pbar"><div></div></div>
  <div class="row"><label><input type="checkbox" id="live" onchange="if(this.checked)refreshPreview()"> live</label> <span id="fps"></span>
   <button onclick="refreshPreview()">Refresh</button>
   <button onclick="post('/api/capture')">Capture full-res</button></div>
@@ -257,10 +259,14 @@ async function post(url,body){$('msg').textContent='';
 function jog(d){post('/api/jog',{steps:d*parseInt($('steps').value||0)})}
 function setExp(){post('/api/exposure',{exposure_us:+$('exp').value,analogue_gain:+$('gain').value}).then(refreshPreview)}
 function setCycle(){post('/api/cycle/settings',{interval_min:+$('int').value,blow_s:+$('blow').value,pitch_steps:+$('pitch').value})}
-let prevT=0;
-function refreshPreview(){prevT=Date.now();$('preview').src='/api/preview.jpg?t='+prevT}
+let prevT=0,frameMs=1000;
+// Progress bar: the server can't report progress, so fill towards 90 % over the last frame's time.
+function bar(pct,ms){const b=$('pbar').firstChild;b.style.transition=ms?`width ${ms}ms ease-out`:'none';b.style.width=pct+'%'}
+function refreshPreview(){prevT=Date.now();bar(0,0);$('pbar').offsetWidth;bar(90,frameMs);
+ $('preview').src='/api/preview.jpg?t='+prevT}
 // Live mode: ask for the next frame as soon as the last one arrives (short gap so the Pi can do other work).
-function nextFrame(ok){if(ok&&prevT)$('fps').textContent=((Date.now()-prevT)/1000).toFixed(2)+' s/frame';
+function nextFrame(ok){if(ok&&prevT){frameMs=Date.now()-prevT;$('fps').textContent=(frameMs/1000).toFixed(2)+' s/frame'}
+ bar(100,80);
  if($('live').checked)setTimeout(refreshPreview,ok?100:2000)}
 $('preview').onload=()=>nextFrame(true);$('preview').onerror=()=>nextFrame(false);
 function rows(el,obj){el.innerHTML=Object.entries(obj).map(([k,v])=>`<tr><td>${k}</td><td>${typeof v=='object'&&v!==null?JSON.stringify(v):v}</td></tr>`).join('')}
