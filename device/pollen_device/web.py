@@ -219,7 +219,7 @@ table{border-collapse:collapse;width:100%}td{padding:2px 4px;word-break:break-wo
 </section>
 <section class="card"><h2>Live preview</h2>
  <img id="preview" alt="preview">
- <div class="row"><label><input type="checkbox" id="live"> live (2 s)</label>
+ <div class="row"><label><input type="checkbox" id="live" onchange="if(this.checked)refreshPreview()"> live</label> <span id="fps"></span>
   <button onclick="refreshPreview()">Refresh</button>
   <button onclick="post('/api/capture')">Capture full-res</button></div>
  <div class="row">Exposure µs <input id="exp"> gain <input id="gain"> <button onclick="setExp()">Set</button></div>
@@ -257,7 +257,12 @@ async function post(url,body){$('msg').textContent='';
 function jog(d){post('/api/jog',{steps:d*parseInt($('steps').value||0)})}
 function setExp(){post('/api/exposure',{exposure_us:+$('exp').value,analogue_gain:+$('gain').value}).then(refreshPreview)}
 function setCycle(){post('/api/cycle/settings',{interval_min:+$('int').value,blow_s:+$('blow').value,pitch_steps:+$('pitch').value})}
-function refreshPreview(){$('preview').src='/api/preview.jpg?t='+Date.now()}
+let prevT=0;
+function refreshPreview(){prevT=Date.now();$('preview').src='/api/preview.jpg?t='+prevT}
+// Live mode: ask for the next frame as soon as the last one arrives (short gap so the Pi can do other work).
+function nextFrame(ok){if(ok&&prevT)$('fps').textContent=((Date.now()-prevT)/1000).toFixed(2)+' s/frame';
+ if($('live').checked)setTimeout(refreshPreview,ok?100:2000)}
+$('preview').onload=()=>nextFrame(true);$('preview').onerror=()=>nextFrame(false);
 function rows(el,obj){el.innerHTML=Object.entries(obj).map(([k,v])=>`<tr><td>${k}</td><td>${typeof v=='object'&&v!==null?JSON.stringify(v):v}</td></tr>`).join('')}
 async function tick(){try{
  const s=await (await fetch('/api/status')).json();const c=s.controller;
@@ -281,7 +286,7 @@ async function coilTest(){$('chkts').textContent='coil test running (8 s) - watc
  await post('/api/test/coils');$('chkts').textContent='coil test done'}
 async function retryCam(){$('chkts').textContent='restarting camera…';const j=await post('/api/camera/retry');
  $('chkts').textContent=j.ok?'camera running':'camera failed: '+(j.error||'');refreshPreview();runChecks()}
-setInterval(tick,2000);setInterval(loadCaps,15000);setInterval(()=>{if($('live').checked)refreshPreview()},2000);
+setInterval(tick,2000);setInterval(loadCaps,15000);
 tick();loadCaps();refreshPreview();runChecks();
 </script></body></html>
 """

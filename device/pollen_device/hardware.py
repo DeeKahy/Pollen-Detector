@@ -243,9 +243,19 @@ class Camera:
         width = int(self.cfg.get("preview_width", 1014))
         with self.lock:
             if self.picam:
-                img = self.picam.capture_image("main")
+                arr = self.picam.capture_array("main")
             else:
+                arr = None
                 img = self._mock_image(full=False)
+        if arr is not None:
+            import numpy as np  # comes with picamera2; not needed in mock mode
+            # Downscale by skipping pixels instead of resizing the full 12 MP image with PIL.
+            # Much faster on a Pi 3; some aliasing is fine for a preview.
+            step = max(1, -(-arr.shape[1] // width))
+            small = arr[::step, ::step, :3]
+            if self.picam.camera_config["main"]["format"] in ("RGB888", "XRGB8888"):
+                small = small[:, :, ::-1]  # these formats are stored B, G, R
+            img = Image.fromarray(np.ascontiguousarray(small))
         img = img.convert("RGB")
         img.thumbnail((width, width))
         buf = io.BytesIO()
