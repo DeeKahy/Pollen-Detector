@@ -1,0 +1,49 @@
+{
+  "about": "One photo from a pollen sampler: clear adhesive tape imaged by a Raspberry Pi HQ camera (lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example about the light or the sample. 'camera_settings' are the settings that were requested; 'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in microseconds). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual.",
+  "capture_id": 5,
+  "image_file": "AGLDK_20261007T112157Z.png",
+  "device_id": "AGLDK",
+  "ts": "2026-10-07T11:21:57+00:00",
+  "kind": "manual",
+  "sample_id": null,
+  "tape_steps": 80608,
+  "camera": {
+    "ExposureTime": 9976,
+    "AnalogueGain": 1.0,
+    "DigitalGain": 1.0023994445800781,
+    "Lux": 6833.41162109375,
+    "ColourTemperature": 2899,
+    "SensorTemperature": 31.0,
+    "ColourGains": [
+      2.0457205772399902,
+      2.3518311977386475
+    ],
+    "FocusFoM": 11867,
+    "FrameDuration": 85335,
+    "frames_skipped": 0,
+    "size": [
+      4056,
+      3040
+    ]
+  },
+  "note": "Settings series 1 taken by Claude. Room ceiling light ON, sampler LED is pointed away from the tape, so LED on or off makes no difference to these pictures (all light is from the room). Tape not changed between pictures, so all pictures in this series show the same spot and can be compared directly. Picture 3 of 10. Changed from baseline: {\"exposure_us\": 10000}. Long exposure (10000 us = exactly one 50 Hz mains half-cycle). Room lights flicker at 100 Hz in Denmark; with a rolling shutter that can give horizontal bands. Exposures that are multiples of 10 ms average the flicker out. Likely overexposed under room light, but shows if banding is the reason for uneven brightness.",
+  "camera_settings": {
+    "exposure_us": 10000,
+    "analogue_gain": 1.0,
+    "awb": true,
+    "colour_gain_red": 2.0,
+    "colour_gain_blue": 2.0,
+    "brightness": 0.0,
+    "contrast": 1.0,
+    "saturation": 1.0,
+    "sharpness": 1.0,
+    "noise_reduction": "high_quality",
+    "led_settle_s": 0.5,
+    "save_dng": false,
+    "resolution": [
+      4056,
+      3040
+    ]
+  },
+  "mock": false
+}

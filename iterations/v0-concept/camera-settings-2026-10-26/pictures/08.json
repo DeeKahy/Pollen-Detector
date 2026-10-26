@@ -1,0 +1,49 @@
+{
+  "about": "One photo from a pollen sampler: clear adhesive tape imaged by a Raspberry Pi HQ camera (lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example about the light or the sample. 'camera_settings' are the settings that were requested; 'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in microseconds). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual.",
+  "capture_id": 8,
+  "image_file": "AGLDK_20261007T112216Z.png",
+  "device_id": "AGLDK",
+  "ts": "2026-10-07T11:22:16+00:00",
+  "kind": "manual",
+  "sample_id": null,
+  "tape_steps": 80608,
+  "camera": {
+    "ExposureTime": 1989,
+    "AnalogueGain": 1.0,
+    "DigitalGain": 1.0051839351654053,
+    "Lux": 6761.58935546875,
+    "ColourTemperature": 2901,
+    "SensorTemperature": 32.0,
+    "ColourGains": [
+      2.047550916671753,
+      2.3462109565734863
+    ],
+    "FocusFoM": 6955,
+    "FrameDuration": 85335,
+    "frames_skipped": 0,
+    "size": [
+      4056,
+      3040
+    ]
+  },
+  "note": "Settings series 1 taken by Claude. Room ceiling light ON, sampler LED is pointed away from the tape, so LED on or off makes no difference to these pictures (all light is from the room). Tape not changed between pictures, so all pictures in this series show the same spot and can be compared directly. Picture 6 of 10. Changed from baseline: {\"sharpness\": 0, \"noise_reduction\": \"off\"}. Baseline exposure with image processing turned off (no sharpening, no noise reduction). Sharpening adds halos around edges and noise reduction can wipe out tiny particles. For measuring grain sizes and shapes the unprocessed image is more honest, even if it looks grainier.",
+  "camera_settings": {
+    "exposure_us": 2000,
+    "analogue_gain": 1.0,
+    "awb": true,
+    "colour_gain_red": 2.0,
+    "colour_gain_blue": 2.0,
+    "brightness": 0.0,
+    "contrast": 1.0,
+    "saturation": 1.0,
+    "sharpness": 0.0,
+    "noise_reduction": "off",
+    "led_settle_s": 0.5,
+    "save_dng": false,
+    "resolution": [
+      4056,
+      3040
+    ]
+  },
+  "mock": false
+}

@@ -8,3 +8,4 @@ server/server-data/
 hwtest_*.png
 hwtest_*.jpg
 *.dng
+pi-backups/

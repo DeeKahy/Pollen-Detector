@@ -16,3 +16,4 @@ device, example camera images, test results and what went wrong.
 | Version | Date | What |
 |---|---|---|
 | [v0-concept](v0-concept/) | 2026-10 | First test: can the camera see pollen on tape? Software and wiring planned |
+| [v0-concept/camera-settings-2026-10-26](v0-concept/camera-settings-2026-10-26/) | 2026-10-26 | 23 test pictures: one camera setting changed at a time, room light vs LED |
