@@ -1,6 +1,6 @@
 # Pollen: low-cost automated pollen monitor
 
-> Context file for Claude sessions. Read this first. Project status: **early prototyping**. Software v0.1 written, electronics being wired (as of 2026-10-20).
+> Context file for Claude sessions. Read this first. Project status: **early prototyping**. Electronics wired, first camera tests done, RGB LED wired but not yet supported in software (as of 2026-10-27).
 > Repo: https://github.com/DeeKahy/Pollen-Detector
 > Keep this file updated when decisions are made. Move items from "Open questions" to "Decisions log".
 > **Writing style for docs and diagrams:** plain and simple, short sentences, no em dashes.
@@ -38,8 +38,10 @@ Biologists / aerobiologists and reference data are needed for labelling and cali
 | **28BYJ-48 5 V stepper** | Geared ~1:64 → ~2048 steps/rev (full-step) / ~4096 (half-step). Slow, weak, some backlash. Fine for tape advance. Needs a **ULN2003** driver board (usually bundled). 4 GPIO pins. |
 | **JZK 5 V brushless sleeve-bearing fan** | Low static pressure. Cannot be powered directly from a GPIO pin. Switch via logic-level MOSFET (or NPN transistor) + flyback diode; PWM for speed. Sleeve bearings wear faster outdoors than ball bearings. |
 | **Raspberry Pi 3 B+** (others available) | Enough for capture + scheduling + upload. Marginal for on-device CNN inference on full-res HQ images (1 GB RAM). Pi 4/5 recommended if inference runs on device. |
-| **Raspberry Pi HQ Camera (IMX477, CS mount)** | 12.3 MP, 1.55 µm pixels, sensor ~6.29 × 4.71 mm. Colour (Bayer) sensor. IR-cut filter sits in the mount and can be removed. |
+| **Raspberry Pi HQ Camera (IMX477, CS mount)** | 12.3 MP, 1.55 µm pixels, sensor ~6.29 × 4.71 mm. Colour (Bayer) sensor. Lens off. **IR-cut filter removed** (after the 2026-10-26 tests). The sensor still has its own bonded cover glass. Sensor now exposed: plan is a #1 microscope **coverslip** (~0.15 mm) lying on the sensor cover glass as a dust cover. 22×22 mm likely won't fit down the mount opening: measure it first, or take the mount housing off. |
+| **RGB LED, 5 mm, common anode** (4 legs) | Replaces the single LED. Long leg = shared + to 3.3V (pin 17). Red GPIO24 / 220 Ω, green GPIO25 / 100 Ω, blue GPIO5 / 100 Ω. Pin LOW = on. Diode test: R 1.72 V, G 2.28 V, B 2.48 V. See `docs/wiring.md`. **Software still treats GPIO24 as a normal active-high LED**, so red is lit whenever the software thinks the LED is off. |
 | Clear adhesive tape (roll) | Initial collection medium. |
+| Multimeter (Biltema, autoranging) | Diode test: dial on Ω/CAP, MODE until ▶|, black in COM, red in VΩ. |
 
 ### Scale sanity check
 Pollen grains are ~10–100 µm (birch ~22 µm, grass ~25–40 µm, mugwort ~20 µm, pine ~60+ µm).
@@ -107,6 +109,22 @@ Cycle (example, tune later):
 Recommendation: **start with A/A+ since early tests showed pollen is visible**, collect a
 dataset, and in parallel run a small B prototype to compare classification accuracy.
 Choose based on data, not intuition.
+
+### First imaging results (2026-10-26)
+
+Test object: a light brown hair on the tape. Lensless, IR filter still in, ~11.5 mm air gap
+between tape and sensor (filter + mount walls), LED ~30 cm above the tape.
+- **Room light beat the blue LED.** Hair clearly visible in most room-light pictures; best was
+  greyscale (#09). With the (single, blue) LED only a few were usable; best was contrast ×2 (#21).
+  Blue LED in greyscale (#19) was almost black.
+- Likely reasons: pure blue only reaches 1 in 4 Bayer pixels; the user thinks a lighter blue
+  with white mixed in is needed (hence the RGB LED). The 11.5 mm gap blurs edges by ~0.1 mm
+  (source size × gap / distance), so 1:1 crops are soft. Reducing the gap matters most.
+- Auto exposure: room light 5195 µs gain 1; blue LED 9976 µs gain 1.9. Default 2000 µs too dark for LED.
+- Pictures + per-picture JSON (note, settings, sensor metadata): `iterations/v0-concept/camera-settings-2026-10-26/`
+  (on branch `camera-settings-tests` until merged). Full-size originals: GitHub release `data-2026-10-26`.
+- Bug fixed: captures could return a stale frame (before a settings change or before the LED
+  came on). Now `capture_request(flush=True)` and frames are skipped until exposure matches.
 
 ## 6. Software / ML plan
 
@@ -184,6 +202,11 @@ Choose based on data, not intuition.
 | 2026-10-20 | Project moved to GitHub (DeeKahy/Pollen-Detector). Added README, build guide, parts list, iterations log. | So others can build it. |
 | 2026-10-20 | License: software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
 | 2026-10-20 | Report moved from Overleaf to `report/` in this repo. Write via PRs; CI builds the PDF. | Easier for two people to write in parallel and review changes. |
+| 2026-10-26 | Every capture gets a JSON sidecar (note, requested settings, sensor metadata, an `about` text) so people and AI tools can read it. Web UI can edit notes and delete pictures; more camera settings, kept across restarts. | Getting a good picture takes many tries; the data should explain itself. |
+| 2026-10-26 | Full-size images stay out of git. Git gets 1500 px JPEGs, 1:1 crops and JSON; originals go in a GitHub release (`data-YYYY-MM-DD`). | 18.5 MB per PNG. |
+| 2026-10-27 | IR-cut filter removed. Single LED replaced by a common-anode RGB LED (GPIO24/25/5, pins active low). | IR filter only added gap; blue-only light gave poor pictures. |
+| 2026-10-27 | Nix dev shell (`flake.nix`, `.envrc`): Python for mock mode + TeX Live for the report. Report CI skips the build when `report/` is unchanged (the `build` check stays required, so the job always runs). | |
+| 2026-10-27 | No "Generated with Claude Code" or co-author lines in PRs or commits. | User preference. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
 ## 11. Repo layout
@@ -201,11 +224,17 @@ Choose based on data, not intuition.
 - `hardware/`: `bom.md` parts list. CAD (STL + source), one folder per part. To be added by the team.
 - `iterations/`: one folder per built version with photos, example pictures and notes (`_template.md`).
 - `ml/`: recognition plan. Not started. Large datasets stay out of git.
+- `flake.nix` / `.envrc`: Nix dev shell (`nix develop`). `pi-backups/`: local copies of the Pi's data dir (git-ignored).
 - `report/`: the project report (LaTeX, AAU template). Files in `report/chapters/` are auto-included in number order (`1.0-intro.tex`, `1.1-...`, `2.0-...`) by `report/latexmkrc`. CI (`.github/workflows/report.yml`) builds the PDF on every PR and links it in a comment. `main` is protected.
 - `README.md`: public front page of the repo.
 
 ## 12. Next steps
 
+0. **RGB LED in software:** three active-low outputs (GPIO24 red, 25 green, 5 blue) instead of one LED;
+   web UI switches per colour; captures record which colours were on (JSON); colour presets for a
+   test series (red / green / blue / white); update `make_wiring_svg.py`/`wiring.svg` and `hwtest`.
+   Then repeat the hair test per colour and fill the report's *Test 2*.
+0. Fit a coverslip over the sensor (measure the mount opening first).
 1. Buy the missing electronics (`docs/wiring.md` shopping list), wire on a breadboard, run `hwtest`.
 2. Install the software, check the camera and LED give usable lensless images (tune exposure in the web UI).
 3. Measure mm/step, set `pitch_steps` and `camera_offset_cycles` (calibration in `device/README.md`).
