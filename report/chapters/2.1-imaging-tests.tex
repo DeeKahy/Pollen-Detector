@@ -15,15 +15,17 @@ We had two questions. How big do things look in the picture, so that we can meas
 and sizes? And what do colours look like, since pollen is mostly yellowish brown?
 
 The camera is the Raspberry Pi HQ camera (Sony IMX477, 4056~$\times$~3040 pixels) with the lens
-removed. The tape lies directly over the sensor, and the light shines through the tape onto it.
-There is no lens, so the picture is a shadow of what is on the tape. One pixel is
+removed. The tape lies on top of the lens mount, and the light shines through the tape onto the
+sensor. There is no lens, so the picture is a shadow of what is on the tape. One pixel is
 1.55~$\mu$m wide, so a birch pollen grain of about 22~$\mu$m is about 14 pixels across.
-\fillin{TODO: was the IR-cut filter still in place during these tests? It was removed around the same time.}
+During all the tests the IR-cut filter was still in place in the lens mount. Because of the
+filter and the walls of the mount, there was an air gap of about 11.5~mm between the tape and
+the sensor.
 
-The first results were more promising than we expected, given that we only used normal room
-light and a cheap blue LED.
-\fillin{TODO: one or two sentences on what convinced you. For example: you could see particles
-and fibres clearly in the 1:1 crops, at roughly the sizes you would expect.}
+As a test object we put a light brown hair on the tape. A hair is 50 to 100~$\mu$m wide, so it
+should be clearly visible, and it is easy to recognise. The first results were more promising
+than we expected, given that we only used normal room light and a cheap blue LED. The hair was
+clearly visible in most of the pictures taken with room light.
 
 \subsection{Test 1: room light and a blue LED}\label{sec:imaging-test-1}
 
@@ -36,6 +38,7 @@ change. We did this twice:
   \item \textbf{Series 2:} room dark, blue LED pointed at the tape. The LED is the only real light source.
 \end{itemize}
 
+In series~2 the LED was about 30~cm above the tape.
 Both series use the same ten settings, so every picture in series~1 has a partner in series~2.
 Table~\ref{tab:camtest-settings} lists them. Every picture was saved together with a note and all
 camera settings in a JSON file, using the web interface described in Section~\ref{sec:webui-3}.
@@ -69,8 +72,9 @@ This makes it possible to go back later and see exactly how each picture was tak
 \paragraph{Light levels.}
 With automatic exposure the camera chose 5195~$\mu$s at gain~1 under room light (\#06), and
 9976~$\mu$s at gain~1.9 with only the blue LED (\#16). So the LED gives about three to four times
-less light than the room. The baseline exposure of 2000~$\mu$s is too short for LED pictures,
-which is why we added \#23 at 19\,000~$\mu$s and gain~1.
+less light than the room. \#23 used that brightness with exposure time only (19\,000~$\mu$s,
+gain~1), but without automatic white balance the whole picture was clipped to pure blue and
+showed nothing.
 
 \paragraph{Distances and sizes.}
 Without a lens, the size of an object in the picture is close to its real size. Light from the
@@ -80,78 +84,89 @@ and the sensor, the magnification is
 \begin{equation}
   M = \frac{z_1 + z_2}{z_1}.
 \end{equation}
-With the LED about 30~cm away and a gap of about 1~mm, $M \approx 1.003$, so we can treat one
-pixel as 1.55~$\mu$m. The LED is not a point, though. An LED of width $s$ makes every edge blurry
-by about $s \cdot z_2 / z_1$. For a 3~mm LED at 30~cm this is about 10~$\mu$m, which is almost
-half a birch grain. Moving the LED further away, or putting a small hole in front of it, makes
-the shadows sharper.
-\fillin{TODO: measure $z_1$ and $z_2$ on the real setup and put the numbers in here.}
+In our setup the gap is $z_2 \approx 11.5$~mm, and in all the LED pictures the LED was about
+30~cm above the tape. With $z_1 \approx 30$~cm,
+$M \approx 1.04$, so one pixel shows about 1.5~$\mu$m of tape instead of 1.55~$\mu$m.
+The light source is not a point, though. A source of width $s$ makes every edge blurry by about
+$s \cdot z_2 / z_1$. For a 3~mm LED at 30~cm and our gap this is about 0.1~mm, which is several
+pollen grains wide.
+This is why the hair looks sharp in the whole picture but is only a soft band when we zoom in
+to full resolution (Figure~\ref{fig:camtest-blur}). The gap is the biggest problem: with the
+filter removed and the tape closer to the sensor, the blur gets much smaller.
 
-% TODO(images): check the scale with something of known size. A human hair is 50 to 100 um
-% wide, so 30 to 65 px. A ruler or a calibration slide is even better. Write down:
+% TODO(images): check the scale with the hair. Measure its width in pixels in a full-size
+% picture (pi-backups or the release zip). Because of the blur it will look wider than
+% 50-100 um. A ruler or a calibration slide is even better. Write down:
 %   - what you used, its real size, and its size in pixels in the 1:1 crop
 %   - the scale you get (um per pixel). Should be close to 1.55.
 
 \paragraph{Results.}
-Figure~\ref{fig:camtest-pair} shows the baseline picture under both kinds of light.
-Figure~\ref{fig:camtest-exposure} shows the effect of exposure time.
-All crops are 800~$\times$~600 pixels from the middle of the picture at full resolution,
-about 1.24~$\times$~0.93~mm of tape.
+The figures show the whole picture, about 6.3~$\times$~4.7~mm of tape.
+With room light the hair was clearly visible in almost every picture, even when the picture was
+too dark (\#04) or too bright (\#05). The best was the greyscale picture (\#09). Most room-light
+pictures also had a strong pink cast, which greyscale removes.
+With the blue LED only a few pictures were even remotely good. The best was the one with double
+contrast (\#21). Figure~\ref{fig:camtest-best} shows the best picture of each series.
 
 \begin{figure}[htbp]
   \centering
   \begin{minipage}[t]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{camtest-03-crop}\\[2pt]
-    \small (a) Room light (\#03)
+    \includegraphics[width=\linewidth]{camtest-09}\\[2pt]
+    \small (a) Room light, greyscale (\#09)
   \end{minipage}\hfill
   \begin{minipage}[t]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{camtest-13-crop}\\[2pt]
-    \small (b) Blue LED, dark room (\#13)
+    \includegraphics[width=\linewidth]{camtest-21}\\[2pt]
+    \small (b) Blue LED, contrast $\times$2 (\#21)
   \end{minipage}
-  \caption{The same spot on the tape at baseline settings (2000~$\mu$s, gain~1), 1:1 crop.
-  \fillin{TODO: one sentence on the main difference you see.}}
-  \label{fig:camtest-pair}
+  \caption{The best picture of each series. The dark lines are the hair. \fillin{TODO: anything to point out?}}
+  \label{fig:camtest-best}
 \end{figure}
 
-% TODO(images): look at figure camtest-pair (and the whole pictures #03 and #13 in the
-% iterations folder). Questions to answer in the text:
-%   - Can you see separate particles? Roughly how many in the crop?
-%   - How big are they? Count pixels, multiply by 1.55 um. Anything pollen sized (10-100 um)?
-%   - Are edges sharp, or do particles have rings or halos around them? (Rings = diffraction,
-%     normal for lensless. Halos = sharpening.)
-%   - Colour: does the blue light change which particles stand out? Yellow-brown things
-%     should look darker in blue light because they absorb blue.
-%   - Is the brightness even across the whole picture, or darker in the corners?
+% TODO(images): figure camtest-best. Things you could describe:
+%   - How sharp are the edges of the hair in (a) compared with (b)?
+%   - The hair crosses itself in the middle. Can you see both strands in both pictures?
+%   - Small dark dots: dust on the tape or on the filter? (Dust on the filter stays in the
+%     same place in every picture, also after moving the tape.)
+
+Figure~\ref{fig:camtest-grey} shows the clearest difference between the two kinds of light.
+The same greyscale setting that gave the best room-light picture gave an almost black picture
+with the blue LED.
 
 \begin{figure}[htbp]
   \centering
-  \begin{minipage}[t]{0.32\textwidth}
+  \begin{minipage}[t]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{camtest-14-crop}\\[2pt]
-    \small (a) 500~$\mu$s (\#14)
+    \includegraphics[width=\linewidth]{camtest-09}\\[2pt]
+    \small (a) Room light (\#09)
   \end{minipage}\hfill
-  \begin{minipage}[t]{0.32\textwidth}
+  \begin{minipage}[t]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{camtest-13-crop}\\[2pt]
-    \small (b) 2000~$\mu$s (\#13)
-  \end{minipage}\hfill
-  \begin{minipage}[t]{0.32\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{camtest-15-crop}\\[2pt]
-    \small (c) 10\,000~$\mu$s (\#15)
+    \includegraphics[width=\linewidth]{camtest-19}\\[2pt]
+    \small (b) Blue LED (\#19)
   \end{minipage}
-  \caption{Effect of exposure time with the blue LED, gain 1, 1:1 crops.
-  \fillin{TODO: which exposure shows the most detail?}}
-  \label{fig:camtest-exposure}
+  \caption{The same greyscale setting under room light and with the blue LED.}
+  \label{fig:camtest-grey}
 \end{figure}
 
-% TODO(images): figure camtest-exposure. For each exposure:
-%   - Too dark (details lost in black), too bright (details lost in white), or about right?
-%   - Which one shows the smallest particles?
-% The room-light version of this row is #04, #03, #05 (camtest-04-crop, camtest-03-crop,
-% camtest-05-crop are already in figures/ if you want to add it).
+% TODO(images): figure camtest-grey. Why is (b) almost black? Our guess, see What we learned:
+% only the blue pixels see anything, and greyscale mixes them with the dark red and green ones.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{camtest-09-crop}
+  \caption{Part of \#09 at full resolution (800~$\times$~600 pixels, about 1.24~$\times$~0.93~mm
+  of tape). The hair is a soft band here, because of the 11.5~mm gap between tape and sensor.}
+  \label{fig:camtest-blur}
+\end{figure}
+
+% TODO(images): figure camtest-blur. How wide is the band in pixels? Times 1.5 um gives the
+% width on the tape. Compare with a normal hair (50-100 um).
+
+% TODO(images): all pictures, per series: iterations/v0-concept/camera-settings-2026-10-26/
+% (branch camera-settings-tests) or the overview page. Other ones worth adding:
+%   #11 (room light, contrast x2) has the darkest hair. #04/#05 show too dark / too bright.
 
 Table~\ref{tab:camtest-results} sums up what we saw for each setting.
 
@@ -175,34 +190,10 @@ Table~\ref{tab:camtest-results} sums up what we saw for each setting.
     Greyscale & \fillin{} & \fillin{} & \fillin{} & \fillin{} \\
     Fixed white balance & \fillin{} & \fillin{} & \fillin{} & \fillin{} \\
     Contrast $\times$2 & \fillin{} & \fillin{} & \fillin{} & \fillin{} \\
-    \#23 (19\,000~$\mu$s, unprocessed) & \fillin{} & \fillin{} & \fillin{} & \fillin{} \\
+    Measurement setup (\#12/\#22) & \fillin{} & \fillin{} & \fillin{} & \fillin{} \\
     \bottomrule
   \end{tabular}
 \end{table}
-
-\begin{figure}[htbp]
-  \centering
-  \begin{minipage}[t]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{camtest-23-crop}\\[2pt]
-    \small (a) Blue LED, 19\,000~$\mu$s, unprocessed (\#23)
-  \end{minipage}\hfill
-  \begin{minipage}[t]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{camtest-01-crop}\\[2pt]
-    \small (b) Blue light about 30~cm away (\#01)
-  \end{minipage}
-  \caption{Our best guess for a good LED picture so far (a), and an early test with blue light from
-  further away (b). 1:1 crops. \fillin{TODO: what makes (a) better or worse than the baseline?}}
-  \label{fig:camtest-best}
-\end{figure}
-
-% TODO(images): figure camtest-best.
-%   - Is #23 the clearest picture of the series? If not, which one is, and why?
-%   - #01 was taken with the light further away. Are the edges sharper than in #13?
-%     (They should be, see "Distances and sizes".)
-%   - #02 (desk lamp from the side, camtest-02-crop in figures/) can go here too if it shows
-%     something interesting.
 
 \paragraph{Problem found during the tests.}
 While testing we found that a picture could show an old frame, taken before the last settings
@@ -213,11 +204,18 @@ after the fix.
 
 \paragraph{What we learned.}
 \begin{itemize}
-  \item The camera can see \fillin{TODO: smallest thing you could see, in $\mu$m} without a lens.
+  \item Without a lens the camera clearly shows a hair (50 to 100~$\mu$m) in the whole picture.
+  At full resolution everything is blurred, mainly because of the 11.5~mm gap between tape and sensor.
+  \fillin{TODO: smallest thing you could see, in $\mu$m}
+  \item Room light gave better pictures than the blue LED. The best picture was the greyscale
+  picture with room light (\#09). Greyscale looked at least as good as colour.
+  \item With the blue LED only a few pictures were usable. The best was the one with double
+  contrast (\#21).
+  \item We think the problem is the colour of the LED, not its brightness. With pure blue light only
+  one in four pixels on the sensor sees anything, because of the colour filter on the sensor.
+  A lighter blue, with more white mixed in, should work better.
   \item The blue LED gives enough light, but needs an exposure of around 20~ms at gain~1.
   \item Gain makes the picture noisier \fillin{TODO: confirm from \#07/\#17}; use a longer exposure instead.
-  \item \fillin{TODO: colour or greyscale?}
-  \item \fillin{TODO: anything else}
 \end{itemize}
 
 \subsection{Test 2}\label{sec:imaging-test-2}
