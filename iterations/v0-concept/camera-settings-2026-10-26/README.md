@@ -36,9 +36,11 @@ and JSON say 2026-10-07. The real date is 2026-10-26.
   Use this to judge detail.
 - `pictures/NN.json`: everything about the picture: note, settings asked for, and what the
   sensor reported.
-- Full-size originals (18.5 MB PNG each, plus 3 raw DNG files) are not in git.
-  They are backed up on the Mac used for the tests, in `pi-backups/2026-10-26/`
-  (ignored by git).
+- Full-size originals (18.5 MB PNG each, plus 3 raw DNG files, the database and the log)
+  are not in git. Download them from the GitHub release
+  [data-2026-10-26](https://github.com/DeeKahy/Pollen-Detector/releases/tag/data-2026-10-26)
+  (`pollen-originals-2026-10-26.zip`, 267 MB). There is also a copy on the Mac used for the
+  tests, in `pi-backups/2026-10-26/` (ignored by git).
 
 ## Pictures
 
