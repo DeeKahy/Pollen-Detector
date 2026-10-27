@@ -46,9 +46,10 @@ This makes it possible to go back later and see exactly how each picture was tak
   \caption{Camera settings tested. Baseline is 2000~$\mu$s exposure, gain 1, automatic white balance
   and normal image processing. Each row changes one thing from the baseline.}
   \label{tab:camtest-settings}
-  \begin{tabular}{@{}lllp{6cm}@{}}
+  \small
+  \begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{0.33\textwidth}>{\raggedright\arraybackslash}p{0.39\textwidth}@{}}
     \toprule
-    Room light & Blue LED & Change from baseline & Why \\
+    Room & LED & Change from baseline & Why \\
     \midrule
     \#03 & \#13 & none (baseline) & Reference for all other pictures \\
     \#04 & \#14 & exposure 500~$\mu$s & Are bright areas clipped at baseline? \\
@@ -161,7 +162,8 @@ Table~\ref{tab:camtest-results} sums up what we saw for each setting.
   \centering
   \caption{What each setting did, compared with the baseline. \fillin{TODO: fill in.}}
   \label{tab:camtest-results}
-  \begin{tabular}{@{}lp{2.2cm}p{2.2cm}p{2.2cm}p{3.6cm}@{}}
+  \small
+  \begin{tabular}{@{}p{0.3\textwidth}p{0.13\textwidth}p{0.13\textwidth}p{0.1\textwidth}>{\raggedright\arraybackslash}p{0.2\textwidth}@{}}
     \toprule
     Setting & Particles visible & Sharpness & Noise & Notes \\
     \midrule
