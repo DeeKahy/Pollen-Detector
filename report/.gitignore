@@ -15,3 +15,5 @@ main.pdf
 *.synctex.gz
 *.toc
 *.tdo
+main-blx.bib
+*.thm
