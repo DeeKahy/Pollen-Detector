@@ -27,6 +27,10 @@ itteration 5: TBD
 itteration 6: """we want proper microscopic test pictures like a hair or something."""
 
 
+itteration 7: TBD
+% """no room to mount the LED inside the box yet"""
+
+
 
 
 \section{Web UI}
@@ -37,7 +41,32 @@ itteration 1: purely vibe coded ui for displaying camera and controlling the mot
 Itteration 2: same as before but with checks for if stuff is plugged in correctly, instructions for how to mount, and a mock camera that activates when no camera is connected. matches with 3-6 of the product itterations
 
 
-itteration 3
+itteration 3\label{sec:webui-3}
+
+% Draft by Claude, edit freely.
+The third version of the web interface was made for testing the camera (Section~\ref{sec:imaging-tests}).
+To find good camera settings we had to take many pictures and keep track of how each one was taken.
+
+\begin{itemize}
+  \item \textbf{Faster live preview.} The preview used to update every 2~seconds. Shrinking the full
+  12~megapixel picture took most of that time on the Raspberry Pi~3. The preview now skips pixels
+  instead of resizing properly, and asks for the next picture as soon as the last one has arrived.
+  One preview picture now takes about 0.3~s instead of about 1~s. A small progress bar shows when
+  the next picture is on its way.
+  \item \textbf{More camera settings.} Besides exposure and gain, the interface can now change white
+  balance, brightness, contrast, saturation, sharpness, noise reduction, the time the LED is on before
+  a picture, and whether to also save the raw sensor data. The settings are kept after a restart.
+  \item \textbf{Notes on pictures.} Every picture can have a short note, for example about the light or
+  the sample. The note, all settings, and what the sensor reported for that picture (actual exposure,
+  gain, colour temperature, sensor temperature) are saved in a JSON file next to the picture. The file
+  starts with a short explanation of its fields, so that other people, and AI tools, can read it
+  without knowing the code.
+  \item \textbf{Deleting pictures.} Getting a good picture takes many tries, so bad pictures can now be
+  deleted together with their files.
+\end{itemize}
+
+% TODO: screenshot of the web interface (camera settings + recent pictures with notes)?
+% Put it in figures/ and use \includegraphics[width=\linewidth]{webui-3}.
 
 
 
