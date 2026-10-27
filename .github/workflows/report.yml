@@ -1,8 +1,11 @@
 name: Report PDF
 
-# Builds report/main.pdf on every pull request and on main.
+# Builds report/main.pdf when a pull request or a push to main changes the report.
 # The PDF is uploaded as an artifact you can open in the browser, and the
 # link is posted as a comment on the pull request.
+#
+# "build" is a required check for main, so the job always runs. When nothing in
+# report/ (or this file) changed, it skips the LaTeX build and passes right away.
 
 on:
   pull_request:
@@ -23,14 +26,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check for report changes
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then base="$PR_BASE"; else base="$PUSH_BEFORE"; fi
+          if [ "$EVENT" = "workflow_dispatch" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "report=true" >> "$GITHUB_OUTPUT"; echo "Building (manual run or unknown base)."; exit 0
+          fi
+          changed=$(git diff --name-only "$base" HEAD -- report .github/workflows/report.yml)
+          if [ -n "$changed" ]; then
+            echo "report=true" >> "$GITHUB_OUTPUT"; echo "Report files changed:"; echo "$changed"
+          else
+            echo "report=false" >> "$GITHUB_OUTPUT"; echo "No report changes, skipping the PDF build."
+          fi
 
       - name: Build PDF
+        if: steps.changes.outputs.report == 'true'
         uses: xu-cheng/latex-action@v4
         with:
           root_file: main.tex
           working_directory: report
 
       - name: Name the PDF
+        if: steps.changes.outputs.report == 'true'
         id: name
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -43,6 +68,7 @@ jobs:
           echo "file=$name" >> "$GITHUB_OUTPUT"
 
       - name: Upload PDF
+        if: steps.changes.outputs.report == 'true'
         id: upload
         uses: actions/upload-artifact@v7
         with:
@@ -51,7 +77,7 @@ jobs:
           retention-days: 30
 
       - name: Comment on the pull request
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: steps.changes.outputs.report == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
