@@ -52,7 +52,9 @@ If the build fails, the check turns red. Open the check and read the log
 
 ## Building on your own computer (optional)
 
-You need a TeX distribution (MacTeX, TeX Live or MiKTeX). Then:
+You need a TeX distribution (MacTeX, TeX Live or MiKTeX). With Nix, `nix develop` in the
+repo root (or `direnv allow` once) gives you one, together with Python for the device software.
+Then:
 
 ```
 cd report
