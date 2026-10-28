@@ -50,6 +50,33 @@ Each person edits their own file, so there are fewer merge conflicts.
 If the build fails, the check turns red. Open the check and read the log
 (look for the first line with `error`), or download the `latex-log` artifact.
 
+## Sending the report to the supervisor
+
+The branch `supervisor-reviewed` holds the last version the supervisor has read and
+given feedback on. Do not push to it directly. It only moves forward through a pull request.
+
+Every week or two:
+
+1. Make a review branch from `main`, named after the date you send it:
+   `git switch main && git pull && git switch -c review/2026-11-04 && git push -u origin review/2026-11-04`
+   Do not push more to this branch. It is a snapshot of exactly what the supervisor gets.
+2. On GitHub, open a pull request from `review/2026-11-04` into `supervisor-reviewed`
+   (change the *base* dropdown from `main`). Call it "Supervisor review 2026-11-04".
+3. CI posts two PDFs on the pull request:
+   - the full report, and
+   - the report with **changes since the last review** marked (blue = added, red = removed).
+4. Email both PDFs to the supervisor.
+5. The supervisor comments in the way that suits them: notes in the PDF (any PDF reader),
+   an email, or comments on the pull request on GitHub.
+6. Turn the feedback into issues, or fix it straight away in normal pull requests to `main`.
+   Write a short summary of the feedback in the review pull request so it is easy to find later.
+7. When the feedback is in, merge the review pull request with **Create a merge commit**
+   (not squash or rebase, or the next review pull request will show old changes again).
+   Now `supervisor-reviewed` is the version they have read.
+
+Keep the `review/...` branches. They show what was sent on which date. To see what changed
+between two reviews on your own computer: `cd report && ./diff.sh review/2026-11-04`.
+
 ## Building on your own computer (optional)
 
 You need a TeX distribution (MacTeX, TeX Live or MiKTeX). With Nix, `nix develop` in the

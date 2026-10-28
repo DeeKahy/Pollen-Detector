@@ -207,6 +207,7 @@ between tape and sensor (filter + mount walls), LED ~30 cm above the tape.
 | 2026-10-27 | IR-cut filter removed. Single LED replaced by a common-anode RGB LED (GPIO24/25/5, pins active low). | IR filter only added gap; blue-only light gave poor pictures. |
 | 2026-10-27 | Nix dev shell (`flake.nix`, `.envrc`): Python for mock mode + TeX Live for the report. Report CI skips the build when `report/` is unchanged (the `build` check stays required, so the job always runs). | |
 | 2026-10-27 | No "Generated with Claude Code" or co-author lines in PRs or commits. | User preference. |
+| 2026-10-28 | Supervisor reviews every 1–2 weeks: a frozen `review/YYYY-MM-DD` branch from `main` gets a PR into `supervisor-reviewed`; CI's changes-marked PDF then shows what is new since the last review. Merge (merge commit) when the feedback is in. Report stays in git, not Overleaf. Steps in `report/README.md`. | Supervisor gets a PDF plus a diff without using git; feedback by PDF notes, email or PR comments. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
 ## 11. Repo layout
