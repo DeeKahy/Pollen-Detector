@@ -11,3 +11,4 @@ hwtest_*.jpg
 .direnv/
 report/build/
 pi-backups/
+.report-base/

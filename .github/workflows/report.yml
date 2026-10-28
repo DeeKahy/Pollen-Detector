@@ -4,6 +4,10 @@ name: Report PDF
 # The PDF is uploaded as an artifact you can open in the browser, and the
 # link is posted as a comment on the pull request.
 #
+# For pull requests it also builds a "diff" PDF with the changes marked, like the
+# GitHub diff: added text blue and underlined, removed text red and struck through.
+# It is made by report/diff.sh (latexdiff). Run it locally the same way.
+#
 # "build" is a required check for main, so the job always runs. When nothing in
 # report/ (or this file) changed, it skips the LaTeX build and passes right away.
 
@@ -76,6 +80,43 @@ jobs:
           archive: false
           retention-days: 30
 
+      # The checkout of a pull request is the PR merged into its base, so comparing
+      # with the base shows exactly what the PR changes.
+      - name: Get the report from the base branch
+        if: steps.changes.outputs.report == 'true' && github.event_name == 'pull_request'
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          mkdir -p .report-base
+          git archive "$PR_BASE" report | tar -x -C .report-base || echo "No report in the base branch."
+
+      - name: Build diff PDF
+        if: steps.changes.outputs.report == 'true' && github.event_name == 'pull_request' && hashFiles('.report-base/report/main.tex') != ''
+        id: diffbuild
+        continue-on-error: true # a diff that fails to build must not block the PR
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: diff.tex
+          working_directory: report
+          pre_compile: ./diff.sh ../.report-base/report --tex-only
+
+      - name: Name the diff PDF
+        if: steps.diffbuild.outcome == 'success'
+        id: diffname
+        run: |
+          name="report-pr-${{ github.event.pull_request.number }}-${GITHUB_SHA::7}-changes.pdf"
+          cp report/diff.pdf "$name"
+          echo "file=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Upload diff PDF
+        if: steps.diffbuild.outcome == 'success'
+        id: diffupload
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.diffname.outputs.file }}
+          archive: false
+          retention-days: 30
+
       - name: Comment on the pull request
         if: steps.changes.outputs.report == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         env:
@@ -83,8 +124,16 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           URL: ${{ steps.upload.outputs.artifact-url }}
           FILE: ${{ steps.name.outputs.file }}
+          DIFF_URL: ${{ steps.diffupload.outputs.artifact-url }}
+          DIFF_FILE: ${{ steps.diffname.outputs.file }}
+          DIFF_OUTCOME: ${{ steps.diffbuild.outcome }}
         run: |
           body="📄 **Report PDF built** for ${GITHUB_SHA::7}: [${FILE}](${URL})"
+          if [ -n "$DIFF_URL" ]; then
+            body="$body"$'\n\n'"🔍 **Changes marked** (blue = added, red = removed): [${DIFF_FILE}](${DIFF_URL})"
+          elif [ "$DIFF_OUTCOME" = "failure" ]; then
+            body="$body"$'\n\n'"⚠️ The PDF with changes marked failed to build (see the workflow log). The report itself is fine."
+          fi
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none --body "$body"
 
       - name: Upload log if the build failed
@@ -92,5 +141,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: latex-log
-          path: report/main.log
+          path: |
+            report/main.log
+            report/diff.log
           if-no-files-found: ignore
