@@ -4,7 +4,8 @@ from pathlib import Path
 W, H = 1440, 810
 C = {  # wire colours
     "5V": "#d62728", "GND": "var(--gnd)", "IN1": "#ff7f0e", "IN2": "#d4a600", "IN3": "#2ca02c",
-    "IN4": "#1f77b4", "FAN": "#9467bd", "LED": "#0fa3b1", "OPT": "#8c8c8c",
+    "IN4": "#1f77b4", "FAN": "#9467bd", "OPT": "#8c8c8c",
+    "3V3": "#e67e22", "RED": "#d64541", "GREEN": "#2a9d4a", "BLUE": "#2f6fd6",
 }
 PIN_NAMES = {
     1: "3V3", 2: "5V", 3: "GPIO2 SDA", 4: "5V", 5: "GPIO3 SCL", 6: "GND", 7: "GPIO4", 8: "GPIO14 TXD",
@@ -16,10 +17,10 @@ PIN_NAMES = {
 }
 USED = {  # pin -> (colour key, function)
     2: ("5V", "→ driver board +"), 4: ("5V", "→ fan"), 6: ("GND", "→ driver board −"),
-    14: ("GND", "→ fan MOSFET"), 20: ("GND", "→ LED"),
+    14: ("GND", "→ fan MOSFET"), 17: ("3V3", "→ LED long leg"),
     11: ("IN1", "driver IN1"), 13: ("IN2", "driver IN2"),
     15: ("IN3", "driver IN3"), 16: ("IN4", "driver IN4"), 12: ("FAN", "fan MOSFET"),
-    18: ("LED", "LED"),
+    18: ("RED", "LED red"), 22: ("GREEN", "LED green"), 29: ("BLUE", "LED blue"),
     1: ("OPT", "BME280 (optional)"), 3: ("OPT", "BME280 (optional)"), 5: ("OPT", "BME280 (optional)"),
     9: ("OPT", "BME280 (optional)"),
 }
@@ -139,24 +140,30 @@ def fan_circuit(x0, y0, w, h):
 
 
 def led_circuit(x0, y0, w, h):
-    """LED straight from a GPIO pin: GPIO24 -> resistor -> LED -> GND."""
-    box(x0, y0, w, h, "LED (straight from a GPIO pin)")
-    lx = x0 + 260
-    top = y0 + 80
-    tag(lx - 40, top, 18, "LED", 150)
-    line([(lx - 40, top), (lx, top), (lx, top + 40)], C["LED"])
-    resistor(lx, top + 58, True, "47 Ω", C["LED"])
-    line([(lx, top + 76), (lx, top + 112)], C["LED"])
-    ly = top + 130
-    a(f'<polygon points="{lx - 16},{ly - 18} {lx + 16},{ly - 18} {lx},{ly + 10}" fill="#f5c400" stroke="var(--ink)" stroke-width="2"/>')
-    line([(lx - 17, ly + 11), (lx + 17, ly + 11)], "var(--ink)", 3)
-    a(f'<path d="M{lx + 22},{ly - 10} l14,-12 m-5,0 h5 v5 M{lx + 22},{ly + 2} l14,-12 m-5,0 h5 v5" stroke="var(--ink)" stroke-width="1.8" fill="none"/>')
-    text(lx - 26, ly - 6, "long leg", 11, "end", fill="var(--mut)")
-    text(lx - 26, ly + 14, "short leg", 11, "end", fill="var(--mut)")
-    text(lx + 44, ly, "white LED", 12, "start", "600")
-    gy = ly + 70
-    line([(lx, ly + 11), (lx, gy), (lx - 40, gy)], C["GND"])
-    tag(lx - 40, gy, 20, "GND", 150)
+    """Common-anode RGB LED: 3.3V -> long leg, each colour -> resistor -> its GPIO pin (low = on)."""
+    box(x0, y0, w, h, "RGB LED (straight from GPIO pins)")
+    rx = x0 + 40
+    top = y0 + 64
+    tag(rx, top, 17, "3V3", 150, anchor="left")
+    rows = [("red", 18, "RED", "220 Ω"), ("green", 22, "GREEN", "100 Ω"), ("blue", 29, "BLUE", "47 Ω")]
+    ys = [y0 + 130 + 80 * i for i in range(3)]
+    line([(rx, top), (rx, ys[-1])], C["3V3"])
+    for (name, pin, key, ohm), ly in zip(rows, ys):
+        lx = x0 + 110
+        dot(rx, ly, C["3V3"])
+        line([(rx, ly), (lx - 14, ly)], C["3V3"])
+        a(f'<polygon points="{lx - 14},{ly - 16} {lx - 14},{ly + 16} {lx + 14},{ly}" fill="{C[key]}" stroke="var(--ink)" stroke-width="2"/>')
+        line([(lx + 15, ly - 17), (lx + 15, ly + 17)], "var(--ink)", 3)
+        text(lx, ly + 34, name, 12, "middle", "600")
+        line([(lx + 15, ly), (x0 + 240, ly)], C[key])
+        resistor(x0 + 190, ly, False, ohm, C[key])
+        tag(x0 + 240, ly, pin, key, 150, anchor="left")
+    ny = ys[-1] + 66
+    for n in ("One LED with 4 legs. The long leg is the shared + (anode).",
+              "Pin LOW = that colour on. Pin HIGH = off.",
+              "All three on = white."):
+        text(x0 + 14, ny, n, 12, fill="var(--mut)")
+        ny += 17
 
 
 # ---------------- document ----------------

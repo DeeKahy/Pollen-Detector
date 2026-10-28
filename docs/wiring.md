@@ -4,9 +4,6 @@
 
 `wiring.svg` is made by `make_wiring_svg.py`. If you change a pin, change it there and run the script again.
 
-> **Note:** the diagram still shows the old single LED. The current LED is an RGB LED, see
-> [The LED](#the-led) below. The device software does not support the RGB LED yet.
-
 ## Which wire goes where
 
 | Pi pin | Name | Goes to |
@@ -23,7 +20,7 @@
 | 17 | 3.3V | RGB LED long leg (shared +) |
 | 18 | GPIO24 | RGB LED red leg, through a 220 Ω resistor |
 | 22 | GPIO25 | RGB LED green leg, through a 100 Ω resistor |
-| 29 | GPIO5 | RGB LED blue leg, through a 100 Ω resistor |
+| 29 | GPIO5 | RGB LED blue leg, through a 47 Ω resistor |
 | CAMERA port | | HQ camera ribbon, blue side facing the USB ports |
 | 1, 3, 5, 9 | | BME280 sensor (optional) |
 
@@ -56,14 +53,24 @@ Legs, with the long leg second from the left:
 | single leg next to the long leg | red | GPIO24 (pin 18) | 220 Ω |
 | long leg | shared + | 3.3V (pin 17) | none |
 | next to the long leg, other side | green | GPIO25 (pin 22) | 100 Ω |
-| furthest out | blue | GPIO5 (pin 29) | 100 Ω |
+| furthest out | blue | GPIO5 (pin 29) | 47 Ω |
 
 Because the long leg is on 3.3V, the pins work the other way round: **pin low = colour on,
-pin high = colour off**. The GPIO pin acts as the ground for that colour.
+pin high = colour off**. The GPIO pin acts as the ground for that colour. The software knows
+this (`led_active_low: true` in `config.yaml`).
+
+The software can dim each colour (PWM: the pin flicks on and off 1000 times a second). This
+does not harm the LED; each pulse has the same current as fully on. Green looks much brighter
+to the eye than red, so a plain 100/100/100 "white" looks greenish. Use the calibration in the
+web UI (LED colour card) to make white come out white for the camera. Below 100 % use an exposure in
+whole milliseconds, or the camera can show faint stripes.
 
 Measured with a multimeter (diode test): red 1.72 V, green 2.28 V, blue 2.48 V. With the
 resistors above each colour draws roughly 6 to 9 mA, well under what one pin can give.
-Do not use a 47 Ω resistor on green or blue, that would be close to the pin's limit.
+Blue is on 47 Ω because with 100 Ω it was barely visible. A blue LED needs about 3 V at
+real current, so from 3.3 V only a little is left for the resistor and the LED limits its own
+current. Check it once: volts across the 47 Ω ÷ 47 = current. Keep it under about 12 mA
+(0.56 V). Do not use 47 Ω on red, it would draw far too much.
 
 While the Pi boots, the LED can glow faintly (green and a bit of red). That is the pins'
 built-in pull resistors, before the software sets them. It is harmless.
@@ -82,7 +89,7 @@ Resistor colour codes are in [resistors.svg](resistors.svg).
 | 220 Ω resistor | 1 | fan MOSFET |
 | 100 kΩ resistor | 1 | fan MOSFET |
 | 1N5819 or 1N4148 diode | 1 | across the fan |
-| 5 mm RGB LED, common anode | 1 | plus 220 Ω (red) and 2 × 100 Ω (green, blue) |
+| 5 mm RGB LED, common anode | 1 | plus 220 Ω (red), 100 Ω (green) and 47 Ω (blue) |
 | 5.1 V 2.5 A micro USB power supply | 1 | a weak supply makes the Pi crash at random |
 | Breadboard and jumper wires | | |
 | microSD card, 32 GB or more | 1 | the pictures are big |
@@ -94,4 +101,4 @@ Resistor colour codes are in [resistors.svg](resistors.svg).
 2. Check that no 5V wire goes to a GPIO pin. 5V on a GPIO pin kills it.
 3. Connect all GND wires together.
 4. Power on and run `python3 -m pollen_device.hwtest`. It tests the LED, fan, motor and camera one at a time.
-   (The LED part still assumes the old single LED until the software supports the RGB LED.)
+   It lights the LED red, green, blue and then white. If a colour is wrong, two wires are swapped.

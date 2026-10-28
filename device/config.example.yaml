@@ -14,7 +14,12 @@ data_dir: ./data
 pins:                     # BCM GPIO numbers (NOT physical pin numbers) - see docs/wiring.md
   stepper: [17, 27, 22, 23]   # ULN2003 IN1..IN4  (physical pins 11, 13, 15, 16)
   fan: 18                     # MOSFET gate for fan (physical pin 12)
-  led: 24                     # LED through a 47 ohm resistor (physical pin 18)
+  led:                        # RGB LED, common anode: long leg to 3.3 V (physical pin 17)
+    red: 24                   # 220 ohm (physical pin 18)
+    green: 25                 # 100 ohm (physical pin 22)
+    blue: 5                   # 47 ohm (physical pin 29)
+  led_active_low: true        # common anode: pin LOW = colour on
+  led_pwm_frequency: 1000     # Hz. Dimming flickers the LED this fast (no flicker at 100 %)
 
 stepper:
   half_step: true         # 28BYJ-48: ~4096 half-steps per output shaft revolution
@@ -32,6 +37,9 @@ camera:
   exposure_us: 2000       # fixed exposure (0 = auto exposure). Fixed is better for comparable images.
   analogue_gain: 1.0
   save_dng: false         # also save the raw sensor data (~18 MB each) - useful for lensless reconstruction later
+  led_rgb: [1.0, 1.0, 1.0]  # LED colour [red, green, blue] 0..1 for live view and pictures.
+                            # Set it with the colour wheel in the web UI. After an LED calibration
+                            # it is the colour the camera sees, not the raw pin brightness.
   led_settle_s: 0.5       # wait after LED on before capturing
   preview_width: 1014     # width of the live preview in the web UI
   # Image tuning. All of these can also be changed in the web UI; changes there are kept

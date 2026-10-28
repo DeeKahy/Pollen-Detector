@@ -35,7 +35,9 @@ SIDECAR_ABOUT = (
     "(lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example "
     "about the light or the sample. 'camera_settings' are the settings that were requested; "
     "'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in "
-    "microseconds). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual."
+    "microseconds). 'led' says which colours of the RGB LED above the tape were on "
+    "and how bright (0 = off, 1 = fully on, in between = dimmed by PWM flicker at "
+    "'led_pwm_hz' times a second; all three = white). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual."
 )
 
 

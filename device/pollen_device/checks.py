@@ -116,7 +116,7 @@ def check_wiring(cfg, hw, ctl):
 
     pins = cfg["pins"]
     stepper_pins = list(pins["stepper"])
-    used = set(stepper_pins) | {pins["fan"], pins["led"]}
+    used = set(stepper_pins) | {pins["fan"], *pins["led"].values()}
     out = []
 
     # Stepper inputs: only while the motor is idle; hold the controller lock so nothing moves.
@@ -156,7 +156,8 @@ def check_wiring(cfg, hw, ctl):
 
     out.append(_check("Fan / LED wiring", "info",
                       f"Can't be detected electrically - switch them on above and look "
-                      f"(fan GPIO{pins['fan']}, LED GPIO{pins['led']})"))
+                      f"(fan GPIO{pins['fan']}, LED red GPIO{pins['led']['red']}, "
+                      f"green GPIO{pins['led']['green']}, blue GPIO{pins['led']['blue']})"))
     out.append(_check("ULN2003 power", "info",
                       "Run the coil test: LEDs A, B, C, D should light one after another. "
                       "No LEDs at all = board has no 5 V / GND."))
