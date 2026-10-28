@@ -1,77 +1,79 @@
-\chapter{Iterations}\label{ch:iterations}
+\chapter{The prototype so far}\label{ch:prototype}
+% Draft by Claude from our old iteration notes, edit freely.
+% This chapter is a snapshot up to a milestone, not a list of iterations. Keep adding to it
+% until the semester ends. For each part: what we did, and WHY.
 
+This chapter describes the prototype as it is on \fillin{milestone date}. Instead of listing
+every version, each section describes one part of the device: what it does now, and why we
+made it that way. Details of each printed version (photos, notes) are kept in the
+\texttt{iterations/} folder of the project repository.
 
-Itteration 0: Florians model + his phyiscal contraption
+\section{How the device works}\label{sec:how-it-works}
 
-What we wanted to do after looking at what already exists was adapt it for easier building by a user and since we have access to a bigger printer we wanted to avoid screws and prioritize ease of assembly.
+The device is a small, automated version of the Hirst trap described in
+Chapter~\ref{ch:introduction}:
 
+\begin{enumerate}
+  \item A fan moves outdoor air onto a strip of clear sticky tape, so particles stick to it.
+  \item A stepper motor moves the tape on, so the sampled piece lies over the camera.
+  \item An LED shines through the tape, and the camera underneath takes a picture.
+  \item The picture is saved with the time and all settings. Later it is sent to a server.
+  \item This repeats. The used tape is kept on a roll, so it can be checked under a microscope later.
+\end{enumerate}
 
+A Raspberry Pi~3~B+ controls everything. \fillin{Photo of the current prototype.}
 
+\section{Enclosure and tape transport}\label{sec:enclosure}
 
-itteration 1: has no camera support, size for tape holder is wrong, motor isnt mounted properly yet and we dont know what to do with then fan because we read something something pulling is better than pushing for consistency (source)
-
-
-itteration 2: some sort of cover for the camera lense and fine tune the sizing for motor and tape roll, we still dont have a camera so camera size hole wasnt thought about at all just the closing lid for it
-
-
-itteration 3: Finally got ahold of camera, so camera now slot into hole, made an oopsie with the lid because it doesnt account for the ribbon cable. motor gets attached slightly better with a gap so that gravity kinda holds it in place. and most importantly the dogshit lid mechanism we came up with is greatly simplified because friction holds it in place, no need to overengineer a solution when simple is better.
-
-
-itteration 4: camera now slots in perfectly into the thingy, lid has a hole for ribbon cable, tape stays on, motor friction fits (but its sized wrongly so it makes the entire thing a bit bendy, version 5 will likely have that fixed. and the fan still doesnt have a mounting mechanism
-
-
-itteration 5: TBD 
-"""better motor mount, finally got a mosphet for the fan so some way to mount that would be good, led hole and connection"""
-
-
-itteration 6: """we want proper microscopic test pictures like a hair or something."""
-
-
-itteration 7: TBD
-% """no room to mount the LED inside the box yet"""
-
-
-
-
-\section{Web UI}
-
-itteration 1: purely vibe coded ui for displaying camera and controlling the motor matches with the first three for the physical product
-
-
-Itteration 2: same as before but with checks for if stuff is plugged in correctly, instructions for how to mount, and a mock camera that activates when no camera is connected. matches with 3-6 of the product itterations
-
-
-itteration 3\label{sec:webui-3}
-
-% Draft by Claude, edit freely.
-The third version of the web interface was made for testing the camera (Section~\ref{sec:imaging-tests}).
-To find good camera settings we had to take many pictures and keep track of how each one was taken.
+We started from the earlier design (Section~\ref{sec:research-question}), but drew our own 3D
+model from scratch. The reasons were:
 
 \begin{itemize}
-  \item \textbf{Faster live preview.} The preview used to update every 2~seconds. Shrinking the full
-  12~megapixel picture took most of that time on the Raspberry Pi~3. The preview now skips pixels
-  instead of resizing properly, and asks for the next picture as soon as the last one has arrived.
-  One preview picture now takes about 0.3~s instead of about 1~s. A small progress bar shows when
-  the next picture is on its way.
-  \item \textbf{More camera settings.} Besides exposure and gain, the interface can now change white
-  balance, brightness, contrast, saturation, sharpness, noise reduction, the time the LED is on before
-  a picture, and whether to also save the raw sensor data. The settings are kept after a restart.
-  \item \textbf{Notes on pictures.} Every picture can have a short note, for example about the light or
-  the sample. The note, all settings, and what the sensor reported for that picture (actual exposure,
-  gain, colour temperature, sensor temperature) are saved in a JSON file next to the picture. The file
-  starts with a short explanation of its fields, so that other people, and AI tools, can read it
-  without knowing the code.
-  \item \textbf{Deleting pictures.} Getting a good picture takes many tries, so bad pictures can now be
-  deleted together with their files.
+  \item \textbf{Easy to build.} The goal is that anyone can build one, so we avoided screws
+  and other extra parts where we could. Parts hold by friction or slot into each other.
+  \item \textbf{One print.} We have access to a larger 3D printer, so parts can be bigger and
+  fewer.
 \end{itemize}
 
-% TODO: screenshot of the web interface (camera settings + recent pictures with notes)?
-% Put it in figures/ and use \includegraphics[width=\linewidth]{webui-3}.
+The main changes over our versions so far were:
 
+\begin{itemize}
+  \item \textbf{Tape roll holder.} The first holder had the wrong size. It now holds the roll
+  and the tape stays on.
+  \item \textbf{Motor mount.} The motor first sat loose. It now friction fits, with a small gap
+  so gravity helps hold it. The mount is still a little too small, which makes the frame bend.
+  \future{Fix the motor mount size.}
+  \item \textbf{Camera slot and lid.} The first versions were made before we had the camera, so
+  there was no proper hole for it. The camera now slots in exactly, and the lid has a hole for
+  the ribbon cable. We first designed a complicated lid mechanism, then replaced it with a lid
+  that is simply held by friction. Simple turned out to be better.
+\end{itemize}
 
+\paragraph{Still missing.}
+\future{A mount for the fan.}
+\future{A place for the LED inside the box, at a fixed distance above the tape.}
+\future{A nozzle or slit that guides the air onto a small spot of the tape.}
 
+\paragraph{Blowing or sucking.}
+The reference trap sucks air through a narrow slit onto the tape. That gives a known airflow
+and a sharp, narrow line of particles, which is needed to report pollen per cubic metre of air.
+For the first prototype we chose to blow air onto the tape instead, because it is much simpler
+to build. A printed nozzle between fan and tape is a possible middle ground.
+\future{Measure the airflow, and decide whether to change to sucking through a slit.}
 
+\section{Electronics}\label{sec:electronics}
 
+\begin{itemize}
+  \item \textbf{Stepper motor.} A 28BYJ-48 with a ULN2003 driver board moves the tape. It is
+  slow and weak, but cheap and strong enough for tape.
+  \item \textbf{Fan.} A 5~V fan, switched by a MOSFET, because a Raspberry Pi pin cannot power a
+  fan directly. A diode protects the MOSFET.
+  \item \textbf{Camera.} The Raspberry Pi HQ camera with the lens removed
+  (Section~\ref{sec:imaging-tests}).
+  \item \textbf{LED.} An RGB LED with a resistor for each colour, connected directly to three Pi pins.
+\end{itemize}
 
-
-
+\paragraph{Why an RGB LED.}
+Our first LED was blue, and pure blue light gave poor pictures
+(Section~\ref{sec:imaging-tests}). With an RGB LED the software can choose the colour and
+brightness, so we can test which light works best.
