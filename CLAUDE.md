@@ -1,6 +1,7 @@
 # Pollen: low-cost automated pollen monitor
 
-> Context file for Claude sessions. Read this first. Project status: **early prototyping**. Electronics wired, first camera tests done, RGB LED wired but not yet supported in software (as of 2026-10-27).
+> Context file for Claude sessions. Read this first. Project status: **early prototyping**. Electronics wired, RGB LED in software, hair visible but blurred (~0.23 mm shadow), first report draft restructured (as of 2026-10-28).
+> **New here? Read §13 "How to do things" first.** It says how to reach the Pi, deploy, test and build the report.
 > Repo: https://github.com/DeeKahy/Pollen-Detector
 > Keep this file updated when decisions are made. Move items from "Open questions" to "Decisions log".
 > **Writing style for docs and diagrams:** plain and simple, short sentences, no em dashes.
@@ -39,7 +40,7 @@ Biologists / aerobiologists and reference data are needed for labelling and cali
 | **JZK 5 V brushless sleeve-bearing fan** | Low static pressure. Cannot be powered directly from a GPIO pin. Switch via logic-level MOSFET (or NPN transistor) + flyback diode; PWM for speed. Sleeve bearings wear faster outdoors than ball bearings. |
 | **Raspberry Pi 3 B+** (others available) | Enough for capture + scheduling + upload. Marginal for on-device CNN inference on full-res HQ images (1 GB RAM). Pi 4/5 recommended if inference runs on device. |
 | **Raspberry Pi HQ Camera (IMX477, CS mount)** | 12.3 MP, 1.55 µm pixels, sensor ~6.29 × 4.71 mm. Colour (Bayer) sensor. Lens off. **IR-cut filter removed** (after the 2026-10-26 tests). The sensor still has its own bonded cover glass. Sensor now exposed: plan is a #1 microscope **coverslip** (~0.15 mm) lying on the sensor cover glass as a dust cover. 22×22 mm likely won't fit down the mount opening: measure it first, or take the mount housing off. |
-| **RGB LED, 5 mm, common anode** (4 legs) | Replaces the single LED. Long leg = shared + to 3.3V (pin 17). Red GPIO24 / 220 Ω, green GPIO25 / 100 Ω, blue GPIO5 / 100 Ω. Pin LOW = on. Diode test: R 1.72 V, G 2.28 V, B 2.48 V. See `docs/wiring.md`. **Software still treats GPIO24 as a normal active-high LED**, so red is lit whenever the software thinks the LED is off. |
+| **RGB LED, 5 mm, common anode** (4 legs) | Replaces the single LED. Long leg = shared + to 3.3V (pin 17). Red GPIO24 / 220 Ω, green GPIO25 / 100 Ω, blue GPIO5 / 47 Ω. Pin LOW = on. Diode test: R 1.72 V, G 2.28 V, B 2.48 V. See `docs/wiring.md`. Software: `RgbLed` in `hardware.py`, config `pins.led` {red, green, blue} + `led_active_low`; `camera.led_rgb` [r,g,b] 0..1 is the colour (live view and pictures), PWM at 1 kHz. Web UI: colour wheel + intensity + RGB boxes, and a camera calibration (LED off/R/G/B frames → 3×3 matrix, inverted so the picked colour is what the camera sees). Blue moved from 100 Ω to 47 Ω on 2026-10-27 (barely visible before: its Vf is close to 3.3 V); current not measured yet. |
 | Clear adhesive tape (roll) | Initial collection medium. |
 | Multimeter (Biltema, autoranging) | Diode test: dial on Ω/CAP, MODE until ▶|, black in COM, red in VΩ. |
 
@@ -126,6 +127,21 @@ between tape and sensor (filter + mount walls), LED ~30 cm above the tape.
 - Bug fixed: captures could return a stale frame (before a settings change or before the LED
   came on). Now `capture_request(flush=True)` and frames are skipped until exposure matches.
 
+### Hair test 2 (2026-10-28)
+
+Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
+- **Single LED colours beat white.** The three chips sit in different places, so white gives
+  three shifted shadows (rainbow fringes, about 1.6× wider shadow). Green and blue are best;
+  red is weaker (less light, about 6 mA).
+- Good settings: green or blue at full, exposure so the background is about 60 % (green ~290 µs,
+  blue ~360 µs, red ~1500 µs at gain 1), auto white balance off.
+- Sharpness, noise reduction and gain vs exposure make no difference. Contrast 2 makes the hair
+  look darker but adds no detail.
+- **The limit is the optics:** the hair shadow is ~150 px (~0.23 mm) wide at full resolution, for a
+  ~0.07 mm hair. A dust speck nearer the sensor is much sharper. Pollen (20–30 µm) would be lost in
+  this blur. Fixes: LED further away, a pinhole in front of the LED, and a smaller gap.
+- The web UI now has **Auto setup**, which repeats this search in ~15 s whenever the setup changes.
+
 ## 6. Software / ML plan
 
 - **OS / capture:** Raspberry Pi OS (Bookworm or newer), `picamera2` / `rpicam-apps`.
@@ -207,6 +223,12 @@ between tape and sensor (filter + mount walls), LED ~30 cm above the tape.
 | 2026-10-27 | IR-cut filter removed. Single LED replaced by a common-anode RGB LED (GPIO24/25/5, pins active low). | IR filter only added gap; blue-only light gave poor pictures. |
 | 2026-10-27 | Nix dev shell (`flake.nix`, `.envrc`): Python for mock mode + TeX Live for the report. Report CI skips the build when `report/` is unchanged (the `build` check stays required, so the job always runs). | |
 | 2026-10-27 | No "Generated with Claude Code" or co-author lines in PRs or commits. | User preference. |
+| 2026-10-27 | RGB LED in software: named colours (white red green blue yellow cyan magenta off); web UI has per-colour switches and a "LED colour for pictures" setting; every capture JSON gets `led` (which colours were on). Old `pins.led: 24` configs now fail with a clear message. | Branch `rgb-led` (from `camera-settings-tests` + main). |
+| 2026-10-27 | LED dimming by software PWM (1 kHz, per colour, sliders in the web UI, saved with each picture) instead of a potentiometer. | A shared pot changes the colour balance and has a tiny useful range; PWM is repeatable and recorded. Green looks far brighter than red to the eye, so turn green down for yellow/white. |
+| 2026-10-27 | LED colour picker (wheel + intensity + RGB) replaces per-pin sliders; one colour for live view and pictures. Optional calibration with the camera: matrix of camera R/G/B response per LED colour (minus a dark frame, gamma undone with ^2.2), inverted to get pin duties; white = brightest camera-neutral white. | User wanted a nicer picker and colour calibration. Not yet tested with the real camera (camera not detected), only with a simulated LED in mock mode. |
+| 2026-10-27 | Calibration shows progress (try, picture, seconds left). LED "pulse" effect (breathing + hue cycle, 30 Hz thread, never below `low`); captures pause it. First real calibration ran: 2000→250 µs, near-diagonal matrix (red response weak). | User request. |
+| 2026-10-28 | LED calibration cleared on the Pi: direct pin control gives better results. Added "Auto setup" (per colour: exposure for 95th percentile ≈ 150, score = 99.5th percentile gradient / median; keep best). | Setup changes often (camera knocked, tape moved); a one-button search beats hand tuning. |
+| 2026-10-28 | Report CI also builds a "changes marked" PDF for PRs (`report/diff.sh`: latexpand both versions, latexdiff UNDERLINE, `\fillin`/`\future` treated as text so marks wrap). | Faster review between the two authors. |
 | 2026-10-28 | Supervisor reviews every 1–2 weeks: a frozen `review/YYYY-MM-DD` branch from `main` gets a PR into `supervisor-reviewed`; CI's changes-marked PDF then shows what is new since the last review. Merge (merge commit) when the feedback is in. Report stays in git, not Overleaf. Steps in `report/README.md`. | Supervisor gets a PDF plus a diff without using git; feedback by PDF notes, email or PR comments. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
@@ -227,17 +249,66 @@ between tape and sensor (filter + mount walls), LED ~30 cm above the tape.
 - `ml/`: recognition plan. Not started. Large datasets stay out of git.
 - `flake.nix` / `.envrc`: Nix dev shell (`nix develop`). `pi-backups/`: local copies of the Pi's data dir (git-ignored).
 - `report/`: the project report (LaTeX, AAU template). Files in `report/chapters/` are auto-included in number order (`1.0-intro.tex`, `1.1-...`, `2.0-...`) by `report/latexmkrc`. CI (`.github/workflows/report.yml`) builds the PDF on every PR and links it in a comment. `main` is protected.
+  Current chapters: `1.0-introduction` (problem, vision, research question), `2.0-prototype` ("The prototype so far": how it works, enclosure, electronics), `2.1-imaging-tests` (Test 1 room light/blue LED, Test 2 RGB LED), `2.2-control-software` (web UI: overall functionality and why, not every button), `3.0-conclusion` (placeholder).
 - `README.md`: public front page of the repo.
 
 ## 12. Next steps
 
-0. **RGB LED in software:** three active-low outputs (GPIO24 red, 25 green, 5 blue) instead of one LED;
-   web UI switches per colour; captures record which colours were on (JSON); colour presets for a
-   test series (red / green / blue / white); update `make_wiring_svg.py`/`wiring.svg` and `hwtest`.
-   Then repeat the hair test per colour and fill the report's *Test 2*.
-0. Fit a coverslip over the sensor (measure the mount opening first).
-1. Buy the missing electronics (`docs/wiring.md` shopping list), wire on a breadboard, run `hwtest`.
-2. Install the software, check the camera and LED give usable lensless images (tune exposure in the web UI).
-3. Measure mm/step, set `pitch_steps` and `camera_offset_cycles` (calibration in `device/README.md`).
-4. Print nozzle variants; test deposition spot size vs. camera field of view.
-5. Run indoors/outdoors for days; collect the first dataset; set up the server.
+1. **Sharper imaging** (main blocker for pollen): pinhole in front of the LED (foil + needle), LED further
+   away, smaller gap (tape on the sensor cover glass or a coverslip, no IR filter). Run **Auto setup** after
+   each change and compare its "detail" score.
+2. Get real pollen (plant store / flowering plants) and repeat the test.
+3. Measure the blue LED current (V across the 47 Ω / 47, should be < ~12 mA).
+4. Enclosure: fix motor mount size, add fan mount, LED mount at a fixed height, nozzle.
+5. Measure mm/step, set `pitch_steps` and `camera_offset_cycles` (calibration in `device/README.md`).
+6. Measure airflow; decide blow vs. suck through a slit.
+7. Run indoors/outdoors for days; collect the first dataset; set up the server.
+8. Report: fill the red `\fillin{}` placeholders (search the .tex files). `\future{}` marks things that
+   need later work. Ask the user before writing opinions or facts only they know.
+
+## 13. How to do things (for future sessions)
+
+**People.** Lennart Diego Kahn (the user, GitHub DeeKahy) and Allias Ghorbani. Two reports (this semester
+and next), then a paper. The user prefers plain, short writing, no em dashes, and no Claude attribution
+in commits/PRs.
+
+**Branches.** Device work since 2026-10-26 lives on `rgb-led` (built on `camera-settings-tests` with `main`
+merged in). `main` does not have the device code yet until that PR is merged. Check `gh pr list` and
+`git log origin/main..rgb-led` before starting device work.
+
+**Reaching the Pi.** `ssh pi` (key auth; Mac `~/.ssh/config` has `Host pi` = AGLDK.local with a
+`LocalForward 8080`). While that SSH session is open, **http://localhost:8080 on the Mac IS the real
+Pi**, not a local server. Run local mock servers on another port (e.g. 8091). `sudo` on the Pi needs the
+user's password: never type it. Use `ssh -o BatchMode=yes -o ClearAllForwardings=yes pi '...'` for
+commands so the tunnel port clash doesn't matter. The Pi has no RTC: its clock is often wrong.
+
+**Deploy device code.** From the repo root:
+`rsync -a --exclude data/ --exclude config.yaml --exclude __pycache__ device/ pi:pollen/`
+then restart. The service (`pollen`, systemd, `Restart=on-failure`) can't be restarted without sudo, so
+kill it hard and systemd brings it back in ~10 s:
+`ssh pi 'kill -9 $(systemctl show -p MainPID --value pollen)'`. Check first that
+`/api/status` says `controller.activity == "idle"`. Log: `~/pollen/data/pollen.log` (use `grep -a`).
+The Pi's `~/pollen/config.yaml` is not synced; a backup from before the RGB change is `config.yaml.bak-2026-10-27`.
+
+**Mock mode on the Mac.** `nix develop` gives Python with numpy/flask/pillow. Run
+`nix develop -c python3 -m pollen_device --config <scratch>/config.yaml --mock` from `device/` with
+`web: {port: 8091}` in that config. The mock camera simulates the LED colour (tinted fake picture).
+
+**Talking to the device.** Everything the web UI does is a JSON API (`device/README.md` has the table).
+Useful: `GET /api/status`, `GET /api/preview.jpg`, `POST /api/led {"rgb":[r,g,b],"on":true}` or
+`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~15 s), `POST /api/camera/settings {...}`,
+`POST /api/capture {"note":"..."}` (full res PNG + JSON sidecar under `/images/<path>`).
+Don't leave test pictures behind on the Pi without a note saying they were tests.
+
+**Imaging lessons so far** (details: §5 "Hair test 2", report §2.4).
+Single LED colour > white (the three chips cast offset shadows). Green/blue best. Camera sharpness/NR/gain
+don't help; the limit is optical (source size and gap). LED calibration exists but direct colour control
+gave better results; calibration is cleared on the Pi.
+
+**Report.** Build with `cd report && nix develop .. -c latexmk` (takes a minute). `./diff.sh [git-ref]`
+makes `diff.pdf` with changes since that version marked (latexdiff; CI posts one on every PR too). `\fillin{}` = red, to
+write now; `\future{}` = red "[Future: ...]", needs later work (both in `report/setup/macros.tex`).
+Drafts written by Claude start with `% Draft by Claude ..., edit freely.` Chapter 2 is a snapshot "up to
+a milestone" (what we did and WHY), not a list of iterations. Don't invent facts: put a `\fillin{}` and ask.
+
+**Wiring diagram.** Edit `docs/make_wiring_svg.py`, run it, commit `docs/wiring.svg`.

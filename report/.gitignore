@@ -17,3 +17,7 @@ main.pdf
 *.tdo
 main-blx.bib
 *.thm
+
+# diff.sh output (report with changes marked)
+diff.tex
+diff.pdf

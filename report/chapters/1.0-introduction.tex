@@ -1,46 +1,95 @@
 \chapter{Introduction}\label{ch:introduction}
+% Draft by Claude from the earlier introduction and our notes, edit freely.
+% Red text: \fillin = write or decide now, \future = can only be done later.
 
+Pollen allergy affects a large share of the population. For many people the symptoms follow
+the day-to-day amount of pollen in the air around them. In Denmark the daily pollen counts
+come from two stations, one in Copenhagen for eastern Denmark and one in Viborg for western
+Denmark~\cite{AstmaAllergi}. Pollen levels for other places are estimates based on the nearest
+station, so they show a general trend rather than a local measurement
+\fillin{source for this, e.g. the Astma-Allergi Danmark page that says so}. Pollen levels change
+with local plants, terrain and weather, so a person living far from a station can have quite
+different conditions from the published numbers.
 
-Pollen allergy affects a large share of the population, and for many patients the symptoms depend on the day-to-day pollen concentration in the air around them. In Denmark, daily pollen counts are produced by manually analysing air samples collected in a small number of locations. Samples are examined under a microscope and the pollen grains are counted by hand. The national monitoring relies on two stations, in Copenhagen for eastern Denmark and Viborg for western Denmark (ref Astma-Allergi Danmark). Pollen levels for other cities are therefore estimates based on the nearest station and should be read as general trend rather than local meassurement. Because pollen concentrations vary with local vegetation, terrain and weather, a patient living far from a station may experience conditions quite different from the published figures.
-Automated pollen monitoring is one way  to close this gap. Commercial systems exist, such as the Swisens Poleno Jupiter (ref), but they are specialised instruments and not suited to dense, low-cost deployment. In other environmental domains, community-driven projects have shown that inexpensive open-source sensors can be deployes in large numbers. Sensor.Community, publishes open particulate-matter data from a network of low-cost, self-built sensors on a public map. No compareble low-cost, open apporach currently exists for pollen.
+\section{How pollen is measured today}
 
-(Mention this is further development on Florians project?) This project aims to contribute towards such a system by building on an open-source prototype of an automated pollen detector (ref florian?). The device draws in air with a fan and deposits airborne particles onto adhesive tape. A Raspberry Pi with a RPI-HQ Camera then captures images of the collected particles. In later stages, these images will be classifired by pollen type using image recognition and sent to a central server, where results can be shown to users in the form of a local daily pollen count.
-The overall vision is a network of affordavble, open pollen detectors that gives allergy sufferers locally relevant pollen information and complements the existing national stations. This report covers the first stage of that vision: the physical device. We descrive and evaluate the sampling and imaging hardware, with the aim of establishing whether it can reliably capture and image pollen-sized particles at a quality sufficient for later automated classification.
+The stations use a volumetric trap of the Hirst type~\cite{Hirst1952,EN16868}. A pump pulls
+air through a narrow slit onto a sticky tape on a slowly turning drum. Once a week the tape is
+taken out, stained and counted by hand under a microscope by a trained person. The method is
+the reference standard and works well, but it has two problems for local information:
 
+\begin{itemize}
+  \item \textbf{Cost.} The traps and the trained staff are expensive, so there are only two
+  stations. \fillin{Price of a trap, with a source. Burkard does not list prices; ask Florian or
+  Astma-Allergi Danmark, or find a tender document.}
+  \item \textbf{Manual work.} Every count is done by a trained person, which limits how many
+  samples can be analysed~\cite{Tummon2024}. \fillin{Florian told us this. Check that
+  Tummon et al.\ 2024 says it, or find a better source.}
+\end{itemize}
 
+Automated monitors exist, such as the Swisens Poleno Jupiter~\cite{SwisensPoleno}. They identify
+pollen without a person, but they are specialised instruments with a price far above what a
+dense network can afford. Research prototypes show that cheap optics can work: Wu et
+al.~\cite{Wu2018} used a phone-based microscope without a lens and deep learning to recognise
+pollen and spores.
 
+\section{Idea: a pollen monitor anyone can build}
 
+For fine dust the problem has already been solved in a different way. Sensor.Community (started
+as luftdaten.info in Stuttgart) lets anyone build a cheap particle sensor from a guide, put it
+outside and share the data on a public map~\cite{SensorCommunity}. Thousands of these sensors
+now give much more local data than the official stations. No similar low-cost, open approach
+exists for pollen, because a particle counter cannot tell pollen types apart.
 
+Our idea is to do the same for pollen. The device should be cheap enough (around 100 to 150
+euro) and simple enough that anyone can build one from a guide. Like the reference trap it
+catches particles on sticky tape, but instead of a person with a microscope, a camera takes
+pictures of the tape and software counts the pollen by type.
 
+We see two kinds of users:
 
+\begin{itemize}
+  \item \textbf{People and communities} who build a station at home. All stations send their
+  counts to a shared server, which can combine them into a local pollen map or forecast, like a
+  weather forecast.
+  \item \textbf{The people running the current stations}, who could set up some of our stations
+  around the country. Each station should hopefully only need a new roll of tape every few weeks or months,
+  and a check against a reference trap now and then to stay calibrated.
+\end{itemize}
 
-% Here is the introduction. The next chapter is chapter~\ref{ch:ch2label}.
+We think all of it should be free: the design, the software and the data. The software is
+open source (AGPL-3.0) and the 3D models are public domain (CC0).
+\fillin{Licence for the report, photos and collected data?}
 
+This project builds on an earlier open-source pollen detector by
+\fillin{Florian's full name and reference}. We designed our own 3D-printed parts from scratch,
+to make the device easier to build, but the electronics and the basic way it works (a fan, a
+tape moved by a stepper motor, and a Raspberry Pi camera) follow his design. The main
+addition so far is a colour LED for lighting the tape.
 
-% a new paragraph
+\section{Research question}\label{sec:research-question}
 
+We want to find out whether this is possible at all, and how far it can go. Our main question is:
 
-% \section{Examples}
-% You can also have examples in your document such as in example~\ref{ex:simple_example}.
-% \begin{example}{An Example of an Example}
-%   \label{ex:simple_example}
-%   Here is an example with some math
-%   \begin{equation}
-%     0 = \exp(i\pi)+1\ .
-%   \end{equation}
-%   You can adjust the colour and the line width in the {\tt macros.tex} file.
-% \end{example}
+\begin{quote}
+\textit{How far can a cheap, open, self-built device go towards automated pollen monitoring
+that anyone can build?}
+\end{quote}
 
-% \section{How Does Sections, Subsections, and Subsections Look?}
-% Well, like this
-% \subsection{This is a Subsection}
-% and this
-% \subsubsection{This is a Subsubsection}
-% and this.
+To answer it we split it into smaller questions:
 
-% \paragraph{A Paragraph}
-% You can also use paragraph titles which look like this.
+\begin{enumerate}
+  \item Can the device catch pollen-sized particles from the air on tape?
+  \item Can a cheap camera without a lens show those particles well enough to recognise them?
+  \item What does a station cost, and how much upkeep does it need (tape, cleaning, calibration)?
+\end{enumerate}
 
-% \subparagraph{A Subparagraph} Moreover, you can also use subparagraph titles which look like this\todo{Is it possible to add a subsubparagraph?}. They have a small indentation as opposed to the paragraph titles.
+\section{This report}
 
-% \todo[inline,color=green]{I think that a summary of this exciting chapter should be added.}
+The project runs over two semesters. This report covers the first semester: the physical
+device, the electronics, the first imaging tests and the control software. Next semester a
+second report covers recognising pollen in the pictures, and the two reports will be turned
+into a paper.
+
+Chapter~\ref{ch:prototype} describes the prototype as it is now, what we did and why.
+\fillin{Add the remaining chapters when they exist (discussion, conclusion).}

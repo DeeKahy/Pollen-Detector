@@ -9,7 +9,7 @@ The project report, written in LaTeX. It uses the
 report/
   chapters/        the report itself, one or more files per chapter
     1.0-introduction.tex
-    2.0-iterations.tex
+    2.0-prototype.tex, 2.1-imaging-tests.tex, 2.2-control-software.tex
     3.0-conclusion.tex
   appendices/      appendices, A.0-..., B.0-...
   frontmatter/     front page, title pages, colophon, preface
@@ -37,6 +37,15 @@ Rules for file names: start with the number, then `-`, no spaces.
 Tip: split a chapter into several files when two people work on it at once.
 Each person edits their own file, so there are fewer merge conflicts.
 
+## Placeholders
+
+Red text in the PDF is unfinished. Search the `.tex` files for:
+
+- `\fillin{...}`: something to write or decide now.
+- `\future{...}`: something we can only do later (needs new hardware, data or tests).
+
+Both are defined in `setup/macros.tex`.
+
 ## Workflow
 
 `main` is protected. All changes go through a pull request.
@@ -45,7 +54,9 @@ Each person edits their own file, so there are fewer merge conflicts.
 2. Write, commit, push.
 3. Open a pull request. GitHub builds the PDF and posts a link to it as a comment.
    Each new push updates the link. Click it to open the PDF.
-4. The other person reads it, then merge.
+   The comment also links a second PDF with the changes marked, like the GitHub diff:
+   added text is blue and underlined, removed text is red and struck through.
+4. The other person reads it (the "changes marked" PDF is quickest), then merge.
 
 If the build fails, the check turns red. Open the check and read the log
 (look for the first line with `error`), or download the `latex-log` artifact.
@@ -88,6 +99,8 @@ cd report
 latexmk          # builds main.pdf
 latexmk -pvc     # rebuilds every time you save
 latexmk -c       # removes temporary files
+./diff.sh        # diff.pdf: changes since origin/main marked
+./diff.sh HEAD~3 # or since any other git version
 ```
 
 New files in `chapters/` are picked up the next time you run `latexmk`.

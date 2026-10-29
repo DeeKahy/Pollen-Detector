@@ -1,0 +1,79 @@
+\chapter{The prototype so far}\label{ch:prototype}
+% Draft by Claude from our old iteration notes, edit freely.
+% This chapter is a snapshot up to a milestone, not a list of iterations. Keep adding to it
+% until the semester ends. For each part: what we did, and WHY.
+
+This chapter describes the prototype as it is on \fillin{milestone date}. Instead of listing
+every version, each section describes one part of the device: what it does now, and why we
+made it that way. Details of each printed version (photos, notes) are kept in the
+\texttt{iterations/} folder of the project repository.
+
+\section{How the device works}\label{sec:how-it-works}
+
+The device is a small, automated version of the Hirst trap described in
+Chapter~\ref{ch:introduction}:
+
+\begin{enumerate}
+  \item A fan moves outdoor air onto a strip of clear sticky tape, so particles stick to it.
+  \item A stepper motor moves the tape on, so the sampled piece lies over the camera.
+  \item An LED shines through the tape, and the camera underneath takes a picture.
+  \item The picture is saved with the time and all settings. Later it is sent to a server.
+  \item This repeats. The used tape is kept on a roll, so it can be checked under a microscope later.
+\end{enumerate}
+
+A Raspberry Pi~3~B+ controls everything. \fillin{Photo of the current prototype.}
+
+\section{Enclosure and tape transport}\label{sec:enclosure}
+
+We started from the earlier design (Section~\ref{sec:research-question}), but drew our own 3D
+model from scratch. The reasons were:
+
+\begin{itemize}
+  \item \textbf{Easy to build.} The goal is that anyone can build one, so we avoided screws
+  and other extra parts where we could. Parts hold by friction or slot into each other.
+  \item \textbf{One print.} We have access to a larger 3D printer, so parts can be bigger and
+  fewer.
+\end{itemize}
+
+The main changes over our versions so far were:
+
+\begin{itemize}
+  \item \textbf{Tape roll holder.} The first holder had the wrong size. It now holds the roll
+  and the tape stays on.
+  \item \textbf{Motor mount.} The motor first sat loose. It now friction fits, with a small gap
+  so gravity helps hold it. The mount is still a little too small, which makes the frame bend.
+  \future{Fix the motor mount size.}
+  \item \textbf{Camera slot and lid.} The first versions were made before we had the camera, so
+  there was no proper hole for it. The camera now slots in exactly, and the lid has a hole for
+  the ribbon cable. We first designed a complicated lid mechanism, then replaced it with a lid
+  that is simply held by friction. Simple turned out to be better.
+\end{itemize}
+
+\paragraph{Still missing.}
+\future{A mount for the fan.}
+\future{A place for the LED inside the box, at a fixed distance above the tape.}
+\future{A nozzle or slit that guides the air onto a small spot of the tape.}
+
+\paragraph{Blowing or sucking.}
+The reference trap sucks air through a narrow slit onto the tape. That gives a known airflow
+and a sharp, narrow line of particles, which is needed to report pollen per cubic metre of air.
+For the first prototype we chose to blow air onto the tape instead, because it is much simpler
+to build. A printed nozzle between fan and tape is a possible middle ground.
+\future{Measure the airflow, and decide whether to change to sucking through a slit.}
+
+\section{Electronics}\label{sec:electronics}
+
+\begin{itemize}
+  \item \textbf{Stepper motor.} A 28BYJ-48 with a ULN2003 driver board moves the tape. It is
+  slow and weak, but cheap and strong enough for tape.
+  \item \textbf{Fan.} A 5~V fan, switched by a MOSFET, because a Raspberry Pi pin cannot power a
+  fan directly. A diode protects the MOSFET.
+  \item \textbf{Camera.} The Raspberry Pi HQ camera with the lens removed
+  (Section~\ref{sec:imaging-tests}).
+  \item \textbf{LED.} An RGB LED with a resistor for each colour, connected directly to three Pi pins.
+\end{itemize}
+
+\paragraph{Why an RGB LED.}
+Our first LED was blue, and pure blue light gave poor pictures
+(Section~\ref{sec:imaging-tests}). With an RGB LED the software can choose the colour and
+brightness, so we can test which light works best.
