@@ -2,9 +2,7 @@
 % Draft by Claude from the earlier introduction and our notes, edit freely.
 % Red text: \fillin = write or decide now, \future = can only be done later.
 
-Pollen allergy affects a large share of the population. For many people the symptoms follow
-the day-to-day amount of pollen in the air around them. In Denmark the daily pollen counts
-come from two stations, one in Copenhagen for eastern Denmark and one in Viborg for western
+In Denmark the daily pollen counts come from two stations, one in Copenhagen for eastern Denmark and one in Viborg for western
 Denmark~\cite{AstmaAllergi}. Pollen levels for other places are estimates based on the nearest
 station, so they show a general trend rather than a local measurement
 \fillin{source for this, e.g. the Astma-Allergi Danmark page that says so}. Pollen levels change
@@ -20,7 +18,7 @@ the reference standard and works well, but it has two problems for local informa
 
 \begin{itemize}
   \item \textbf{Cost.} The traps and the trained staff are expensive, so there are only two
-  stations. \fillin{Price of a trap, with a source. Burkard does not list prices; ask Florian or
+  stations. \fillin{Price of a trap, with a source. Burkard does not list prices so ask Florian or something or
   Astma-Allergi Danmark, or find a tender document.}
   \item \textbf{Manual work.} Every count is done by a trained person, which limits how many
   samples can be analysed~\cite{Tummon2024}. \fillin{Florian told us this. Check that
@@ -35,18 +33,18 @@ pollen and spores.
 
 \section{Idea: a pollen monitor anyone can build}
 
-For fine dust the problem has already been solved in a different way. Sensor.Community (started
-as luftdaten.info in Stuttgart) lets anyone build a cheap particle sensor from a guide, put it
-outside and share the data on a public map~\cite{SensorCommunity}. Thousands of these sensors
+The fine dust the problem has already been solved in a different way. Sensor.Community (started
+as luftdaten.info in Stuttgart) and they let anyone build a cheap particle sensor from a guide, put it
+outside, and share the data on a public map~\cite{SensorCommunity}. Many of these sensors
 now give much more local data than the official stations. No similar low-cost, open approach
-exists for pollen, because a particle counter cannot tell pollen types apart.
+exists for pollen as far as we can tell, because a particle counter cannot tell pollen types apart.
 
 Our idea is to do the same for pollen. The device should be cheap enough (around 100 to 150
 euro) and simple enough that anyone can build one from a guide. Like the reference trap it
 catches particles on sticky tape, but instead of a person with a microscope, a camera takes
 pictures of the tape and software counts the pollen by type.
 
-We see two kinds of users:
+We see two kinds of pottential users:
 
 \begin{itemize}
   \item \textbf{People and communities} who build a station at home. All stations send their
@@ -59,10 +57,10 @@ We see two kinds of users:
 
 We think all of it should be free: the design, the software and the data. The software is
 open source (AGPL-3.0) and the 3D models are public domain (CC0).
-\fillin{Licence for the report, photos and collected data?}
+\fillin{Licence for the report, photos and collected data? Also possibly code also public domain? Ai written code handeled how?}
 
 This project builds on an earlier open-source pollen detector by
-\fillin{Florian's full name and reference}. We designed our own 3D-printed parts from scratch,
+\fillin{Florian and reference}. We designed our own 3D-printed parts from scratch,
 to make the device easier to build, but the electronics and the basic way it works (a fan, a
 tape moved by a stepper motor, and a Raspberry Pi camera) follow his design. The main
 addition so far is a colour LED for lighting the tape.
@@ -86,10 +84,10 @@ To answer it we split it into smaller questions:
 
 \section{This report}
 
-The project runs over two semesters. This report covers the first semester: the physical
+\fillin{The project hopefully runs over two semesters. This report covers the first semester: the physical
 device, the electronics, the first imaging tests and the control software. Next semester a
 second report covers recognising pollen in the pictures, and the two reports will be turned
-into a paper.
+into a paper.}
 
 Chapter~\ref{ch:prototype} describes the prototype as it is now, what we did and why.
 \fillin{Add the remaining chapters when they exist (discussion, conclusion).}
