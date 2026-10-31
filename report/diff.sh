@@ -46,6 +46,10 @@ flatten() {
 flatten "$old" "$work/old.tex"
 flatten "$new" "$work/new.tex"
 
+# Old rough notes can hold a bare # (like "## webui"). Inside the \DIFdel marks that
+# stops the build, so escape any in the body. The preamble needs its #1 arguments.
+perl -i -pe '$b = 1 if /\\begin\{document\}/; s/(?<!\\)#/\\#/g if $b' "$work/old.tex"
+
 # 4. Mark the differences. Figures that were removed still need their files.
 #    Our red placeholders are text: the marks go inside them, so long ones can wrap.
 cp -n "$old"/figures/* "$new/figures/" 2>/dev/null || true
