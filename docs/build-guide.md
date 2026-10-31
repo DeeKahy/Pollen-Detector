@@ -40,6 +40,9 @@ Wire everything with the Pi unplugged.
 
 Details in [device/README.md](../device/README.md).
 
+No Wi-Fi or LAN for the Pi? Connect it straight to your laptop with a cable, see
+[direct-cable.md](direct-cable.md).
+
 ## 6. Load the tape
 
 1. Put the tape roll on the supply side, sticky side up.

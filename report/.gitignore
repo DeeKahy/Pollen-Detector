@@ -15,3 +15,9 @@ main.pdf
 *.synctex.gz
 *.toc
 *.tdo
+main-blx.bib
+*.thm
+
+# diff.sh output (report with changes marked)
+diff.tex
+diff.pdf

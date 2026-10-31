@@ -1,0 +1,32 @@
+\section{Control software}\label{sec:control-software}
+% Draft by Claude, edit freely. Overall functionality and why, not every button.
+% Keep adding to this section until the semester ends.
+
+The Raspberry Pi runs a small Python program that controls the device. It runs the sampling
+cycle on a timer (blow, move the tape, take a picture), keeps the pictures and a queue of
+uploads in a local database, and serves a web page for controlling everything by hand.
+The program also has a mock mode, so it can be developed on a laptop without the hardware.
+
+\paragraph{Why a web page.}
+Building and testing the device means trying things many times: moving the tape, switching
+the fan, changing camera settings and taking pictures. A web page lets us do this from a laptop
+or phone, without typing commands on the Pi. The main functions are:
+
+\begin{itemize}
+  \item \textbf{Hardware checks.} Checks that the camera is found and that wires are on the right
+  pins, so building mistakes are found early.
+  \item \textbf{Live preview and capture.} A live picture from the camera, and full-resolution
+  pictures saved without compression, because compression destroys small details.
+  \item \textbf{Camera settings.} Exposure, gain, white balance and image processing can be changed
+  and are kept after a restart.
+  \item \textbf{LED colour.} A colour wheel, an intensity slider and RGB values set the LED colour,
+  which is also used for the pictures.
+  \item \textbf{Manual control.} Fan on and off, moving the tape, and running a sampling cycle.
+\end{itemize}
+
+\paragraph{Notes and settings with every picture.}
+We can write a note about each picture, and all camera and LED settings are saved with it.
+Then we can go back and try settings that looked good when the setup or the place changes.
+
+\fillin{Screenshot of the web page.}
+\future{Upload of pictures to a central server, and a public map.}

@@ -2,6 +2,14 @@
 % for more information on how to create macros
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Red placeholders. Search the .tex files for \fillin and \future.
+%   \fillin{...}  something to write or decide now
+%   \future{...}  something we can only do later (needs new hardware, data or tests)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\fillin}[1]{\textcolor{red}{[#1]}}
+\newcommand{\future}[1]{\textcolor{red}{[Future: #1]}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Macros for the titlepage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Creates the aau titlepage

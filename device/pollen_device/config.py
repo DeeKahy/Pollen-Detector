@@ -8,7 +8,13 @@ DEFAULTS = {
     "device_id": "pollen-01",
     "mock": "auto",
     "data_dir": "./data",
-    "pins": {"stepper": [17, 27, 22, 23], "fan": 18, "led": 24},
+    "pins": {
+        "stepper": [17, 27, 22, 23],
+        "fan": 18,
+        "led": {"red": 24, "green": 25, "blue": 5},
+        "led_active_low": True,
+        "led_pwm_frequency": 1000,
+    },
     "stepper": {
         "half_step": True,
         "step_delay_s": 0.0015,
@@ -21,8 +27,17 @@ DEFAULTS = {
         "exposure_us": 2000,
         "analogue_gain": 1.0,
         "save_dng": False,
+        "led_rgb": [1.0, 1.0, 1.0],
         "led_settle_s": 0.5,
         "preview_width": 1014,
+        "awb": True,
+        "colour_gain_red": 2.0,
+        "colour_gain_blue": 2.0,
+        "brightness": 0.0,
+        "contrast": 1.0,
+        "saturation": 1.0,
+        "sharpness": 1.0,
+        "noise_reduction": "high_quality",
     },
     "cycle": {
         "enabled": True,
@@ -69,5 +84,9 @@ def load_config(path):
     cfg["data_dir"] = str(data_dir.resolve())
     if int(cfg["cycle"]["camera_offset_cycles"]) < 1:
         raise ValueError("cycle.camera_offset_cycles must be >= 1")
+    led = cfg["pins"]["led"]
+    if not isinstance(led, dict) or set(led) != {"red", "green", "blue"}:
+        raise ValueError("pins.led must have red, green and blue pins (RGB LED), "
+                         "e.g. {red: 24, green: 25, blue: 5}. See config.example.yaml")
     cfg["_path"] = str(path.resolve())
     return cfg
