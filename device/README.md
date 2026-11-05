@@ -7,7 +7,7 @@ server in `../server` (queued locally, so network outages are fine).
 ```
 pollen_device/
   config.py     defaults + YAML loading
-  hardware.py   Stepper (28BYJ-48/ULN2003), Output (fan via MOSFET), RgbLed (3 pins, active low), Camera (picamera2) + mocks
+  hardware.py   Stepper (28BYJ-48/ULN2003), Output (fan via MOSFET), RgbLed (PinLight: 3 pins, active low; or PixelLight: NeoPixel string on SPI), Camera (picamera2) + mocks
   cycle.py      the sampling cycle, tape tracking, manual actions
   storage.py    images on disk + SQLite (samples, captures, upload queue, state)
   uploader.py   background upload + heartbeat
@@ -47,7 +47,11 @@ board should light up in order. **Retry camera** restarts the camera without reb
 
 The fan and LED can't be checked electrically. Switch them on in the web page and look.
 
-**LED colour** has a colour wheel (hue and saturation), an intensity slider and R G B boxes.
+**LED colour** works the same for the 5 mm RGB LED and a NeoPixel string (`led.type`).
+With a NeoPixel string there is also **pixels lit** (e.g. `0`, `3-5`, `all`, numbered from the
+input end) with an estimate of the current. Wiring: `docs/wiring.md`.
+
+It has a colour wheel (hue and saturation), an intensity slider and R G B boxes.
 The colour is used for live view and pictures. **Calibrate with the camera**: take the tape
 out, point the LED at the camera, dim the room, press Calibrate. It photographs the LED off,
 red, green and blue at one exposure, and stores what the camera saw (a 3×3 matrix). After
@@ -103,7 +107,8 @@ Image kinds: `sample` (linked to a blow period), `untracked`, `manual`.
 | `GET /` | debug page: live preview, manual control, cycle control, status, recent captures, log |
 | `GET /api/status` | everything as JSON |
 | `POST /api/fan` `{"value":1}` | switch the fan |
-| `POST /api/led` `{"rgb":[1,0.5,0],"on":true}` or `{"colour":"white"}` / `{"colour":"off"}` | set the RGB LED colour (0..1, PWM) and switch it |
+| `POST /api/led` `{"rgb":[1,0.5,0],"on":true}` or `{"colour":"white"}` / `{"colour":"off"}` | set the LED colour (0..1) and switch it |
+| `POST /api/led` `{"pixels":"0-4"}` | NeoPixel string: which pixels light |
 | `POST /api/led` `{"effect":"pulse","period_s":4,"hue_s":40,"low":0.2}` / `{"effect":null}` | pulse effect on / off |
 | `POST /api/led/auto` | auto setup: best LED colour + exposure for what is on the tape now |
 | `POST /api/led/calibrate` / `/api/led/calibration/clear` | measure the camera's response to each LED colour (LED pointed at the camera) |

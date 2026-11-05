@@ -21,6 +21,15 @@ pins:                     # BCM GPIO numbers (NOT physical pin numbers) - see do
   led_active_low: true        # common anode: pin LOW = colour on
   led_pwm_frequency: 1000     # Hz. Dimming flickers the LED this fast (no flicker at 100 %)
 
+led:
+  type: rgb                   # rgb = the 5 mm RGB LED on pins.led above
+                              # neopixel = WS2811/WS2812 string. Data on GPIO10 (SPI MOSI, physical pin 19).
+                              #   Needs SPI on: sudo raspi-config nonint do_spi 0, then reboot. See docs/wiring.md
+  count: 50                   # neopixel: pixels in the string (too many is fine, too few leaves the rest lit)
+  order: RGB                  # neopixel: byte order. Strings of WS2811 bulbs are often RGB, WS2812B strips GRB
+  spi: [0, 0]                 # neopixel: /dev/spidev0.0
+  max_ma: 400                 # neopixel: dims everything if the lit pixels would draw more (from the Pi's 5 V pin)
+
 stepper:
   half_step: true         # 28BYJ-48: ~4096 half-steps per output shaft revolution
   step_delay_s: 0.0015    # lower = faster; below ~0.001 the motor starts skipping
@@ -40,6 +49,7 @@ camera:
   led_rgb: [1.0, 1.0, 1.0]  # LED colour [red, green, blue] 0..1 for live view and pictures.
                             # Set it with the colour wheel in the web UI. After an LED calibration
                             # it is the colour the camera sees, not the raw pin brightness.
+  led_pixels: "0"         # neopixel: which pixels light, e.g. "0", "3-5", "0,10", "all" (web UI too)
   led_settle_s: 0.5       # wait after LED on before capturing
   preview_width: 1014     # width of the live preview in the web UI
   # Image tuning. All of these can also be changed in the web UI; changes there are kept

@@ -79,7 +79,7 @@ class Controller:
         self.hw.led.lit = True
         self.hw.led.refresh()
         led = {"rgb": self.hw.led.target(), "duty": self.hw.led.levels(),
-               "calibrated": self.hw.led.calibration is not None}
+               "calibrated": self.hw.led.calibration is not None, **self.hw.led.out.info()}
         try:
             time.sleep(float(cam_cfg["led_settle_s"]))
             cam_meta = self.hw.camera.capture(path, dng, self.store.thumb_path(rel))
@@ -94,7 +94,7 @@ class Controller:
             "tape_steps": self.hw.stepper.position,
             "camera": cam_meta,
             "led": led,
-            "led_pwm_hz": self.cfg["pins"]["led_pwm_frequency"],
+            "led_pwm_hz": self.hw.led.out.pwm_hz,
             "note": note,
             "camera_settings": {**self.hw.camera.settings(), "resolution": cam_cfg["resolution"]},
             "mock": self.hw.mock or self.hw.camera.mock,
