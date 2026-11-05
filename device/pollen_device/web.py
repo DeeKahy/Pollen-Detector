@@ -131,15 +131,17 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
 
     @app.post("/api/led/auto")
     def api_led_auto():
-        """Try each LED colour with a matching exposure; keep the one with the crispest picture."""
-        results = ctl.auto_setup()
+        """Measure red, green and blue, model all mixes, photograph the best few; keep the crispest."""
+        out = ctl.auto_setup()
+        results = out["results"]
         best = results[0]
         hw.led.stop_effect()
-        set_camera({"led_rgb": best["rgb"], "exposure_us": best["exposure_us"],
+        set_camera({"led_rgb": best["duty"], "exposure_us": best["exposure_us"],
                     "analogue_gain": best["analogue_gain"], "awb": False})
         ctl.set_led(True)
         log.info("Auto setup chose %s", best)
-        return jsonify(ok=True, results=results, led=led_status(), settings=hw.camera.settings())
+        return jsonify(ok=True, results=results, model=out["model"], led=led_status(),
+                       settings=hw.camera.settings())
 
     @app.post("/api/led/calibration/clear")
     def api_led_calibration_clear():
@@ -372,7 +374,7 @@ select{font:inherit;padding:4px;border-radius:6px;border:1px solid var(--line);b
   <button onclick="setPixels()">Set</button> <span class="hint" id="pixinfo"></span></div>
  <p class="hint" id="pixhint" hidden>Pixels are numbered from 0 at the input end. One pixel is the sharpest (smallest light source); more pixels give more light but blurrier shadows.</p>
  <div class="row"><button class="p" id="autobtn" onclick="autoSetup()">🎯 Auto setup</button>
-  <span class="hint">tries blue, green, red and white, sets the exposure for each and keeps the sharpest</span></div>
+  <span class="hint">measures red, green and blue, computes ~150 mixes, photographs the best 3 and keeps the sharpest (~30 s)</span></div>
  <div id="autorun" hidden><div class="pbar"><div id="autofill"></div></div><div class="hint" id="autoprog"></div></div>
  <table id="autotab"></table>
  <div class="row"><button id="pulsebtn" onclick="pulseToggle()">✨ Pulse</button></div>
@@ -463,8 +465,10 @@ async function autoSetup(){$('autobtn').disabled=true;$('autotab').innerHTML='';
  autoPoll=setInterval(async()=>{try{showAuto((await (await fetch('/api/status')).json()).controller.auto_setup)}catch(e){}},300);
  try{const j=await post('/api/led/auto');
   if(j.results){ledFilled=false;ledResp(j);fillCam(j.settings);
-   $('autotab').innerHTML='<tr><td>colour</td><td>exposure</td><td>detail</td></tr>'+j.results.map((r,i)=>
-    `<tr><td>${i?'':'✓ '}${r.colour}</td><td>${r.exposure_us} µs${r.analogue_gain>1?' × gain '+r.analogue_gain:''}</td><td>${r.detail}</td></tr>`).join('')}}
+   const sw=r=>`<span class="chip" style="display:inline-block;width:12px;height:12px;vertical-align:middle;background:rgb(${r.rgb.map(v=>Math.round(v*255))})"></span>`;
+   $('autotab').innerHTML='<tr><td>colour</td><td>how</td><td>exposure</td><td>detail</td><td>model said</td></tr>'+j.results.map((r,i)=>
+    `<tr><td>${i?'':'✓ '}${sw(r)} ${r.colour}</td><td>${r.kind}</td><td>${r.exposure_us} µs${r.analogue_gain>1?' × gain '+r.analogue_gain:''}</td><td>${r.detail}</td><td>${r.predicted??''}</td></tr>`).join('')
+    +(j.model?`<tr><td colspan="5" class="hint">model top 5: ${j.model.slice(0,5).map(m=>sw(m)+' '+m.colour+' '+m.predicted).join(' · ')}</td></tr>`:'')}}
  finally{clearInterval(autoPoll);autoPoll=null;showAuto(null);$('autobtn').disabled=false}}
 function showAuto(p){$('autorun').hidden=!p;if(!p)return;
  const into=Math.min(0.95,Math.max(0,1-(p.left_s-(p.steps-p.step-1)*p.step_s)/p.step_s));

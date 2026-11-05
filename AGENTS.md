@@ -232,6 +232,7 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 | 2026-10-28 | Report CI also builds a "changes marked" PDF for PRs (`report/diff.sh`: latexpand both versions, latexdiff UNDERLINE, `\fillin`/`\future` treated as text so marks wrap). | Faster review between the two authors. |
 | 2026-10-28 | Supervisor reviews every 1–2 weeks: a frozen `review/YYYY-MM-DD` branch from `main` gets a PR into `supervisor-reviewed`; CI's changes-marked PDF then shows what is new since the last review. Merge (merge commit) when the feedback is in. Report stays in git, not Overleaf. Steps in `report/README.md`. | Supervisor gets a PDF plus a diff without using git; feedback by PDF notes, email or PR comments. |
 | 2026-11-05 | NeoPixel string driven over SPI (GPIO10), our own encoder with `spidev` (no pip, no root). Light only chosen pixels; software caps the estimated current at `led.max_ma` (400 mA). The 5 mm RGB LED stays supported (`led.type: rgb`). | GPIO18 (the usual NeoPixel pin) is the fan; rpi_ws281x needs root and pip. One pixel = smallest light source = sharpest shadow. |
+| 2026-11-05 | Auto setup v2: measure R, G, B alone (+ dark frames), model ~150 mixes as weighted sums in linear light (gamma 2.2 undone), photograph the best 3, keep the best real score. Mixes use whole 1 ms PWM periods. | User wanted more colours than 4. Light is additive, so mixes can be computed instead of photographed. Not yet run on the real camera. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
 ## 11. Repo layout
@@ -298,7 +299,7 @@ The Pi's `~/pollen/config.yaml` is not synced; a backup from before the RGB chan
 
 **Talking to the device.** Everything the web UI does is a JSON API (`device/README.md` has the table).
 Useful: `GET /api/status`, `GET /api/preview.jpg`, `POST /api/led {"rgb":[r,g,b],"on":true}` or
-`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~15 s), `POST /api/camera/settings {...}`,
+`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~30 s), `POST /api/camera/settings {...}`,
 `POST /api/capture {"note":"..."}` (full res PNG + JSON sidecar under `/images/<path>`).
 Don't leave test pictures behind on the Pi without a note saying they were tests.
 

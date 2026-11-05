@@ -60,10 +60,22 @@ match. The calibration is only valid for the camera settings it was made with (w
 A progress bar shows the try, the picture and the time left. If a try is too bright or too
 dark it starts again at half or double the exposure.
 
-**🎯 Auto setup** tries blue, green, red and white. For each it finds the exposure that puts
-the background at about 60 % brightness (no clipping), then scores how crisp the darkest edges
-are. It keeps the best one (colour, exposure, gain, auto white balance off). About 15 s. Run it
-again whenever the sample, the LED position or the room light changes.
+**🎯 Auto setup** finds the LED colour and exposure that give the crispest picture. About 30 s.
+Run it again whenever the sample, the LED position or the room light changes.
+
+1. **Measure.** Red, green and blue alone. For each it finds the exposure that puts the
+   background at about 60 % brightness (no clipping), takes that picture and one with the LED off.
+2. **Model.** Light from the three chips adds up. So after undoing the camera's gamma (about
+   2.2), the picture under any mix is the three single-colour pictures added with weights.
+   It computes and scores about 150 mixes this way (a coarse grid, then finer around the best)
+   without taking more pictures.
+3. **Verify.** It photographs the model's best 3 mixes (at least 0.2 apart) for real.
+
+The score ("detail") is how crisp the darkest edges are: the strongest gradients relative to the
+background. The best **real** picture wins; the model only picks what to try. The table shows
+the real score and what the model predicted, so you can see how far to trust the model.
+A dimmed colour flickers (PWM). So for a mix, the exposure is rounded up to whole flicker periods
+(1 ms) and all colours are dimmed by the same factor. The picture is the same, without stripes.
 
 **✨ Pulse** breathes the LED darker and brighter (never below "lowest") while slowly going
 round the colours. Picking a colour or turning the LED off stops it. Pictures taken while it
@@ -110,7 +122,7 @@ Image kinds: `sample` (linked to a blow period), `untracked`, `manual`.
 | `POST /api/led` `{"rgb":[1,0.5,0],"on":true}` or `{"colour":"white"}` / `{"colour":"off"}` | set the LED colour (0..1) and switch it |
 | `POST /api/led` `{"pixels":"0-4"}` | NeoPixel string: which pixels light |
 | `POST /api/led` `{"effect":"pulse","period_s":4,"hue_s":40,"low":0.2}` / `{"effect":null}` | pulse effect on / off |
-| `POST /api/led/auto` | auto setup: best LED colour + exposure for what is on the tape now |
+| `POST /api/led/auto` | auto setup: best LED colour + exposure for what is on the tape now (`results` = real pictures, `model` = top predicted mixes) |
 | `POST /api/led/calibrate` / `/api/led/calibration/clear` | measure the camera's response to each LED colour (LED pointed at the camera) |
 | `POST /api/jog` `{"steps":500}` | move tape (negative = back) |
 | `POST /api/skip` | advance one pitch without blowing (keeps tracking) |
