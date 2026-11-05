@@ -61,8 +61,9 @@ to build. A printed nozzle between fan and tape is a possible middle ground.
   fan directly. A diode protects the MOSFET.
   \item \textbf{Camera.} The Raspberry Pi HQ camera with the lens removed
   (Section~\ref{sec:imaging-tests}).
-  \item \textbf{LED.} A single NeoPixel (a colour LED with its own small controller chip), cut
-  from a string of Christmas lights. It needs only one data wire from the Pi.
+  \item \textbf{LED.} A single LED cut from a chained string of Christmas lights. It is a
+  NeoPixel: a colour LED with its own small controller chip, so it needs only one data wire
+  from the Pi.
 \end{itemize}
 
 \paragraph{From a blue LED to a NeoPixel.}
@@ -71,5 +72,4 @@ Our first LED was blue, and pure blue light gave poor pictures
 (Section~\ref{sec:imaging-tests}). We replaced it with an RGB LED, so the software can choose
 the colour and test which light works best. That LED was too dim, because a Pi pin can only give
 a few milliamperes. The NeoPixel takes its power from the 5~V supply, so it is brighter, and it
-dims each colour itself. The same software works with both, and it can light any chosen pixels
-of a longer string.
+dims each colour itself. The same software works with both LEDs.
