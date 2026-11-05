@@ -8,3 +8,7 @@ server/server-data/
 hwtest_*.png
 hwtest_*.jpg
 *.dng
+.direnv/
+report/build/
+pi-backups/
+.report-base/

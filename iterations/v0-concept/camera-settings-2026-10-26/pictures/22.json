@@ -1,0 +1,49 @@
+{
+  "about": "One photo from a pollen sampler: clear adhesive tape imaged by a Raspberry Pi HQ camera (lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example about the light or the sample. 'camera_settings' are the settings that were requested; 'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in microseconds). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual.",
+  "capture_id": 22,
+  "image_file": "AGLDK_20261007T113627Z.png",
+  "device_id": "AGLDK",
+  "ts": "2026-10-07T11:36:27+00:00",
+  "kind": "manual",
+  "sample_id": null,
+  "tape_steps": 80608,
+  "camera": {
+    "ExposureTime": 1989,
+    "AnalogueGain": 1.0,
+    "DigitalGain": 1.0051839351654053,
+    "Lux": 1004.9090576171875,
+    "ColourTemperature": 3075,
+    "SensorTemperature": 30.0,
+    "ColourGains": [
+      2.0,
+      2.0
+    ],
+    "FocusFoM": 3642,
+    "FrameDuration": 85335,
+    "frames_skipped": 0,
+    "size": [
+      4056,
+      3040
+    ]
+  },
+  "note": "Settings series 2 taken by Claude. Room light OFF, room almost completely dark (only faint night light from outside). The sampler LED is the main light source here, and it is on during every capture. Same settings as series 1 (pictures #3 to #12, taken with the room light on and the LED pointed away), so each picture can be compared with its series 1 partner to see the difference between room light and LED light. Tape not changed between pictures. Picture 10 of 11. Changed from baseline: {\"sharpness\": 0, \"noise_reduction\": \"off\", \"awb\": false, \"colour_gain_red\": 2.0, \"colour_gain_blue\": 2.0, \"save_dng\": true}. Candidate 'measurement' setup: baseline exposure, no processing, fixed white balance, plus the raw sensor data saved as DNG next to this image. The DNG has no processing at all and is what a later lensless (holographic) reconstruction would need.",
+  "camera_settings": {
+    "exposure_us": 2000,
+    "analogue_gain": 1.0,
+    "awb": false,
+    "colour_gain_red": 2.0,
+    "colour_gain_blue": 2.0,
+    "brightness": 0.0,
+    "contrast": 1.0,
+    "saturation": 1.0,
+    "sharpness": 0.0,
+    "noise_reduction": "off",
+    "led_settle_s": 0.5,
+    "save_dng": true,
+    "resolution": [
+      4056,
+      3040
+    ]
+  },
+  "mock": false
+}

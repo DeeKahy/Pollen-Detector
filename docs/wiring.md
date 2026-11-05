@@ -17,8 +17,10 @@
 | 16 | GPIO23 | driver board IN4 |
 | 12 | GPIO18 | fan MOSFET, through a 220 Ω resistor |
 | 14 | GND | fan MOSFET |
-| 18 | GPIO24 | LED long leg, through a 47 Ω resistor |
-| 20 | GND | LED short leg |
+| 17 | 3.3V | RGB LED long leg (shared +) |
+| 18 | GPIO24 | RGB LED red leg, through a 220 Ω resistor |
+| 22 | GPIO25 | RGB LED green leg, through a 100 Ω resistor |
+| 29 | GPIO5 | RGB LED blue leg, through a 47 Ω resistor |
 | CAMERA port | | HQ camera ribbon, blue side facing the USB ports |
 | 1, 3, 5, 9 | | BME280 sensor (optional) |
 
@@ -41,15 +43,40 @@ The fan needs more current than a GPIO pin can give, so a MOSFET switches it.
 
 ## The LED
 
-The LED goes straight on a GPIO pin.
+The LED is a 5 mm RGB LED with 4 legs, **common anode**: the long leg is the shared + side.
+It goes straight on three GPIO pins, no MOSFET.
 
-- GPIO24 (pin 18) to a 47 Ω resistor, then to the LED's long leg.
-- LED short leg to GND (pin 20).
-- For a red or green LED, use 150 Ω instead.
+Legs, with the long leg second from the left:
 
-A GPIO pin only gives about 16 mA, so the LED is a bit dim. That's fine. Just use a longer
-camera exposure. The LED sits a few cm above the tape, right over the camera.
-A pinhole under it (foil poked with a needle) makes the lensless pictures sharper.
+| Leg | Colour | Goes to | Resistor |
+|---|---|---|---|
+| single leg next to the long leg | red | GPIO24 (pin 18) | 220 Ω |
+| long leg | shared + | 3.3V (pin 17) | none |
+| next to the long leg, other side | green | GPIO25 (pin 22) | 100 Ω |
+| furthest out | blue | GPIO5 (pin 29) | 47 Ω |
+
+Because the long leg is on 3.3V, the pins work the other way round: **pin low = colour on,
+pin high = colour off**. The GPIO pin acts as the ground for that colour. The software knows
+this (`led_active_low: true` in `config.yaml`).
+
+The software can dim each colour (PWM: the pin flicks on and off 1000 times a second). This
+does not harm the LED; each pulse has the same current as fully on. Green looks much brighter
+to the eye than red, so a plain 100/100/100 "white" looks greenish. Use the calibration in the
+web UI (LED colour card) to make white come out white for the camera. Below 100 % use an exposure in
+whole milliseconds, or the camera can show faint stripes.
+
+Measured with a multimeter (diode test): red 1.72 V, green 2.28 V, blue 2.48 V. With the
+resistors above each colour draws roughly 6 to 9 mA, well under what one pin can give.
+Blue is on 47 Ω because with 100 Ω it was barely visible. A blue LED needs about 3 V at
+real current, so from 3.3 V only a little is left for the resistor and the LED limits its own
+current. Check it once: volts across the 47 Ω ÷ 47 = current. Keep it under about 12 mA
+(0.56 V). Do not use 47 Ω on red, it would draw far too much.
+
+While the Pi boots, the LED can glow faintly (green and a bit of red). That is the pins'
+built-in pull resistors, before the software sets them. It is harmless.
+
+The LED sits about 30 cm above the tape in the current tests. Further away, or a pinhole
+under it (foil poked with a needle), makes the lensless pictures sharper.
 
 Resistor colour codes are in [resistors.svg](resistors.svg).
 
@@ -62,7 +89,7 @@ Resistor colour codes are in [resistors.svg](resistors.svg).
 | 220 Ω resistor | 1 | fan MOSFET |
 | 100 kΩ resistor | 1 | fan MOSFET |
 | 1N5819 or 1N4148 diode | 1 | across the fan |
-| White 5 mm LED + 47 Ω resistor | 1 | |
+| 5 mm RGB LED, common anode | 1 | plus 220 Ω (red), 100 Ω (green) and 47 Ω (blue) |
 | 5.1 V 2.5 A micro USB power supply | 1 | a weak supply makes the Pi crash at random |
 | Breadboard and jumper wires | | |
 | microSD card, 32 GB or more | 1 | the pictures are big |
@@ -74,3 +101,4 @@ Resistor colour codes are in [resistors.svg](resistors.svg).
 2. Check that no 5V wire goes to a GPIO pin. 5V on a GPIO pin kills it.
 3. Connect all GND wires together.
 4. Power on and run `python3 -m pollen_device.hwtest`. It tests the LED, fan, motor and camera one at a time.
+   It lights the LED red, green, blue and then white. If a colour is wrong, two wires are swapped.

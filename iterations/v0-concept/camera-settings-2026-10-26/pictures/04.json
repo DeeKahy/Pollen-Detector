@@ -1,0 +1,49 @@
+{
+  "about": "One photo from a pollen sampler: clear adhesive tape imaged by a Raspberry Pi HQ camera (lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example about the light or the sample. 'camera_settings' are the settings that were requested; 'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in microseconds). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual.",
+  "capture_id": 4,
+  "image_file": "AGLDK_20261007T112150Z.png",
+  "device_id": "AGLDK",
+  "ts": "2026-10-07T11:21:50+00:00",
+  "kind": "manual",
+  "sample_id": null,
+  "tape_steps": 80608,
+  "camera": {
+    "ExposureTime": 497,
+    "AnalogueGain": 1.0,
+    "DigitalGain": 1.0051839351654053,
+    "Lux": 6707.65771484375,
+    "ColourTemperature": 2898,
+    "SensorTemperature": 31.0,
+    "ColourGains": [
+      2.0444600582122803,
+      2.355783224105835
+    ],
+    "FocusFoM": 2692,
+    "FrameDuration": 85335,
+    "frames_skipped": 0,
+    "size": [
+      4056,
+      3040
+    ]
+  },
+  "note": "Settings series 1 taken by Claude. Room ceiling light ON, sampler LED is pointed away from the tape, so LED on or off makes no difference to these pictures (all light is from the room). Tape not changed between pictures, so all pictures in this series show the same spot and can be compared directly. Picture 2 of 10. Changed from baseline: {\"exposure_us\": 500}. Short exposure (500 us, 4x shorter than baseline). Checks if bright areas are clipped to white at baseline. If this one shows detail the baseline lost, the baseline is overexposed under room light.",
+  "camera_settings": {
+    "exposure_us": 500,
+    "analogue_gain": 1.0,
+    "awb": true,
+    "colour_gain_red": 2.0,
+    "colour_gain_blue": 2.0,
+    "brightness": 0.0,
+    "contrast": 1.0,
+    "saturation": 1.0,
+    "sharpness": 1.0,
+    "noise_reduction": "high_quality",
+    "led_settle_s": 0.5,
+    "save_dng": false,
+    "resolution": [
+      4056,
+      3040
+    ]
+  },
+  "mock": false
+}

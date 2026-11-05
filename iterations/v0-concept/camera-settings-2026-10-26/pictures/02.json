@@ -1,0 +1,49 @@
+{
+  "about": "One photo from a pollen sampler: clear adhesive tape imaged by a Raspberry Pi HQ camera (lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example about the light or the sample. 'camera_settings' are the settings that were requested; 'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in microseconds). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual.",
+  "capture_id": 2,
+  "image_file": "AGLDK_20261007T111926Z.png",
+  "device_id": "AGLDK",
+  "ts": "2026-10-07T11:19:26+00:00",
+  "kind": "manual",
+  "sample_id": null,
+  "tape_steps": 80608,
+  "camera": {
+    "ExposureTime": 1989,
+    "AnalogueGain": 1.0,
+    "DigitalGain": 1.0051839351654053,
+    "Lux": 6789.13623046875,
+    "ColourTemperature": 2899,
+    "SensorTemperature": 32.0,
+    "ColourGains": [
+      2.0452420711517334,
+      2.3533072471618652
+    ],
+    "FocusFoM": 3210,
+    "FrameDuration": 85335,
+    "frames_skipped": 0,
+    "size": [
+      4056,
+      3040
+    ]
+  },
+  "note": "on the desk using just my home light which aims itself diagonally at the table and therefore light",
+  "camera_settings": {
+    "exposure_us": 2000,
+    "analogue_gain": 1.0,
+    "awb": true,
+    "colour_gain_red": 2.0,
+    "colour_gain_blue": 2.0,
+    "brightness": 0.0,
+    "contrast": 1.0,
+    "saturation": 1.0,
+    "sharpness": 1.0,
+    "noise_reduction": "high_quality",
+    "led_settle_s": 0.5,
+    "save_dng": false,
+    "resolution": [
+      4056,
+      3040
+    ]
+  },
+  "mock": false
+}

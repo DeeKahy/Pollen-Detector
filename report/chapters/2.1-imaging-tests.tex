@@ -1,0 +1,79 @@
+% Imaging tests. Continues the chapter "The prototype so far" (2.0-prototype.tex).
+% Draft by Claude, shortened on 2026-10-28 after feedback, edit freely.
+% Red text in the PDF is a placeholder. Search for \fillin and \future.
+% All test pictures with notes and settings: iterations/v0-concept/camera-settings-2026-10-26/
+% Full-size originals: GitHub release data-2026-10-26.
+
+\section{Imaging tests}\label{sec:imaging-tests}
+
+The camera is the Raspberry Pi HQ camera with the lens removed. The tape lies above the
+sensor and the light shines through it, so the picture is a shadow of what is on the tape.
+One pixel is 1.55~$\mu$m, so a birch pollen grain of about 22~$\mu$m is about 14 pixels across.
+As a test object we used a light brown hair on the tape (50 to 100~$\mu$m wide), until we can
+get real pollen. \future{Repeat the tests with real pollen.}
+
+The camera settings that worked best changed with every change to the setup. They will change
+again when the camera sits in the box, so we do not report them in detail. The web interface
+saves the settings with every picture, so we can go back to them
+(Section~\ref{sec:control-software}).
+
+\subsection{Test 1: tape 11.5~mm above the sensor}\label{sec:imaging-test-1}
+
+In the first test the tape lay on top of the lens mount. Because of the IR filter in the mount
+and the walls of the mount, the tape was about 11.5~mm above the sensor. We tried room light and
+a blue LED about 30~cm above the tape (Figure~\ref{fig:camtest-best}).
+
+The hair was visible, but blurred. Room light gave clearly better pictures than the blue LED.
+With pure blue light only one in four pixels sees anything, because of the colour filter on the
+sensor, and the pictures were dark and noisy. Because of this we removed the IR filter to make
+the gap smaller, and replaced the blue LED with an RGB LED (Section~\ref{sec:electronics}).
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{camtest-09}\\[2pt]
+    \small (a) Room light
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{camtest-21}\\[2pt]
+    \small (b) Blue LED
+  \end{minipage}
+  \caption{Test 1, tape 11.5~mm above the sensor. The dark line is the hair.}
+  \label{fig:camtest-best}
+\end{figure}
+
+\subsection{Test 2: tape about 1~mm above the sensor}\label{sec:imaging-test-2}
+
+For the second test the tape lies on the IR filter, which now rests about 1~mm above the sensor.
+The filter is only there as a dust cover, so we can handle the setup without fear of damaging the
+sensor. \fillin{Check the gap.}
+
+With room light the hair is now much sharper than in Test~1 (Figure~\ref{fig:hairtest2}).
+With the RGB LED, a single colour gave a sharper shadow than white. The three colours sit in
+slightly different places inside the LED, so white light casts three shadows that are shifted a
+little, which blurs the edges. Green and blue worked best.
+
+The LED pictures are still more blurred than they should be. The LED is not a small point of light,
+so each point on the tape casts a soft shadow. A pinhole in front of the LED, or a longer black tube
+between LED and tape, should give a cleaner shadow. Putting the camera and LED inside the closed box
+should also help, because no room light will reach the sensor.
+\future{Add a pinhole or a black tube in front of the LED and repeat the test.}
+\future{Repeat the test with the camera and LED inside the box, and without the IR filter.}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{hairtest2-roomlight}\\[2pt]
+    \small (a) Room light
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \fbox{\parbox[b][0.72\linewidth][c]{0.96\linewidth}{\centering\future{Picture with the best LED colour, after the pinhole or tube}}}\\[2pt]
+    \small (b) Best LED colour
+  \end{minipage}
+  \caption{Test 2, tape about 1~mm above the sensor.}
+  \label{fig:hairtest2}
+\end{figure}

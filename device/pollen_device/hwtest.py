@@ -29,9 +29,13 @@ def main():
     results = {}
     try:
         if args.only in (None, "led"):
-            print("\nLED: on for 3 s")
-            hw.led.on(); time.sleep(3); hw.led.off()
-            results["led"] = ask("Did the LED light up?")
+            for colour in ("red", "green", "blue"):
+                print(f"\nLED: {colour} on for 3 s (GPIO{cfg['pins']['led'][colour]})")
+                hw.led.on(colour); time.sleep(3); hw.led.off()
+                results[f"led {colour}"] = ask(f"Did the LED light up {colour}?")
+            print("\nLED: white (all three) for 3 s")
+            hw.led.on("white"); time.sleep(3); hw.led.off()
+            results["led white"] = ask("Did it look whitish? (Swapped colours = wires on the wrong pins)")
         if args.only in (None, "fan"):
             print("\nFAN: on for 5 s")
             hw.fan.on(); time.sleep(5); hw.fan.off()
@@ -46,7 +50,7 @@ def main():
             results["stepper"] = ask("Did the shaft turn a quarter turn and come back?")
         if args.only in (None, "camera"):
             out = Path("hwtest_capture.png")
-            print(f"\nCAMERA: LED on, capturing to {out.resolve()}")
+            print(f"\nCAMERA: LED on ({cfg['camera']['led_rgb']}), capturing to {out.resolve()}")
             hw.led.on(); time.sleep(0.5)
             meta = hw.camera.capture(out, thumb_path=Path("hwtest_thumb.jpg"))
             hw.led.off()

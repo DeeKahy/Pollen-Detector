@@ -30,6 +30,16 @@ CREATE INDEX IF NOT EXISTS captures_pending ON captures(uploaded_at);
 CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT);
 """
 
+SIDECAR_ABOUT = (
+    "One photo from a pollen sampler: clear adhesive tape imaged by a Raspberry Pi HQ camera "
+    "(lensless, about 1.55 um per pixel). 'note' is free text written by the operator, for example "
+    "about the light or the sample. 'camera_settings' are the settings that were requested; "
+    "'camera' is what the sensor reported for this frame (ExposureTime and FrameDuration in "
+    "microseconds). 'led' says which colours of the RGB LED above the tape were on "
+    "and how bright (0 = off, 1 = fully on, in between = dimmed by PWM flicker at "
+    "'led_pwm_hz' times a second; all three = white). Times are UTC. 'kind' is sample (automatic cycle), untracked or manual."
+)
+
 
 def utcnow():
     return datetime.now(timezone.utc)
@@ -104,6 +114,41 @@ class Store:
             "INSERT INTO captures(ts, kind, sample_id, path, meta) VALUES (?, ?, ?, ?, ?)",
             (iso(ts), kind, sample_id, str(rel_path), json.dumps(meta)))
         return cur.lastrowid
+
+    def sidecar_path(self, rel):
+        return self.images / Path(rel).with_suffix(".json")
+
+    def write_sidecar(self, capture_id, rel, meta):
+        """Save the capture's metadata as readable JSON next to the image (for people and AI tools)."""
+        doc = {"about": SIDECAR_ABOUT, "capture_id": capture_id, "image_file": Path(rel).name, **meta}
+        self.sidecar_path(rel).write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+
+    def get_capture(self, capture_id):
+        rows = self._all("SELECT * FROM captures WHERE id=?", (capture_id,))
+        return rows[0] if rows else None
+
+    def set_note(self, capture_id, note):
+        """Change the note of a capture (database + JSON file). Returns the new metadata."""
+        row = self.get_capture(capture_id)
+        if row is None:
+            return None
+        meta = json.loads(row["meta"])
+        meta["note"] = note
+        self._exec("UPDATE captures SET meta=? WHERE id=?", (json.dumps(meta), capture_id))
+        self.write_sidecar(capture_id, row["path"], meta)
+        return meta
+
+    def delete_capture(self, capture_id):
+        """Delete a capture: its database row and all its files (image, thumbnail, JSON, DNG)."""
+        row = self.get_capture(capture_id)
+        if row is None:
+            return False
+        rel = Path(row["path"])
+        for p in (self.abs_path(rel), self.thumb_path(rel), self.sidecar_path(rel),
+                  self.images / rel.with_suffix(".dng")):
+            p.unlink(missing_ok=True)
+        self._exec("DELETE FROM captures WHERE id=?", (capture_id,))
+        return True
 
     def recent_captures(self, limit=24):
         return self._all("SELECT * FROM captures ORDER BY id DESC LIMIT ?", (limit,))
