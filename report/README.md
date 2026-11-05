@@ -9,8 +9,10 @@ The project report, written in LaTeX. It uses the
 report/
   chapters/        the report itself, one or more files per chapter
     1.0-introduction.tex
-    2.0-prototype.tex, 2.1-imaging-tests.tex, 2.2-control-software.tex
-    3.0-conclusion.tex
+    2.0-user-needs.tex            (planned interviews)
+    3.0-prototype.tex, 3.1-imaging-tests.tex, 3.2-control-software.tex
+    4.0-user-testing.tex          (planned build test, next semester studies)
+    5.0-conclusion.tex
   appendices/      appendices, A.0-..., B.0-...
   frontmatter/     front page, title pages, colophon, preface
   figures/         images. Write \includegraphics{name}, no folder needed
