@@ -2,12 +2,14 @@
 % for more information on how to create macros
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Red placeholders. Search the .tex files for \fillin and \future.
+% Red placeholders. Search the .tex files for \fillin, \future and planned.
 %   \fillin{...}  something to write or decide now
 %   \future{...}  something we can only do later (needs new hardware, data or tests)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\fillin}[1]{\textcolor{red}{[#1]}}
 \newcommand{\future}[1]{\textcolor{red}{[Future: #1]}}
+%   \begin{planned} ... \end{planned}  a whole block that is only an idea so far (red)
+\newenvironment{planned}{\par\color{red}}{\par}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Macros for the titlepage
