@@ -26,7 +26,8 @@ a blue LED about 30~cm above the tape (Figure~\ref{fig:camtest-best}).
 The hair was visible, but blurred. Room light gave clearly better pictures than the blue LED.
 With pure blue light only one in four pixels sees anything, because of the colour filter on the
 sensor, and the pictures were dark and noisy. Because of this we removed the IR filter to make
-the gap smaller, and replaced the blue LED with an RGB LED (Section~\ref{sec:electronics}).
+the gap smaller, and replaced the blue LED with a 5~mm RGB LED, so we could choose the colour
+(Section~\ref{sec:electronics}).
 
 \begin{figure}[htbp]
   \centering
@@ -51,7 +52,7 @@ The filter is only there as a dust cover, so we can handle the setup without fea
 sensor. \fillin{Check the gap.}
 
 With room light the hair is now much sharper than in Test~1 (Figure~\ref{fig:hairtest2}).
-With the RGB LED, a single colour gave a sharper shadow than white. The three colours sit in
+With the 5~mm RGB LED, a single colour gave a sharper shadow than white. The three colours sit in
 slightly different places inside the LED, so white light casts three shadows that are shifted a
 little, which blurs the edges. Green and blue worked best.
 
@@ -59,6 +60,8 @@ The LED pictures are still more blurred than they should be. The LED is not a sm
 so each point on the tape casts a soft shadow. A pinhole in front of the LED, or a longer black tube
 between LED and tape, should give a cleaner shadow. Putting the camera and LED inside the closed box
 should also help, because no room light will reach the sensor.
+The RGB LED was also dim, especially red and blue, so the exposure had to be long.
+For Test~3 we changed to a NeoPixel (Section~\ref{sec:electronics}).
 \future{Add a pinhole or a black tube in front of the LED and repeat the test.}
 \future{Repeat the test with the camera and LED inside the box, and without the IR filter.}
 
