@@ -35,6 +35,16 @@ model from scratch. The reasons were:
   fewer.
 \end{itemize}
 
+\paragraph{LED tower.}
+% Draft by Claude 2026-11-05, edit freely.
+The LED sits in a black printed tower that stands on the camera box, so it is always at the same
+height above the tape and no room light reaches the sensor. The light shines through a small
+hole at the bottom of the tower, because a small light source gives sharper shadows
+(Section~\ref{sec:imaging-test-3}). The tape runs under the tower, between its legs, so nothing
+touches the sticky side. The tower snaps onto the camera box and hooks over the top of the frame.
+It can be pulled off and put back without taking the tape out, which we need often while testing.
+\future{Print the tower with a smaller hole (1.5~mm) and repeat the test.}
+
 \paragraph{Blowing or sucking.}
 The reference trap sucks air through a narrow slit onto the tape. That gives a known airflow
 and a sharp, narrow line of particles, which is needed to report pollen per cubic metre of air.
@@ -51,10 +61,15 @@ to build. A printed nozzle between fan and tape is a possible middle ground.
   fan directly. A diode protects the MOSFET.
   \item \textbf{Camera.} The Raspberry Pi HQ camera with the lens removed
   (Section~\ref{sec:imaging-tests}).
-  \item \textbf{LED.} An RGB LED with a resistor for each colour, connected directly to three Pi pins.
+  \item \textbf{LED.} A single LED cut from a chained string of Christmas lights. It is a
+  NeoPixel: a colour LED with its own small controller chip, so it needs only one data wire
+  from the Pi.
 \end{itemize}
 
-\paragraph{Why an RGB LED.}
+\paragraph{From a blue LED to a NeoPixel.}
+% Draft by Claude 2026-11-05, edit freely.
 Our first LED was blue, and pure blue light gave poor pictures
-(Section~\ref{sec:imaging-tests}). With an RGB LED the software can choose the colour and
-brightness, so we can test which light works best.
+(Section~\ref{sec:imaging-tests}). We replaced it with an RGB LED, so the software can choose
+the colour and test which light works best. That LED was too dim, because a Pi pin can only give
+a few milliamperes. The NeoPixel takes its power from the 5~V supply, so it is brighter, and it
+dims each colour itself. The same software works with both LEDs.

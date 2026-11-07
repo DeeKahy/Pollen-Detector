@@ -69,7 +69,7 @@ without the hassle of sucking through a slit:
   smooth top surface (print face down on glass, or stick a strip of PTFE tape on it).
 - **Fan intake** behind a rain hood and coarse mesh (≥ 1 mm). Put the intake side away from where rain comes from.
 - **Later:** turn the fan around so it sucks. The same duct and nozzle then becomes the impactor
-  recommended in CLAUDE.md, so design the duct with that in mind.
+  recommended in AGENTS.md, so design the duct with that in mind.
 
 ## 5. Camera station
 
