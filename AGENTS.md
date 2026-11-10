@@ -249,7 +249,7 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 - `ml/`: recognition plan. Not started. Large datasets stay out of git.
 - `flake.nix` / `.envrc`: Nix dev shell (`nix develop`). `pi-backups/`: local copies of the Pi's data dir (git-ignored).
 - `report/`: the project report (LaTeX, AAU template). Files in `report/chapters/` are auto-included in number order (`1.0-intro.tex`, `1.1-...`, `2.0-...`) by `report/latexmkrc`. CI (`.github/workflows/report.yml`) builds the PDF on every PR and links it in a comment. `main` is protected.
-  Current chapters: `1.0-introduction` (problem, vision, research question), `2.0-prototype` ("The prototype so far": how it works, enclosure, electronics), `2.1-imaging-tests` (Test 1 room light/blue LED, Test 2 RGB LED), `2.2-control-software` (web UI: overall functionality and why, not every button), `3.0-conclusion` (placeholder).
+  Current chapters: `1.0-introduction` (problem, vision, research question), `2.0-experts` (planned: written questions to Astma-Allergi Danmark; no user studies this semester), `3.0-prototype` ("The prototype so far": how it works, enclosure, electronics), `3.1-imaging-tests` (Test 1 room light/blue LED, Test 2 RGB LED), `3.2-control-software` (web UI: overall functionality and why, not every button), `4.0-conclusion` (placeholder). Appendix: `A.0-expert-questions`.
 - `README.md`: public front page of the repo.
 
 ## 12. Next steps
