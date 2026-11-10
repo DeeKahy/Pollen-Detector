@@ -116,7 +116,9 @@ def check_wiring(cfg, hw, ctl):
 
     pins = cfg["pins"]
     stepper_pins = list(pins["stepper"])
-    used = set(stepper_pins) | {pins["fan"], *pins["led"].values()}
+    neo = cfg["led"]["type"] == "neopixel"
+    # NeoPixel: data on SPI MOSI (GPIO10). Leave all SPI0 pins alone (7-11).
+    used = set(stepper_pins) | {pins["fan"]} | ({7, 8, 9, 10, 11} if neo else set(pins["led"].values()))
     out = []
 
     # Stepper inputs: only while the motor is idle; hold the controller lock so nothing moves.
@@ -156,8 +158,9 @@ def check_wiring(cfg, hw, ctl):
 
     out.append(_check("Fan / LED wiring", "info",
                       f"Can't be detected electrically - switch them on above and look "
-                      f"(fan GPIO{pins['fan']}, LED red GPIO{pins['led']['red']}, "
-                      f"green GPIO{pins['led']['green']}, blue GPIO{pins['led']['blue']})"))
+                      f"(fan GPIO{pins['fan']}, " + ("NeoPixel data GPIO10 / pin 19)" if neo else
+                      f"LED red GPIO{pins['led']['red']}, green GPIO{pins['led']['green']}, "
+                      f"blue GPIO{pins['led']['blue']})")))
     out.append(_check("ULN2003 power", "info",
                       "Run the coil test: LEDs A, B, C, D should light one after another. "
                       "No LEDs at all = board has no 5 V / GND."))

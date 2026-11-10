@@ -41,6 +41,7 @@ Biologists / aerobiologists and reference data are needed for labelling and cali
 | **Raspberry Pi 3 B+** (others available) | Enough for capture + scheduling + upload. Marginal for on-device CNN inference on full-res HQ images (1 GB RAM). Pi 4/5 recommended if inference runs on device. |
 | **Raspberry Pi HQ Camera (IMX477, CS mount)** | 12.3 MP, 1.55 µm pixels, sensor ~6.29 × 4.71 mm. Colour (Bayer) sensor. Lens off. **IR-cut filter removed** (after the 2026-10-26 tests). The sensor still has its own bonded cover glass. Sensor now exposed: plan is a #1 microscope **coverslip** (~0.15 mm) lying on the sensor cover glass as a dust cover. 22×22 mm likely won't fit down the mount opening: measure it first, or take the mount housing off. |
 | **RGB LED, 5 mm, common anode** (4 legs) | Replaces the single LED. Long leg = shared + to 3.3V (pin 17). Red GPIO24 / 220 Ω, green GPIO25 / 100 Ω, blue GPIO5 / 47 Ω. Pin LOW = on. Diode test: R 1.72 V, G 2.28 V, B 2.48 V. See `docs/wiring.md`. Software: `RgbLed` in `hardware.py`, config `pins.led` {red, green, blue} + `led_active_low`; `camera.led_rgb` [r,g,b] 0..1 is the colour (live view and pictures), PWM at 1 kHz. Web UI: colour wheel + intensity + RGB boxes, and a camera calibration (LED off/R/G/B frames → 3×3 matrix, inverted so the picked colour is what the camera sees). Blue moved from 100 Ω to 47 Ω on 2026-10-27 (barely visible before: its Vf is close to 3.3 V); current not measured yet. |
+| **NeoPixel string** (WS2811/WS2812 Christmas lights, 3 wires) | Added 2026-11-05 to replace the RGB LED (brighter, own PWM). Data on GPIO10 / SPI MOSI (pin 19), 5V pin 4, GND. Software: `PixelLight` in `hardware.py`, config `led.type: neopixel`, `led.count/order/max_ma`, `camera.led_pixels` (which pixels light). Needs SPI on and `python3-spidev`. Not yet tested on the real string. See `docs/wiring.md`. |
 | Clear adhesive tape (roll) | Initial collection medium. |
 | Multimeter (Biltema, autoranging) | Diode test: dial on Ω/CAP, MODE until ▶|, black in COM, red in VΩ. |
 
@@ -230,6 +231,9 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 | 2026-10-28 | LED calibration cleared on the Pi: direct pin control gives better results. Added "Auto setup" (per colour: exposure for 95th percentile ≈ 150, score = 99.5th percentile gradient / median; keep best). | Setup changes often (camera knocked, tape moved); a one-button search beats hand tuning. |
 | 2026-10-28 | Report CI also builds a "changes marked" PDF for PRs (`report/diff.sh`: latexpand both versions, latexdiff UNDERLINE, `\fillin`/`\future` treated as text so marks wrap). | Faster review between the two authors. |
 | 2026-10-28 | Supervisor reviews every 1–2 weeks: a frozen `review/YYYY-MM-DD` branch from `main` gets a PR into `supervisor-reviewed`; CI's changes-marked PDF then shows what is new since the last review. Merge (merge commit) when the feedback is in. Report stays in git, not Overleaf. Steps in `report/README.md`. | Supervisor gets a PDF plus a diff without using git; feedback by PDF notes, email or PR comments. |
+| 2026-11-05 | NeoPixel string driven over SPI (GPIO10), our own encoder with `spidev` (no pip, no root). Light only chosen pixels; software caps the estimated current at `led.max_ma` (400 mA). The 5 mm RGB LED stays supported (`led.type: rgb`). | GPIO18 (the usual NeoPixel pin) is the fan; rpi_ws281x needs root and pip. One pixel = smallest light source = sharpest shadow. |
+| 2026-11-05 | Auto setup v2: measure R, G, B alone (+ dark frames), model ~150 mixes as weighted sums in linear light (gamma 2.2 undone), photograph the best 3, keep the best real score. Mixes use whole 1 ms PWM periods. | User wanted more colours than 4. Light is additive, so mixes can be computed instead of photographed. Not yet run on the real camera. |
+| 2026-11-09 | Pictures are uploaded to **pollen-gallery** at https://pollen.smallapp.cc (Go + htmx, on the user's own server, code not on GitHub yet). The Pi uploader sends every picture + JSON sidecar when it has internet, plus note edits and deletes. Gallery password and upload token: `/var/lib/selfhosted/pollen-gallery.env` on the `agent` server. | The user forgets the Pi at home and wanted to see the pictures at school. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
 ## 11. Repo layout
@@ -296,7 +300,7 @@ The Pi's `~/pollen/config.yaml` is not synced; a backup from before the RGB chan
 
 **Talking to the device.** Everything the web UI does is a JSON API (`device/README.md` has the table).
 Useful: `GET /api/status`, `GET /api/preview.jpg`, `POST /api/led {"rgb":[r,g,b],"on":true}` or
-`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~15 s), `POST /api/camera/settings {...}`,
+`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~30 s), `POST /api/camera/settings {...}`,
 `POST /api/capture {"note":"..."}` (full res PNG + JSON sidecar under `/images/<path>`).
 Don't leave test pictures behind on the Pi without a note saying they were tests.
 

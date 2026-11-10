@@ -15,6 +15,8 @@ DEFAULTS = {
         "led_active_low": True,
         "led_pwm_frequency": 1000,
     },
+    # type: rgb = 5 mm RGB LED on pins.led; neopixel = WS2811/WS2812 string on SPI (GPIO10)
+    "led": {"type": "rgb", "count": 50, "order": "RGB", "spi": [0, 0], "max_ma": 400},
     "stepper": {
         "half_step": True,
         "step_delay_s": 0.0015,
@@ -28,6 +30,7 @@ DEFAULTS = {
         "analogue_gain": 1.0,
         "save_dng": False,
         "led_rgb": [1.0, 1.0, 1.0],
+        "led_pixels": "0",
         "led_settle_s": 0.5,
         "preview_width": 1014,
         "awb": True,
@@ -84,8 +87,10 @@ def load_config(path):
     cfg["data_dir"] = str(data_dir.resolve())
     if int(cfg["cycle"]["camera_offset_cycles"]) < 1:
         raise ValueError("cycle.camera_offset_cycles must be >= 1")
+    if cfg["led"]["type"] not in ("rgb", "neopixel"):
+        raise ValueError("led.type must be rgb or neopixel")
     led = cfg["pins"]["led"]
-    if not isinstance(led, dict) or set(led) != {"red", "green", "blue"}:
+    if cfg["led"]["type"] == "rgb" and not isinstance(led, dict) or set(led) != {"red", "green", "blue"}:
         raise ValueError("pins.led must have red, green and blue pins (RGB LED), "
                          "e.g. {red: 24, green: 25, blue: 5}. See config.example.yaml")
     cfg["_path"] = str(path.resolve())
