@@ -73,8 +73,9 @@ cycle:
 
 upload:
   enabled: false
-  server_url: http://192.168.1.10:8000   # base URL of the server in server/
+  server_url: http://192.168.1.10:8000   # base URL of the server (pollen-gallery: https://pollen.smallapp.cc)
   token: change-me        # must match the token for this device_id on the server
+                          # New pictures, note edits and deletes are sent right away when there is internet.
   interval_s: 30
   timeout_s: 120
   delete_after_upload: false
