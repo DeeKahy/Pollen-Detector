@@ -9,10 +9,12 @@ USER_NAME="$(whoami)"
 echo "== Installing system packages"
 sudo apt-get update
 sudo apt-get install -y python3-picamera2 python3-gpiozero python3-lgpio \
-    python3-flask python3-requests python3-yaml python3-pil
+    python3-flask python3-requests python3-yaml python3-pil python3-spidev
 
 # user needs gpio + video group access (default 'pi'-style users already have it)
-sudo usermod -aG gpio,video "$USER_NAME" || true
+sudo usermod -aG gpio,video,spi "$USER_NAME" || true
+# SPI drives a NeoPixel light (led.type: neopixel). Harmless otherwise.
+sudo raspi-config nonint do_spi 0 || true
 
 if [ ! -f config.yaml ]; then
   cp config.example.yaml config.yaml
