@@ -18,8 +18,8 @@ PIN_NAMES = {
 USED = {  # pin -> (colour key, function)
     2: ("5V", "→ driver board +"), 4: ("5V", "→ fan"), 6: ("GND", "→ driver board −"),
     14: ("GND", "→ fan MOSFET"), 17: ("3V3", "→ LED long leg"),
-    11: ("IN1", "driver IN1"), 13: ("IN2", "driver IN2"),
-    15: ("IN3", "driver IN3"), 16: ("IN4", "driver IN4"), 12: ("FAN", "fan MOSFET"),
+    12: ("IN1", "driver IN1"), 13: ("IN2", "driver IN2"),
+    15: ("IN3", "driver IN3"), 16: ("IN4", "driver IN4"), 11: ("FAN", "fan MOSFET"),
     18: ("RED", "LED red"), 22: ("GREEN", "LED green"), 29: ("BLUE", "LED blue"),
     1: ("OPT", "BME280 (optional)"), 3: ("OPT", "BME280 (optional)"), 5: ("OPT", "BME280 (optional)"),
     9: ("OPT", "BME280 (optional)"),
@@ -92,7 +92,7 @@ def diode_vertical(x, y1, y2, col):
 
 
 def fan_circuit(x0, y0, w, h):
-    """Fan switched by a MOSFET: 5V -> fan -> D, S -> GND, G <- 220R <- GPIO18, 100k G -> GND."""
+    """Fan switched by a MOSFET: 5V -> fan -> D, S -> GND, G <- 220R <- GPIO17, 100k G -> GND."""
     box(x0, y0, w, h, "Fan (switched by a MOSFET)")
     lx = x0 + 280
     top = y0 + 70
@@ -124,7 +124,7 @@ def fan_circuit(x0, y0, w, h):
     gate_y = g[1]
     line([(gx, gate_y), (g[0], gate_y)], C["FAN"])
     resistor(gx + 30, gate_y, False, "220 Ω", C["FAN"])
-    tag(gx, gate_y, 12, "FAN", 150)
+    tag(gx, gate_y, 11, "FAN", 150)
     px = g[0] - 22
     dot(px, gate_y)
     line([(px, gate_y), (px, gate_y + 8)], C["FAN"], 2.5)
@@ -205,7 +205,7 @@ box(ux, uy, 440, 270, "Stepper motor and driver board")
 bx, by = ux + 210, uy + 50
 a(f'<rect x="{bx}" y="{by}" width="110" height="190" rx="6" fill="#1b6e3a" stroke="var(--ink)"/>')
 text(bx + 55, by + 22, "ULN2003", 13, "middle", "700", "#fff")
-pins = [("IN1", 11, "IN1"), ("IN2", 13, "IN2"), ("IN3", 15, "IN3"), ("IN4", 16, "IN4")]
+pins = [("IN1", 12, "IN1"), ("IN2", 13, "IN2"), ("IN3", 15, "IN3"), ("IN4", 16, "IN4")]
 for k, (lab, pin, key) in enumerate(pins):
     py = by + 46 + k * 24
     text(bx + 8, py + 4, lab, 11, fill="#fff")

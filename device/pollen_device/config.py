@@ -9,8 +9,8 @@ DEFAULTS = {
     "mock": "auto",
     "data_dir": "./data",
     "pins": {
-        "stepper": [17, 27, 22, 23],
-        "fan": 18,
+        "stepper": [18, 27, 22, 23],
+        "fan": 17,
         "led": {"red": 24, "green": 25, "blue": 5},
         "led_active_low": True,
         "led_pwm_frequency": 1000,

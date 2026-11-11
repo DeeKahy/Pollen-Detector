@@ -2,6 +2,8 @@
 
 ![wiring diagram](wiring.svg)
 
+Building it on a Proto HAT instead of a breadboard: see [hat.md](hat.md).
+
 `wiring.svg` is made by `make_wiring_svg.py`. If you change a pin, change it there and run the script again.
 
 ## Which wire goes where
@@ -11,11 +13,11 @@
 | 2 | 5V | driver board `+` |
 | 4 | 5V | fan red wire |
 | 6 | GND | driver board `−` |
-| 11 | GPIO17 | driver board IN1 |
+| 12 | GPIO18 | driver board IN1 |
 | 13 | GPIO27 | driver board IN2 |
 | 15 | GPIO22 | driver board IN3 |
 | 16 | GPIO23 | driver board IN4 |
-| 12 | GPIO18 | fan MOSFET, through a 220 Ω resistor |
+| 11 | GPIO17 | fan MOSFET, through a 220 Ω resistor |
 | 14 | GND | fan MOSFET |
 | 17 | 3.3V | RGB LED long leg (shared +) |
 | 18 | GPIO24 | RGB LED red leg, through a 220 Ω resistor |
@@ -24,7 +26,7 @@
 | CAMERA port | | HQ camera ribbon, blue side facing the USB ports |
 | 1, 3, 5, 9 | | BME280 sensor (optional) |
 
-The numbers in `device/config.yaml` are GPIO numbers (17, 27, ...), not pin numbers.
+The numbers in `device/config.yaml` are GPIO numbers (18, 27, ...), not pin numbers.
 
 ## The motor
 
@@ -37,7 +39,7 @@ The fan needs more current than a GPIO pin can give, so a MOSFET switches it.
 
 - Fan red wire to 5V (pin 4). Fan black wire to the MOSFET's D leg.
 - MOSFET S leg to GND (pin 14).
-- GPIO18 (pin 12) to a 220 Ω resistor, then to the MOSFET's G leg.
+- GPIO17 (pin 11) to a 220 Ω resistor, then to the MOSFET's G leg.
 - A 100 kΩ resistor from the G leg to GND. This keeps the fan off while the Pi starts.
 - A diode across the fan, with the stripe on the 5V side. This protects the MOSFET.
 
@@ -105,7 +107,7 @@ no PWM flicker from the Pi. It has 3 wires and one data line for the whole strin
   to the string: it drops the string to ~4.3 V, and then 3.3 V is enough. A level shifter
   (74AHCT125) is the clean fix.
 - **SPI must be on** (once): `sudo raspi-config nonint do_spi 0`, then reboot. Check that
-  `/dev/spidev0.0` exists. The software uses SPI (not GPIO18) because GPIO18 drives the fan
+  `/dev/spidev0.0` exists. The software uses SPI (not GPIO18) because GPIO18 drives the motor
   and SPI needs no root.
 
 In `config.yaml`:

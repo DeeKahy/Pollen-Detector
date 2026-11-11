@@ -12,8 +12,8 @@ mock: auto
 data_dir: ./data
 
 pins:                     # BCM GPIO numbers (NOT physical pin numbers) - see docs/wiring.md
-  stepper: [17, 27, 22, 23]   # ULN2003 IN1..IN4  (physical pins 11, 13, 15, 16)
-  fan: 18                     # MOSFET gate for fan (physical pin 12)
+  stepper: [18, 27, 22, 23]   # ULN2003 IN1..IN4  (physical pins 12, 13, 15, 16)
+  fan: 17                     # MOSFET gate for fan (physical pin 11)
   led:                        # RGB LED, common anode: long leg to 3.3 V (physical pin 17)
     red: 24                   # 220 ohm (physical pin 18)
     green: 25                 # 100 ohm (physical pin 22)
