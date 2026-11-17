@@ -1,13 +1,18 @@
 # Pollen device software
 
 Runs on the Raspberry Pi. It drives the stepper, fan, LED and camera, runs the sampling
-cycle on a schedule, serves a **debug web UI** on port 8080, and uploads images to the
-server in `../server` (queued locally, so network outages are fine).
+cycle on a schedule, serves a **debug web UI** on port 8080, and uploads images to a
+server (queued locally, so network outages are fine).
+
+The prototype uploads to **https://pollen.smallapp.cc** (pollen-gallery, a small Go gallery on
+our own server, code not on GitHub yet). Every picture goes up with its JSON sidecar as soon as
+the Pi has internet; note edits and deletes follow. `../server` is the older minimal Flask server;
+it takes the same upload call but not the note/delete sync.
 
 ```
 pollen_device/
   config.py     defaults + YAML loading
-  hardware.py   Stepper (28BYJ-48/ULN2003), Output (fan via MOSFET), RgbLed (3 pins, active low), Camera (picamera2) + mocks
+  hardware.py   Stepper (28BYJ-48/ULN2003), Output (fan via MOSFET), RgbLed (PinLight: 3 pins, active low; or PixelLight: NeoPixel string on SPI), Camera (picamera2) + mocks
   cycle.py      the sampling cycle, tape tracking, manual actions
   storage.py    images on disk + SQLite (samples, captures, upload queue, state)
   uploader.py   background upload + heartbeat
@@ -47,7 +52,11 @@ board should light up in order. **Retry camera** restarts the camera without reb
 
 The fan and LED can't be checked electrically. Switch them on in the web page and look.
 
-**LED colour** has a colour wheel (hue and saturation), an intensity slider and R G B boxes.
+**LED colour** works the same for the 5 mm RGB LED and a NeoPixel string (`led.type`).
+With a NeoPixel string there is also **pixels lit** (e.g. `0`, `3-5`, `all`, numbered from the
+input end) with an estimate of the current. Wiring: `docs/wiring.md`.
+
+It has a colour wheel (hue and saturation), an intensity slider and R G B boxes.
 The colour is used for live view and pictures. **Calibrate with the camera**: take the tape
 out, point the LED at the camera, dim the room, press Calibrate. It photographs the LED off,
 red, green and blue at one exposure, and stores what the camera saw (a 3×3 matrix). After
@@ -56,10 +65,22 @@ match. The calibration is only valid for the camera settings it was made with (w
 A progress bar shows the try, the picture and the time left. If a try is too bright or too
 dark it starts again at half or double the exposure.
 
-**🎯 Auto setup** tries blue, green, red and white. For each it finds the exposure that puts
-the background at about 60 % brightness (no clipping), then scores how crisp the darkest edges
-are. It keeps the best one (colour, exposure, gain, auto white balance off). About 15 s. Run it
-again whenever the sample, the LED position or the room light changes.
+**🎯 Auto setup** finds the LED colour and exposure that give the crispest picture. About 30 s.
+Run it again whenever the sample, the LED position or the room light changes.
+
+1. **Measure.** Red, green and blue alone. For each it finds the exposure that puts the
+   background at about 60 % brightness (no clipping), takes that picture and one with the LED off.
+2. **Model.** Light from the three chips adds up. So after undoing the camera's gamma (about
+   2.2), the picture under any mix is the three single-colour pictures added with weights.
+   It computes and scores about 150 mixes this way (a coarse grid, then finer around the best)
+   without taking more pictures.
+3. **Verify.** It photographs the model's best 3 mixes (at least 0.2 apart) for real.
+
+The score ("detail") is how crisp the darkest edges are: the strongest gradients relative to the
+background. The best **real** picture wins; the model only picks what to try. The table shows
+the real score and what the model predicted, so you can see how far to trust the model.
+A dimmed colour flickers (PWM). So for a mix, the exposure is rounded up to whole flicker periods
+(1 ms) and all colours are dimmed by the same factor. The picture is the same, without stripes.
 
 **✨ Pulse** breathes the LED darker and brighter (never below "lowest") while slowly going
 round the colours. Picking a colour or turning the LED off stops it. Pictures taken while it
@@ -103,9 +124,10 @@ Image kinds: `sample` (linked to a blow period), `untracked`, `manual`.
 | `GET /` | debug page: live preview, manual control, cycle control, status, recent captures, log |
 | `GET /api/status` | everything as JSON |
 | `POST /api/fan` `{"value":1}` | switch the fan |
-| `POST /api/led` `{"rgb":[1,0.5,0],"on":true}` or `{"colour":"white"}` / `{"colour":"off"}` | set the RGB LED colour (0..1, PWM) and switch it |
+| `POST /api/led` `{"rgb":[1,0.5,0],"on":true}` or `{"colour":"white"}` / `{"colour":"off"}` | set the LED colour (0..1) and switch it |
+| `POST /api/led` `{"pixels":"0-4"}` | NeoPixel string: which pixels light |
 | `POST /api/led` `{"effect":"pulse","period_s":4,"hue_s":40,"low":0.2}` / `{"effect":null}` | pulse effect on / off |
-| `POST /api/led/auto` | auto setup: best LED colour + exposure for what is on the tape now |
+| `POST /api/led/auto` | auto setup: best LED colour + exposure for what is on the tape now (`results` = real pictures, `model` = top predicted mixes) |
 | `POST /api/led/calibrate` / `/api/led/calibration/clear` | measure the camera's response to each LED colour (LED pointed at the camera) |
 | `POST /api/jog` `{"steps":500}` | move tape (negative = back) |
 | `POST /api/skip` | advance one pitch without blowing (keeps tracking) |
@@ -113,7 +135,7 @@ Image kinds: `sample` (linked to a blow period), `untracked`, `manual`.
 | `POST /api/exposure` `{"exposure_us":2000,"analogue_gain":1}` | camera exposure (0 = auto) |
 | `POST /api/cycle/run|pause|resume|abort|reset-tracking` | cycle control |
 | `POST /api/cycle/settings` `{"blow_s":300}` | change cycle timing until restart |
-| `POST /api/upload/now` | upload queue now |
+| `POST /api/upload/now` | upload queue (and note edits, deletes) now |
 | `GET /api/preview.jpg`, `/api/captures`, `/api/logs`, `/images/<path>` | data |
 
 The UI has no login by default (LAN debugging). Set `web.password` before putting a device on an untrusted network.

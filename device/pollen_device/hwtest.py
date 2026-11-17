@@ -30,12 +30,14 @@ def main():
     try:
         if args.only in (None, "led"):
             for colour in ("red", "green", "blue"):
-                print(f"\nLED: {colour} on for 3 s (GPIO{cfg['pins']['led'][colour]})")
+                where = ("NeoPixel, pixels " + cfg["camera"]["led_pixels"] if cfg["led"]["type"] == "neopixel"
+                         else f"GPIO{cfg['pins']['led'][colour]}")
+                print(f"\nLED: {colour} on for 3 s ({where})")
                 hw.led.on(colour); time.sleep(3); hw.led.off()
                 results[f"led {colour}"] = ask(f"Did the LED light up {colour}?")
             print("\nLED: white (all three) for 3 s")
             hw.led.on("white"); time.sleep(3); hw.led.off()
-            results["led white"] = ask("Did it look whitish? (Swapped colours = wires on the wrong pins)")
+            results["led white"] = ask("Did it look whitish? (Swapped colours = wires on the wrong pins, or led.order wrong for a NeoPixel)")
         if args.only in (None, "fan"):
             print("\nFAN: on for 5 s")
             hw.fan.on(); time.sleep(5); hw.fan.off()

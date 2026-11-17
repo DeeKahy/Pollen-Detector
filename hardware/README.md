@@ -6,6 +6,10 @@
 - [../docs/mechanical-ideas.md](../docs/mechanical-ideas.md): design ideas and printing tips.
 - [../docs/wiring.md](../docs/wiring.md): how to wire the electronics.
 
+## Current design
+
+- [tape-deck/](tape-deck/): simple parametric OpenSCAD frame for the prototype (not printed yet).
+
 ## Folders
 
 Put the 3D files here, one folder per part:

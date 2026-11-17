@@ -53,7 +53,7 @@ Start with the [build guide](docs/build-guide.md). In short:
 | `iterations/` | Photos and notes from each version we build |
 | `ml/` | Pollen recognition (not started yet) |
 | `report/` | Our project report in LaTeX. See [report/README.md](report/README.md) |
-| `CLAUDE.md` | Full project notes and decisions. Also used as context for AI assistants |
+| `AGENTS.md` | Full project notes and decisions. Also used as context for AI assistants |
 
 ## Contributing
 

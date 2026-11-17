@@ -1,4 +1,4 @@
-% Imaging tests. Continues the chapter "The prototype so far" (2.0-prototype.tex).
+% Imaging tests. Continues the chapter "The prototype so far" (3.0-prototype.tex).
 % Draft by Claude, shortened on 2026-10-28 after feedback, edit freely.
 % Red text in the PDF is a placeholder. Search for \fillin and \future.
 % All test pictures with notes and settings: iterations/v0-concept/camera-settings-2026-10-26/
@@ -26,7 +26,8 @@ a blue LED about 30~cm above the tape (Figure~\ref{fig:camtest-best}).
 The hair was visible, but blurred. Room light gave clearly better pictures than the blue LED.
 With pure blue light only one in four pixels sees anything, because of the colour filter on the
 sensor, and the pictures were dark and noisy. Because of this we removed the IR filter to make
-the gap smaller, and replaced the blue LED with an RGB LED (Section~\ref{sec:electronics}).
+the gap smaller, and replaced the blue LED with a 5~mm RGB LED, so we could choose the colour
+(Section~\ref{sec:electronics}).
 
 \begin{figure}[htbp]
   \centering
@@ -51,7 +52,7 @@ The filter is only there as a dust cover, so we can handle the setup without fea
 sensor. \fillin{Check the gap.}
 
 With room light the hair is now much sharper than in Test~1 (Figure~\ref{fig:hairtest2}).
-With the RGB LED, a single colour gave a sharper shadow than white. The three colours sit in
+With the 5~mm RGB LED, a single colour gave a sharper shadow than white. The three colours sit in
 slightly different places inside the LED, so white light casts three shadows that are shifted a
 little, which blurs the edges. Green and blue worked best.
 
@@ -59,6 +60,8 @@ The LED pictures are still more blurred than they should be. The LED is not a sm
 so each point on the tape casts a soft shadow. A pinhole in front of the LED, or a longer black tube
 between LED and tape, should give a cleaner shadow. Putting the camera and LED inside the closed box
 should also help, because no room light will reach the sensor.
+The RGB LED was also dim, especially red and blue, so the exposure had to be long.
+For Test~3 we changed to a NeoPixel (Section~\ref{sec:electronics}).
 \future{Add a pinhole or a black tube in front of the LED and repeat the test.}
 \future{Repeat the test with the camera and LED inside the box, and without the IR filter.}
 
@@ -71,9 +74,52 @@ should also help, because no room light will reach the sensor.
   \end{minipage}\hfill
   \begin{minipage}[t]{0.48\textwidth}
     \centering
-    \fbox{\parbox[b][0.72\linewidth][c]{0.96\linewidth}{\centering\future{Picture with the best LED colour, after the pinhole or tube}}}\\[2pt]
-    \small (b) Best LED colour
+    \includegraphics[width=\linewidth]{hairtest2-green}\\[2pt]
+    \small (b) Green LED, the best colour
   \end{minipage}
-  \caption{Test 2, tape about 1~mm above the sensor.}
+  \caption{Test 2, tape about 1~mm above the sensor. The camera was moved between the two
+  pictures, so the hair lies a little differently.}
   \label{fig:hairtest2}
+\end{figure}
+
+\subsection{Test 3: flour, with the LED tower}\label{sec:imaging-test-3}
+% Draft by Claude 2026-11-05 from the pictures and settings of that day, edit freely.
+
+For the third test the NeoPixel sits in the LED tower (Section~\ref{sec:enclosure}), with its
+light shining through a \fillin{size}~mm hole about \fillin{height}~mm above the tape. As a
+stand-in for pollen we sprinkled wheat flour on half of the tape, because it was the closest
+thing to pollen we had \fillin{typical size of wheat flour particles, with a source}.
+The other half was left almost empty.
+
+The flour grains are clearly visible (Figure~\ref{fig:flourtest}), but each one is a soft blob
+about 0.1 to 0.17~mm wide, several times the size of a pollen grain. We took the same picture
+with red, green and blue light, and found the blobs to be equally blurred in all three. If the
+blur came from diffraction, red light would blur more than blue. So the blur comes from the
+size of the light source: every point of the hole casts its own shadow, and these shadows are
+shifted a little. A dust speck lying right on the sensor glass is much sharper than the flour,
+which shows that the gap between tape and sensor matters as well.
+
+This tells us what to improve. The blur grows with the size of the hole and with the gap, and
+shrinks with the height of the hole above the tape. A smaller hole costs light, but the tape
+does not move during a picture, so a longer exposure is fine. We chose green light, because the
+colour filter on the sensor has twice as many green pixels as red or blue ones.
+\future{Repeat with the 1.5~mm hole, and later with real pollen.}
+\future{Try reconstructing sharper pictures in software from the shadow patterns (holographic
+reconstruction, as in the c-Air sampler~\cite{Wu2018}).}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{0.58\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{flourtest-green}\\[2pt]
+    \small (a) Whole picture, about 6.3 $\times$ 4.7~mm
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.38\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{flourtest-green-crop}\\[2pt]
+    \small (b) 1:1 crop with flour, about 0.8 $\times$ 0.6~mm
+  \end{minipage}
+  \caption{Test 3, flour on the tape, green light. Only the green channel is shown, with the
+  contrast stretched. The flour is on the right half.}
+  \label{fig:flourtest}
 \end{figure}
