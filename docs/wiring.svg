@@ -38,12 +38,12 @@ svg{--gnd:#3d423b;--bg:#f7f8f5;--card:#ffffff;--chip:#eef1ea;--ink:#1d211b;--mut
 <circle cx="285" cy="282" r="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.2"/>
 <text x="285" y="286" font-size="9" text-anchor="middle" font-weight="700" fill="var(--mut)" class="">10</text>
 <text x="303" y="286" font-size="11.5" text-anchor="start" font-weight="normal" fill="var(--mut)" class="">GPIO15 RXD</text>
-<circle cx="245" cy="312" r="10" fill="#ff7f0e" stroke="var(--ink)" stroke-width="1.2"/>
+<circle cx="245" cy="312" r="10" fill="#9467bd" stroke="var(--ink)" stroke-width="1.2"/>
 <text x="245" y="316" font-size="9" text-anchor="middle" font-weight="700" fill="#fff" class="">11</text>
-<text x="227" y="316" font-size="11.5" text-anchor="end" font-weight="600" fill="var(--ink)" class="">GPIO17: driver IN1</text>
-<circle cx="285" cy="312" r="10" fill="#9467bd" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="227" y="316" font-size="11.5" text-anchor="end" font-weight="600" fill="var(--ink)" class="">GPIO17: fan MOSFET</text>
+<circle cx="285" cy="312" r="10" fill="#ff7f0e" stroke="var(--ink)" stroke-width="1.2"/>
 <text x="285" y="316" font-size="9" text-anchor="middle" font-weight="700" fill="#fff" class="">12</text>
-<text x="303" y="316" font-size="11.5" text-anchor="start" font-weight="600" fill="var(--ink)" class="">GPIO18: fan MOSFET</text>
+<text x="303" y="316" font-size="11.5" text-anchor="start" font-weight="600" fill="var(--ink)" class="">GPIO18: driver IN1</text>
 <circle cx="245" cy="342" r="10" fill="#d4a600" stroke="var(--ink)" stroke-width="1.2"/>
 <text x="245" y="346" font-size="9" text-anchor="middle" font-weight="700" fill="#fff" class="">13</text>
 <text x="227" y="346" font-size="11.5" text-anchor="end" font-weight="600" fill="var(--ink)" class="">GPIO27: driver IN2</text>
@@ -135,7 +135,7 @@ svg{--gnd:#3d423b;--bg:#f7f8f5;--card:#ffffff;--chip:#eef1ea;--ink:#1d211b;--mut
 <text x="748" y="170" font-size="11" text-anchor="start" font-weight="normal" fill="#fff" class="">IN1</text>
 <polyline points="700,166 740,166" fill="none" stroke="#ff7f0e" stroke-width="3" stroke-linejoin="round"/>
 <rect x="550" y="155" width="150" height="22" rx="11" fill="#ff7f0e"/>
-<text x="625.0" y="170.5" font-size="12" text-anchor="middle" font-weight="600" fill="#fff" class="">Pi pin 11 · GPIO17</text>
+<text x="625.0" y="170.5" font-size="12" text-anchor="middle" font-weight="600" fill="#fff" class="">Pi pin 12 · GPIO18</text>
 <text x="748" y="194" font-size="11" text-anchor="start" font-weight="normal" fill="#fff" class="">IN2</text>
 <polyline points="700,190 740,190" fill="none" stroke="#d4a600" stroke-width="3" stroke-linejoin="round"/>
 <rect x="550" y="179" width="150" height="22" rx="11" fill="#d4a600"/>
@@ -208,7 +208,7 @@ svg{--gnd:#3d423b;--bg:#f7f8f5;--card:#ffffff;--chip:#eef1ea;--ink:#1d211b;--mut
 <rect x="712" y="603" width="36" height="14" rx="3" fill="var(--card)" stroke="#9467bd" stroke-width="2.5"/>
 <text x="730" y="597" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--ink)" class="">220 Ω</text>
 <rect x="550" y="599" width="150" height="22" rx="11" fill="#9467bd"/>
-<text x="625.0" y="614.5" font-size="12" text-anchor="middle" font-weight="600" fill="#fff" class="">Pi pin 12 · GPIO18</text>
+<text x="625.0" y="614.5" font-size="12" text-anchor="middle" font-weight="600" fill="#fff" class="">Pi pin 11 · GPIO17</text>
 <circle cx="753" cy="610" r="4" fill="var(--ink)"/>
 <polyline points="753,610 753,618" fill="none" stroke="#9467bd" stroke-width="2.5" stroke-linejoin="round"/>
 <rect x="746" y="618" width="14" height="36" rx="3" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
