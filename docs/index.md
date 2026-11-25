@@ -1,47 +1,46 @@
 # Build a pollen sampler
 
-This guide shows how to build one pollen sampler: a small machine that blows outdoor air onto
-sticky tape, moves the tape over a camera and takes pictures of what got caught.
+This guide shows how to build our pollen sampler. The pollen sampler is a small contraption that
+blows outdoor air onto sticky tape, moves the tape over a camera and takes pictures of what got
+caught.
+
 
 ![The finished sampler (3D model)](build/img/assembled.png)
 
 > [!NOTE]
-> 📷 **Photo to add:** the real finished sampler, from the front, on a plain table.
+> **Photo to add:** the real finished sampler, from the front, on a plain table.
 
 > [!WARNING]
-> This is a prototype. Parts of it will change, and some steps have only been done once or twice.
-> If something does not match your parts, write down what you changed and tell us
-> (see [Run it](build/run.md#share-what-you-learned)).
+> This is a prototype. Parts of it will change, and most steps have not been tested properly.
+> If something does not match or work or has issues, write down what you changed and tell us.
 
 ## What you need
 
-- About **€135-150** of parts. See [Parts and tools](build/parts.md).
+- For parts see [Parts and tools](build/parts.md).
 - A **3D printer**, or someone who can print about 200 g of PLA or PETG for you.
-- A **soldering iron**, and some practice soldering through-hole parts.
+- A **soldering iron**.
 - A **laptop** on the same network as the Pi (Wi-Fi or a cable).
-- Time: about one day of work, plus the printing time.
+- Time: about one day of work if you have all the parts, plus the printing time.
 
 You do not need to know Python or Linux. You will type a few commands that are written out for you.
 
-## The build at a glance
+## The build process
 
 ![The order of the build](build/img/stages.svg)
 
-Start the printer first. The prints take several hours. While it prints, set up the Pi
-and build the HAT.
+The prints take time, so start with printing the parts. While it prints, set up the Pi and build
+the HAT.
 
-| Step | What you do | Result |
-|---|---|---|
-| [1. Parts and tools](build/parts.md) | Get everything on the list | All parts on the table |
-| [2. Print the parts](build/print.md) | Print 6 plastic parts | Frame, tray, LED tower, spool, 2 pins |
-| [3. Set up the Pi](build/pi-setup.md) | Put the software on an SD card and the Pi | The web page opens on your laptop |
-| [4. Build the HAT](build/hat.md) | Solder the board that sits on top of the Pi | A HAT that passes the beep test |
-| [5. Prepare the camera](build/camera.md) | Take the lens mount off the camera | A bare, clean camera sensor |
-| [6. Put it together](build/assembly.md) | Fit parts, plug in cables, thread the tape | A finished sampler |
-| [7. Test and calibrate](build/first-run.md) | Check every part and measure the tape | Sharp pictures, correct settings |
-| [8. Run it](build/run.md) | Start the schedule | Pictures every 30 minutes |
+1. [Parts and tools](build/parts.md): get everything on the list.
+2. [Print the parts](build/print.md): start the printer.
+3. [Set up the Pi](build/pi-setup.md): put the software on the SD card, and check the web page opens.
+4. [Build the HAT](build/hat.md): solder the board that sits on the Pi, and test it on the table.
+5. [Prepare the camera](build/camera.md): take the lens mount off.
+6. [Put it together](build/assembly.md): fit the printed parts, plug in the cables and thread the tape.
+7. [Test and calibrate](build/first-run.md): check every part, get a sharp picture and measure the tape.
+8. [Run it](build/run.md): start the schedule.
 
-Stuck? See [Troubleshooting](build/troubleshooting.md).
+Stuck? See [Troubleshooting](build/troubleshooting.md). (Still a work in progress)
 
 ## How it works
 
