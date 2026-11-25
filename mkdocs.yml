@@ -42,7 +42,7 @@ markdown_extensions:
   - toc: {permalink: true}
 
 nav:
-  - Start here: build/index.md
+  - Start here: index.md
   - Build:
       - 1. Parts and tools: build/parts.md
       - 2. Print the parts: build/print.md
