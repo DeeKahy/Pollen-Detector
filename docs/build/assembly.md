@@ -5,7 +5,7 @@
 Everything presses or clips together. No glue and no screws. In the pictures, the parts already
 fitted are grey and the part you add in that step is **orange**, pulled out a little along the way it goes on.
 
-All pictures look at the **front** of the wall (the side with the camera box), except step 2.
+All pictures look at the **front** of the wall (the side with the camera box), except steps 2 and 8.
 Seen from the front, the tape roll is on the **right** and the motor spool on the **left**.
 
 ## 1. Frame into the tray
@@ -13,7 +13,7 @@ Seen from the front, the tape roll is on the **right** and the motor spool on th
 ![step 1](img/step1.png)
 
 Push the bottom edge of the frame down into the groove in the tray, all along its length.
-The camera box faces the narrow side of the tray, away from the big pocket.
+The camera box faces the narrow side of the tray. The wide part, with 4 small pins for the Pi, is behind the wall.
 
 ## 2. Motor on the back
 
@@ -83,9 +83,22 @@ You don't need to unthread the tape.
 > Want sharper pictures? Put a small disc of kitchen foil with a needle hole in the cone before the NeoPixel.
 > A smaller hole gives sharper shadows but less light.
 
-## 8. Cables
+## 8. Pi on the tray
 
-Everything goes to the back of the wall, where the Pi with its HAT lies.
+![step 8, from behind](img/step8.png)
+
+*Seen from behind.*
+
+1. Put the Pi (with the HAT on it) over the 4 pins on the tray, **USB ports pointing away from the wall**.
+   The SD card end faces the wall.
+2. Let it drop down so a pin goes through each mounting hole.
+3. Lead the camera ribbon from the HAT slot straight up and over to the slot in the wall. It only
+   bends up and down, never sideways.
+
+To take the Pi out, just lift it off the pins.
+
+## 9. Cables
+
 Plug in as in the [bench test](hat.md#bench-test):
 
 ![What plugs into the HAT](img/connections.svg)

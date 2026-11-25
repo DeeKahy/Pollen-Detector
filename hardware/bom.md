@@ -19,7 +19,7 @@ Prices are rough, to give an idea of the total. Shop around.
 | White 5 mm LED | 1 | | |
 | 5.1 V 2.5 A micro USB power supply | 1 | €10 | Use a proper one. Weak supplies make the Pi crash |
 | microSD card, 32 GB or more | 1 | €10 | |
-| Breadboard and jumper wires | | €5 | For the prototype |
+| Proto HAT + female jumper wires | | €7 | See the build guide |
 | BME280 sensor (optional) | 1 | €5 | Logs temperature and humidity |
 
 A small resistor kit with all values is cheap and handy.

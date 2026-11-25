@@ -216,6 +216,7 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 | 2026-10-03 | Pin assignment (BCM): stepper IN1-4 = GPIO17/27/22/23, fan MOSFET = GPIO18, LED = GPIO24. | See `docs/wiring.md`. |
 | 2026-10-07 | LED runs straight from GPIO24 through a 47 Ω resistor (150 Ω for red/green) to GND pin 20. No MOSFET for the LED. Only the fan uses a MOSFET. | Simpler. A dim LED is fine, use longer exposure. |
 | 2026-10-20 | Project moved to GitHub (DeeKahy/Pollen-Detector). Added README, build guide, parts list, iterations log. | So others can build it. |
+| 2026-11-25 | Tray: breadboard pocket replaced by a Pi mount: 4 posts with 2.4 mm pins in the 58 × 49 holes (fits 3B, 3B+, 4, 5). Pi turned so USB points away from the wall and the CSI connector (`pi_csi` = 13.5 mm from the HDMI edge, from the HAT drawing, check) is under the wall's ribbon slot. 6 mm gap to the wall for the SD card. Not printed yet. | Breadboard replaced by the Proto HAT. User wants any Pi to drop in, and the ribbon to bend only up/down. |
 | 2026-11-24 | **Everything public domain (CC0 1.0)**: software, 3D models, report text, photos and data. `LICENSE` is now CC0 (was AGPL-3.0). Only the AAU report template keeps its BSD license. | The goal is many builders and freely usable data, not protection. AI-written code may not be covered by copyright anyway, so AGPL could not be fully enforced. |
 | 2026-10-20 | License (replaced 2026-11-24): software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
 | 2026-10-20 | Report moved from Overleaf to `report/` in this repo. Write via PRs; CI builds the PDF. | Easier for two people to write in parallel and review changes. |
@@ -254,7 +255,7 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 - `hardware/`: `bom.md` parts list. CAD (STL + source), one folder per part.
   `hardware/tape-deck/`: simple parametric OpenSCAD frame (5 parts): one flat wall printed on its back, with
   tilted 26 mm roll peg, fan shelf + ledge, front-loading camera box (rails, roof window, plug with ribbon
-  slit), LED tower; motor on the back; tray with groove and a pocket for a full-size breadboard (165 × 55).
+  slit), LED tower; motor on the back; tray with groove and 4 posts with pins for any full-size Pi (USB end away from the wall, camera connector behind the ribbon slot; `pi_clash` must render empty).
   No Pi mount (user: the Pi can just sit behind it for now).
   **No glue or screws** (user wish): every mount is a press or snap fit (`press` = 0.1, `fit` = 0.3). Measurements to
   check are at the top of `tape_deck.scad`. Render with `nix shell nixpkgs#openscad` (2021.01).
