@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" width="1200" height="520">
+<style>
+svg{--bg:#f7f8f5;--card:#ffffff;--ink:#1d211b;--mut:#646b60;--line:#c9cfc2;--pcb:#1f6f43;--hat:#1d2024}
+@media (prefers-color-scheme:dark){svg{--bg:#141713;--card:#1d211b;--ink:#e6eae2;--mut:#9aa293;--line:#3a4137;--pcb:#2b7a4e;--hat:#2a2e33}}
+text{font-family:system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+</style>
+<rect width="1200" height="520" fill="var(--bg)"/>
+<text x="30" y="40" font-size="22" text-anchor="start" font-weight="800" fill="var(--ink)">How the tape runs (seen from the front)</text>
+<text x="30" y="64" font-size="14" text-anchor="start" font-weight="normal" fill="var(--mut)">Sticky side UP the whole way. Only the backing touches plastic. The tape moves right to left.</text>
+<circle cx="1030" cy="300" r="95" fill="#bfe3f7" stroke="#5aa9d6" stroke-width="2"/>
+<circle cx="1030" cy="300" r="40" fill="var(--bg)" stroke="var(--line)" stroke-width="2"/>
+<text x="1030" y="425" font-size="13" text-anchor="middle" font-weight="700" fill="var(--ink)">tape roll on the peg</text>
+<circle cx="140" cy="300" r="55" fill="#e8770e" stroke="#a54f05" stroke-width="2"/>
+<circle cx="140" cy="300" r="14" fill="var(--bg)" stroke="none" stroke-width="0"/>
+<text x="140" y="425" font-size="13" text-anchor="middle" font-weight="700" fill="var(--ink)">take-up spool (motor)</text>
+<polyline points="1010,393 760,300 330,300 180,338" fill="none" stroke="#1f8fd6" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="1010,387 760,294 330,294 176,332" fill="none" stroke="#f2c14e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
+<text x="560" y="286" font-size="12" text-anchor="middle" font-weight="700" fill="#c08a00">sticky side</text>
+<rect x="635" y="150" width="110" height="40" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="2" />
+<text x="690" y="175" font-size="14" text-anchor="middle" font-weight="700" fill="var(--ink)">fan</text>
+<polyline points="660,200 660,282" fill="none" stroke="#5aa9d6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="660.0,282.0 654.8,271.2 665.2,271.2" fill="#5aa9d6"/>
+<polyline points="690,200 690,282" fill="none" stroke="#5aa9d6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="690.0,282.0 684.8,271.2 695.2,271.2" fill="#5aa9d6"/>
+<polyline points="720,200 720,282" fill="none" stroke="#5aa9d6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="720.0,282.0 714.8,271.2 725.2,271.2" fill="#5aa9d6"/>
+<rect x="630" y="304" width="120" height="10" rx="2" fill="var(--line)" stroke="none" stroke-width="1.5" />
+<text x="690" y="334" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">ledge under the tape</text>
+<text x="760" y="230" font-size="13" text-anchor="start" font-weight="700" fill="var(--ink)">1. air blows pollen</text>
+<text x="760" y="248" font-size="13" text-anchor="start" font-weight="700" fill="var(--ink)">onto the sticky side</text>
+<rect x="370" y="304" width="140" height="10" rx="2" fill="var(--line)" stroke="none" stroke-width="1.5" />
+<rect x="390" y="326" width="100" height="10" rx="2" fill="var(--pcb)" stroke="none" stroke-width="1.5" />
+<rect x="428" y="316" width="24" height="10" rx="1" fill="#333" stroke="none" stroke-width="1.5" />
+<text x="440" y="360" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">camera sensor, about 1 mm below</text>
+<rect x="410" y="120" width="60" height="26" rx="3" fill="#444" stroke="none" stroke-width="1.5" />
+<text x="440" y="112" font-size="12" text-anchor="middle" font-weight="700" fill="var(--ink)">NeoPixel</text>
+<polygon points="432,146 448,146 442,160 438,160" fill="#444"/>
+<text x="480" y="160" font-size="12" text-anchor="start" font-weight="normal" fill="var(--mut)">pinhole</text>
+<polygon points="440,162 400,290 480,290" fill="#f6e7a8" opacity="0.55"/>
+<text x="280" y="210" font-size="13" text-anchor="start" font-weight="700" fill="var(--ink)">2. light shines through</text>
+<text x="280" y="228" font-size="13" text-anchor="start" font-weight="700" fill="var(--ink)">the tape, the camera</text>
+<text x="280" y="246" font-size="13" text-anchor="start" font-weight="700" fill="var(--ink)">takes a picture</text>
+<polyline points="860,400 600,400" fill="none" stroke="var(--mut)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="600.0,400.0 610.8,394.8 610.8,405.2" fill="var(--mut)"/>
+<text x="730" y="420" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">tape moves</text>
+</svg>
