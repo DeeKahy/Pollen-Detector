@@ -68,3 +68,5 @@ if (step >= 7) color(c(7)) translate(off(7, [0, 0, 35])) {
     translate([x_cam, 0, z_tape]) led_tower_part();
     pixel_dummy();
 }
+// step 8: the Pi with its HAT drops onto the 4 pins behind the wall (ribbon already through the slot)
+if (step >= 8) translate(off(8, [0, 0, 30])) pi_dummy(step == 8 ? new : undef);

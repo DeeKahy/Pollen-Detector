@@ -20,6 +20,8 @@ BACK=60,0,20     # from behind
 # one picture per assembly step
 for s in 1 3 4 5 6 7; do shot "step$s.png" $FRONT -D step=$s; done
 shot step2.png $BACK -D step=2
+shot step8.png $BACK -D step=8
+SRC=tape_deck.scad shot back.png $BACK -D 'part="assembly"'
 
 # each printed part alone, in its print orientation
 for p in frame tray led_tower camera_plug takeup_spool motor_pin; do

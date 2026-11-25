@@ -46,8 +46,8 @@ The pictures show each part the way it lies on the print bed.
 PLA is fine for indoor tests. Use PETG if it will stand outside (PLA goes soft in the sun).
 
 > [!TIP]
-> The tray has a large pocket behind the wall. It was for a breadboard in an older version.
-> With the HAT you leave it empty.
+> The 4 small pins on the tray hold the Raspberry Pi. Any full-size Pi fits (3B, 3B+, 4, 5).
+> Check that the pins are not bent or stringy: they go through the Pi's mounting holes.
 
 ## Check the prints
 

@@ -33,7 +33,7 @@ through it from above. Pollen grains show up as small shadows.
 ## Build one yourself
 
 Follow the **[build guide](https://deekahy.github.io/Pollen-Detector/)**
-(the same pages are in [`docs/build/`](docs/build/index.md)). It goes through:
+(the same pages are in [`docs/build/`](docs/index.md)). It goes through:
 
 1. Parts and tools
 2. Printing the 3D parts

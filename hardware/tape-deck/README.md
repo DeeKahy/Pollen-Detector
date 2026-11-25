@@ -30,9 +30,12 @@ here but this version has **not been printed yet**. Measure your parts first (be
 The tape keeps its sticky side up and only the backing touches plastic. `part = "tape_check"`
 checks this: it must come out empty, or something solid is in the 2 mm above the sticky side.
 
-**Back of the wall:** the motor (shaft through the wall). On the tray, a full-size breadboard
-right next to the wall, so the motor, fan and LED wires are short. The Raspberry Pi has no mount
-for now: it just sits behind the tray on its ribbon cable. Cables to the back:
+**Back of the wall:** the motor (shaft through the wall). On the tray, the **Raspberry Pi** with its
+HAT drops onto 4 posts with short pins through its mounting holes (no screws, lift it to take it out).
+Any full-size Pi fits (3B, 3B+, 4, 5: same 85 × 56 mm board, holes 58 × 49 mm). It is turned so the
+USB end points away from the wall and the camera connector sits right behind the ribbon slot, so the
+ribbon goes up through the HAT slot and bends once towards the wall, never sideways.
+`part = "pi_clash"` must come out empty (Pi + HAT against the frame and motor). Cables to the back:
 
 - **Camera ribbon:** an 18 × 3 mm slot through the wall right behind the camera box, just under
   the board. Slide the camera in connector first and the ribbon goes straight back to the Pi.
@@ -51,7 +54,7 @@ for now: it just sits behind the tray on its ribbon cable. Cables to the back:
 | Part | File | Size (mm) | Print |
 |---|---|---|---|
 | Frame | `stl/frame.stl` | 214 × 66, 42 high | lying on its back, everything points up, no supports |
-| Tray | `stl/tray.stl` | 214 × 104 | flat. The frame presses into the groove |
+| Tray | `stl/tray.stl` | 214 × 134, T shape | flat. The frame presses into the groove |
 | LED tower | `stl/led_tower.stl` | 48 × 40 × 44 | top down. **Black** filament |
 | Camera plug | `stl/camera_plug.stl` | 48 × 7 × 7 | plate down |
 | Take-up spool | `stl/takeup_spool.stl` | Ø40 × 31 | flange down |
@@ -73,11 +76,11 @@ Everything holds by a press fit or a snap fit:
 | NeoPixel | nipple (lens) down into its hole, the body sits 3 mm deep in a pocket at the top (friction) |
 | Motor | 2 printed pins: through the motor ears into tight holes in the wall |
 | Take-up spool | D-hole on the motor shaft (0.3 mm bigger than the shaft, plastic shrinks) |
-| Breadboard | presses into a pocket on the tray |
+| Raspberry Pi | lies on 4 posts, a short pin through each mounting hole |
 
 If a fit is too tight or too loose on your printer, change these at the top of `tape_deck.scad`
 and export again: `shaft_fit` (motor shaft, 0.3), `clip` (fan rim, LED tower, plug, 0.2),
-`press` (frame in tray, breadboard, 0.1), `fit` (camera, 0.3).
+`press` (frame in tray, 0.1), `fit` (camera, 0.3).
 
 ## Measure these first
 
@@ -93,7 +96,7 @@ At the top of `tape_deck.scad`. Change them and export again.
 | `board_t` | 1.4 | Camera board thickness (official drawing) |
 | `gap` | 1.0 | Tape to sensor |
 | `cam_gap` | 5 | Free space between the fan shelf and the LED tower |
-| `bb_size` | 165 × 55 | Breadboard (full size; half size is 83 × 55) |
+| `pi_csi` | 13.5 | Pi camera connector centre, from the Pi's HDMI edge (3B+ and 4). Lines the connector up with the ribbon slot |
 
 ## The pinhole
 

@@ -2,12 +2,12 @@
 //
 // One flat wall ("frame") that everything hangs off, standing in a tray:
 //   front of the wall: tape roll peg, fan shelf, camera box, take-up spool
-//   back of the wall:  motor, and on the tray the breadboard (the Pi just sits behind it for now)
+//   back of the wall:  motor, and on the tray the Raspberry Pi (any full-size Pi: 3B, 3B+, 4, 5) with its HAT
 //
 // Parts (export one with -D 'part="..."'):
 //   assembly      everything together with dummy parts
 //   frame         the wall. Print lying on its back: everything sticks straight up, no supports
-//   tray          the frame stands in its groove. The breadboard goes behind the frame
+//   tray          the frame stands in its groove. The Pi drops onto 4 pins behind the frame
 //   led_tower     stands on the camera box, the tape runs through under it. Print in black
 //   camera_plug   cap over the front of the camera box, with a slit for the ribbon
 //   takeup_spool  on the motor shaft
@@ -31,12 +31,12 @@ cam_board = 38;     // Pi HQ camera board, square
 board_t   = 1.4;    // its thickness (official drawing). The connector under it is 2.75 mm tall
 sensor_h  = 2.0;    // board top to sensor glass top, lens mount off (check!)
 gap       = 1.0;    // tape underside to sensor glass top
-bb_size   = [165, 55]; // full-size breadboard (a half-size one: 83 x 55)
+pi_csi    = 13.5;   // Pi camera connector centre, from the HDMI edge of the Pi (3B+ and 4; check yours)
 
 // ---- design ---------------------------------------------------------------
 t        = 2.4;     // wall and plate thickness
 fit      = 0.3;     // sliding fits (camera)
-press    = 0.1;     // press fits on long edges (frame in tray, breadboard)
+press    = 0.1;     // press fits on long edges (frame in tray)
 clip     = 0.2;     // parts that hug something (fan rim, LED tower, camera plug). Plastic shrinks
 shaft_fit = 0.3;    // extra on the motor shaft hole (5 x 3 mm shaft). Bigger = looser
 peg_tilt = 4;       // degrees up, so the roll slides back against the collar
@@ -117,26 +117,59 @@ module frame_part() {
 }
 
 // ---- tray -------------------------------------------------------------------
-// Behind the wall: the breadboard right next to it, so the motor, fan and LED wires are short.
-bb_out = [bb_size[0] + 2 * press + 3.2, bb_size[1] + 2 * press + 3.2];  // breadboard pocket, outside
-bb_x0  = (L - bb_out[0]) / 2;
-bb_y0  = -t - press - 4 - bb_out[1];
-back   = -bb_y0 + 4 - t;                          // tray depth behind the frame
-front  = tape_y + tape_w / 2 + 6;                 // tray depth in front of the frame (under the rolls)
+// Behind the wall: the Pi lies on 4 posts with short pins through its mounting holes. No screws,
+// lift it off to take it out. Every full-size Pi (3B, 3B+, 4, 5) has the same 85 x 56 mm board
+// and holes 58 x 49 mm apart, 3.5 mm from the edges.
+// It is turned so the USB end points away from the wall, and its camera connector sits right
+// behind the ribbon slot in the wall (x = x_cam). The ribbon goes straight up through the HAT
+// slot and bends once towards the wall, never sideways.
+pi_size  = [85, 56];
+pi_holes = [[3.5, 3.5], [61.5, 3.5], [3.5, 52.5], [61.5, 52.5]];  // from the corner at the SD card end, HDMI edge
+pi_gap   = 6;       // wall to the Pi's SD card end. The card sticks out ~3 mm under the board: room to pull it
+pi_up    = 5;       // posts: board this high above the tray (room for the parts and solder under the board)
+pi_pin   = 2.4;     // pin through the 2.75 mm hole. Printed pins come out about right
+pi_y0    = -t - press - 2 - pi_gap;                // the Pi's SD card end (tray y)
+pi_x0    = x_cam - pi_csi;                         // the Pi's HDMI edge (tray x)
+// Pi coordinates (x along the board from the SD card end, y from the HDMI edge) to tray coordinates
+function pi_at(p) = [pi_x0 + p[1], pi_y0 - p[0]];
+back     = -pi_y0 + pi_size[0] + 4 - t;            // tray depth behind the frame
+front    = tape_y + tape_w / 2 + 6;                // tray depth in front of the frame (under the rolls)
 module tray_part() {
     rib = 6;
+    strip = 10;                                   // strip behind the wall, under the groove
+    pw = pi_size[1] + 8;                          // Pi arm: the Pi's width plus 4 mm each side
     difference() {
-        translate([0, -t - back, -t]) rbox([L, back + t + front, t], 3);
-        // weight saving: under the tape rolls, and under the breadboard (it rests on a 6 mm ledge)
+        union() {
+            translate([0, -strip, -t]) rbox([L, strip + front, t], 3);                         // along the wall
+            translate([pi_x0 - 4, -t - back, -t]) rbox([pw, back + t - strip + 3, t], 3);    // Pi arm
+        }
+        // weight saving: under the tape rolls, and inside the Pi arm (the Pi rests on its posts)
         for (x = [x_sup, x_tak]) translate([x - 15, 4, -t - 1]) rbox([30, front - 10, t + 2], 3);
-        translate([bb_x0 + 1.6 + 6, bb_y0 + 1.6 + 6, -t - 1]) rbox([bb_size[0] - 12, bb_size[1] - 12, t + 2], 3);
+        translate([pi_x0 + 8, pi_y0 - pi_size[0] + 8, -t - 1]) rbox([pi_size[1] - 16, pi_size[0] - 16, t + 2], 3);
     }
     // groove the frame presses into
     for (y = [-t - press - 2, press]) translate([0, y, 0]) cube([L, 2, rib]);
-    // pocket the breadboard presses into
-    translate([bb_x0, bb_y0, 0]) difference() {
-        cube([bb_out[0], bb_out[1], 4]);
-        translate([1.6, 1.6, -1]) cube([bb_size[0] + 2 * press, bb_size[1] + 2 * press, 6]);
+    // Pi posts with pins
+    for (h = pi_holes) translate([pi_at(h)[0], pi_at(h)[1], 0]) {
+        cylinder(d = 6, h = pi_up);
+        cylinder(d = pi_pin, h = pi_up + 2.2);
+        translate([0, 0, pi_up + 2.2]) cylinder(d1 = pi_pin, d2 = pi_pin - 0.8, h = 0.6);
+    }
+}
+// Dummy Pi + HAT, for the pictures and clash checks
+module pi_dummy(one = undef) {  // one = a single colour for everything
+    translate([pi_x0, pi_y0 - pi_size[0], pi_up]) {
+        color(one ? one : "ForestGreen") cube([pi_size[1], pi_size[0], 1.4]);
+        color(one ? one : "Silver") translate([2, -3, 1.4]) cube([pi_size[1] - 4, 21, 16]);        // USB + LAN, at the far end
+        color(one ? one : "Black") translate([pi_size[1] - 6.5, pi_size[0] - 57, 1.4]) cube([5, 51, 8.5]);  // 40-pin header
+        color(one ? one : "WhiteSmoke") translate([pi_csi - 11, pi_size[0] - 46, 1.4]) cube([22, 3, 5.5]);    // camera connector
+        color(one ? one : "DimGray") translate([0, pi_size[0] - 65, 14]) cube([pi_size[1], 65, 1.6]);         // HAT
+    }
+    // camera ribbon: up from the connector, through the HAT, bend to the wall slot
+    color(one ? one : "NavajoWhite") {
+        cx = x_cam; yc = pi_y0 - 46 + 1.5; zs = board_top - board_t - 1.5;
+        translate([cx - 8, yc - 0.3, pi_up + 6]) cube([16, 0.6, zs - pi_up - 6]);
+        translate([cx - 8, yc, zs - 0.3]) cube([16, -yc + 1, 0.6]);
     }
 }
 
@@ -269,16 +302,16 @@ module motor_pin_part() {
 module assembly() {
     color("Gainsboro") frame_part();
     color("Wheat") tray_part();
-    color("DimGray") translate([x_cam, 0, z_tape]) led_tower_part();
+    color(one ? one : "DimGray") translate([x_cam, 0, z_tape]) led_tower_part();
     if (use_plug) color("SteelBlue") translate([x_cam - plug_w / 2, box_in, box_bot]) camera_plug_part();
     color("Orange") translate([x_tak, spool_len, z_axle]) rotate([90, 0, 0]) takeup_spool_part();
     // dummies
     color("LightSkyBlue", 0.5) translate([x_sup, tape_y0, z_axle]) ycyl(roll_od, tape_w);
     color("DeepSkyBlue") translate([x_fan - fan_size / 2 - 6, tape_y0, z_tape]) cube([x_tak - x_fan - 10, tape_w, 0.3]);
-    color("DimGray") translate([x_fan - fan_size / 2, tape_y - fan_size / 2, z_tape + fan_up]) cube([fan_size, fan_size, 7]);
+    color(one ? one : "DimGray") translate([x_fan - fan_size / 2, tape_y - fan_size / 2, z_tape + fan_up]) cube([fan_size, fan_size, 7]);
     color("DarkGreen") translate([x_cam - cam_board / 2, 0, board_top - board_t]) cube([cam_board, cam_board, board_t]);
-    color("Silver") translate([x_tak, -t, z_axle + motor_off]) rotate([90, 0, 0]) cylinder(d = 28, h = 19);
-    color("White") translate([bb_x0 + 1.6 + press, bb_y0 + 1.6 + press, 0]) cube([bb_size[0], bb_size[1], 9]);
+    color(one ? one : "Silver") translate([x_tak, -t, z_axle + motor_off]) rotate([90, 0, 0]) cylinder(d = 28, h = 19);
+    pi_dummy();
 }
 
 // ---- tape check --------------------------------------------------------------------
@@ -312,4 +345,6 @@ else if (part == "takeup_spool") takeup_spool_part();
 else if (part == "motor_pin") motor_pin_part();
 else if (part == "tape_check") tape_check();
 // must be EMPTY. The tower is lifted 0.01 mm so faces that only touch (back on the wall, legs on the roof) don't count
+// must be EMPTY: the Pi with its HAT against the frame and the motor
+else if (part == "pi_clash") intersection() { pi_dummy(); union() { frame_part(); translate([x_tak, -t, z_axle + motor_off]) rotate([90, 0, 0]) cylinder(d = 28, h = 19); } }
 else if (part == "tower_clash") intersection() { frame_part(); translate([x_cam, 0.01, z_tape + 0.01]) led_tower_part(); }
