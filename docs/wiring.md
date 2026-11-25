@@ -2,7 +2,9 @@
 
 ![wiring diagram](wiring.svg)
 
-Building it on a Proto HAT instead of a breadboard: see [hat.md](hat.md).
+> [!NOTE]
+> This page is the **old breadboard version** with the 5 mm RGB LED. The current build uses the
+> Proto HAT and a NeoPixel light: see [4. Build the HAT](build/hat.md). The pin numbers are the same.
 
 `wiring.svg` is made by `make_wiring_svg.py`. If you change a pin, change it there and run the script again.
 

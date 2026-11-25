@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<style>
+svg{--bg:#f7f8f5;--card:#ffffff;--ink:#1d211b;--mut:#646b60;--line:#c9cfc2;--pcb:#1f6f43;--hat:#1d2024}
+@media (prefers-color-scheme:dark){svg{--bg:#141713;--card:#1d211b;--ink:#e6eae2;--mut:#9aa293;--line:#3a4137;--pcb:#2b7a4e;--hat:#2a2e33}}
+text{font-family:system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+</style>
+<rect width="1200" height="800" fill="var(--bg)"/>
+<text x="30" y="40" font-size="22" text-anchor="start" font-weight="800" fill="var(--ink)">What plugs into the HAT</text>
+<text x="30" y="64" font-size="14" text-anchor="start" font-weight="normal" fill="var(--mut)">The HAT sits on the Pi. Everything else plugs onto its pin headers. Plug in with the power off.</text>
+<rect x="440" y="110" width="360" height="470" rx="16" fill="var(--hat)" stroke="#000" stroke-width="2" />
+<text x="620.0" y="140" font-size="15" text-anchor="middle" font-weight="700" fill="#f1f1ee">Proto HAT, top view</text>
+<text x="620.0" y="160" font-size="12" text-anchor="middle" font-weight="normal" fill="#b9bdb4">(40-pin header to the Pi along this edge)</text>
+<text x="460" y="566" font-size="12" text-anchor="start" font-weight="normal" fill="#b9bdb4">+5V and GND rails along this edge</text>
+<text x="599" y="184" font-size="13" text-anchor="middle" font-weight="800" fill="#f1f1ee">J4  motor IN1 IN2 IN3 IN4</text>
+<rect x="551" y="193" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="556" y="198" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<rect x="577" y="193" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="582" y="198" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<rect x="603" y="193" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="608" y="198" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<rect x="629" y="193" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="634" y="198" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<rect x="50" y="110" width="210" height="220" rx="8" fill="var(--pcb)" stroke="#0d3a22" stroke-width="1.5" />
+<text x="155" y="136" font-size="14" text-anchor="middle" font-weight="700" fill="#fff">ULN2003 driver</text>
+<text x="242" y="174" font-size="12" text-anchor="end" font-weight="700" fill="#fff">IN1</text>
+<circle cx="260" cy="170" r="5" fill="#d9c27a" stroke="none" stroke-width="0"/>
+<polyline points="560,211 560,236 380,236 380,170 265,170" fill="none" stroke="#ff7f0e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="242" y="200" font-size="12" text-anchor="end" font-weight="700" fill="#fff">IN2</text>
+<circle cx="260" cy="196" r="5" fill="#d9c27a" stroke="none" stroke-width="0"/>
+<polyline points="586,211 586,250 366,250 366,196 265,196" fill="none" stroke="#e3b400" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="242" y="226" font-size="12" text-anchor="end" font-weight="700" fill="#fff">IN3</text>
+<circle cx="260" cy="222" r="5" fill="#d9c27a" stroke="none" stroke-width="0"/>
+<polyline points="612,211 612,264 352,264 352,222 265,222" fill="none" stroke="#2ca02c" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="242" y="252" font-size="12" text-anchor="end" font-weight="700" fill="#fff">IN4</text>
+<circle cx="260" cy="248" r="5" fill="#d9c27a" stroke="none" stroke-width="0"/>
+<polyline points="638,211 638,278 338,278 338,248 265,248" fill="none" stroke="#1f77b4" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="225" cy="330" r="5" fill="#d9c27a" stroke="none" stroke-width="0"/>
+<text x="225" y="316" font-size="14" text-anchor="middle" font-weight="800" fill="#fff">+</text>
+<circle cx="190" cy="330" r="5" fill="#d9c27a" stroke="none" stroke-width="0"/>
+<text x="190" y="316" font-size="14" text-anchor="middle" font-weight="800" fill="#fff">−</text>
+<circle cx="105" cy="410" r="40" fill="#b9c0c7" stroke="#7d858c" stroke-width="2"/>
+<circle cx="105" cy="394" r="6" fill="#e9ecef" stroke="none" stroke-width="0"/>
+<polyline points="105,370 105,330" fill="none" stroke="#2b6cb0" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="105" y="470" font-size="13" text-anchor="middle" font-weight="700" fill="var(--ink)">28BYJ-48 motor</text>
+<text x="105" y="487" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">plug only fits one way</text>
+<text x="500" y="450" font-size="14" text-anchor="middle" font-weight="800" fill="#f1f1ee">J3</text>
+<text x="610" y="450" font-size="14" text-anchor="middle" font-weight="800" fill="#f1f1ee">J1</text>
+<text x="730" y="450" font-size="14" text-anchor="middle" font-weight="800" fill="#f1f1ee">J2</text>
+<rect x="491" y="461" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="496" y="466" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="516" y="475" font-size="14" text-anchor="start" font-weight="800" fill="#f1f1ee">+</text>
+<rect x="491" y="487" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="496" y="492" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="516" y="501" font-size="14" text-anchor="start" font-weight="800" fill="#f1f1ee">−</text>
+<rect x="601" y="461" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="606" y="466" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="626" y="475" font-size="14" text-anchor="start" font-weight="800" fill="#f1f1ee">−</text>
+<rect x="601" y="487" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="606" y="492" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="626" y="501" font-size="14" text-anchor="start" font-weight="800" fill="#f1f1ee">+</text>
+<rect x="721" y="461" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="726" y="466" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="714" y="475" font-size="13" text-anchor="end" font-weight="800" fill="#f1f1ee">DIN</text>
+<rect x="721" y="487" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="726" y="492" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="714" y="501" font-size="13" text-anchor="end" font-weight="800" fill="#f1f1ee">5V</text>
+<rect x="721" y="513" width="18" height="18" rx="2" fill="#111" stroke="#888" stroke-width="1" />
+<rect x="726" y="518" width="8" height="8" rx="1" fill="#d9c27a" stroke="none" stroke-width="1.5" />
+<text x="714" y="527" font-size="13" text-anchor="end" font-weight="800" fill="#f1f1ee">GND</text>
+<text x="500" y="542" font-size="11" text-anchor="middle" font-weight="normal" fill="#b9bdb4">motor power</text>
+<text x="610" y="542" font-size="11" text-anchor="middle" font-weight="normal" fill="#b9bdb4">fan</text>
+<text x="700" y="568" font-size="11" text-anchor="middle" font-weight="normal" fill="#b9bdb4">light</text>
+<polyline points="225,335 225,470 491,470" fill="none" stroke="#d62728" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="190,335 190,496 491,496" fill="none" stroke="#6b6b6b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="152" y="642" width="96" height="96" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2" />
+<circle cx="200" cy="690" r="36" fill="none" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="200" cy="690" r="9" fill="var(--ink)" stroke="none" stroke-width="0"/>
+<text x="136" y="684" font-size="13" text-anchor="end" font-weight="700" fill="var(--ink)">5 V fan</text>
+<text x="136" y="702" font-size="12" text-anchor="end" font-weight="normal" fill="var(--mut)">red +, black −</text>
+<polyline points="248,678 570,678 570,470 601,470" fill="none" stroke="#6b6b6b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="248,698 582,698 582,496 601,496" fill="none" stroke="#d62728" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="739,470 860,470 860,496 920,496" fill="none" stroke="#1f8fd6" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="739,496 874,496 874,510 920,510" fill="none" stroke="#d62728" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="739,522 888,522 888,524 920,524" fill="none" stroke="#6b6b6b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="920,510 950,510" fill="none" stroke="var(--mut)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="962" cy="510" r="14" fill="#f6e7a8" stroke="var(--ink)" stroke-width="2"/>
+<polyline points="978,510 1008,510" fill="none" stroke="var(--mut)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1020" cy="510" r="14" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+<polyline points="1036,510 1066,510" fill="none" stroke="var(--mut)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1078" cy="510" r="14" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+<polyline points="1094,510 1124,510" fill="none" stroke="var(--mut)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1136" cy="510" r="14" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+<text x="962" y="544" font-size="12" text-anchor="middle" font-weight="700" fill="var(--ink)">pixel 0</text>
+<text x="1030" y="462" font-size="13" text-anchor="middle" font-weight="700" fill="var(--ink)">NeoPixel string, INPUT end</text>
+<text x="1030" y="568" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">arrows on the pixels point away</text>
+<text x="1030" y="584" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">from this end. Wire colours vary:</text>
+<text x="1030" y="600" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">read the labels on the first pixel.</text>
+<rect x="753" y="260" width="14" height="130" rx="7" fill="var(--bg)" stroke="#000" stroke-width="1.5" />
+<text x="746" y="330" font-size="12" text-anchor="end" font-weight="normal" fill="#b9bdb4">slot</text>
+<rect x="960" y="110" width="150" height="150" rx="8" fill="var(--pcb)" stroke="#0d3a22" stroke-width="1.5" />
+<rect x="1023" y="173" width="24" height="24" rx="2" fill="#222" stroke="#555" stroke-width="1.5" />
+<text x="1035" y="286" font-size="13" text-anchor="middle" font-weight="700" fill="var(--ink)">HQ camera</text>
+<path d="M960 230 C 890 230, 760 200, 760 290" fill="none" stroke="#e8dcb5" stroke-width="14" stroke-linecap="round"/>
+<text x="1035" y="304" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">ribbon goes down through the</text>
+<text x="1035" y="320" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">slot to the Pi's CAMERA port</text>
+<text x="30" y="785" font-size="13" text-anchor="start" font-weight="normal" fill="var(--mut)">Pin order as seen with the 40-pin header at the top. A 2-pin plug turned around swaps + and −: check red goes to +.</text>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" width="1200" height="330">
+<style>
+svg{--bg:#f7f8f5;--card:#ffffff;--ink:#1d211b;--mut:#646b60;--line:#c9cfc2;--pcb:#1f6f43;--hat:#1d2024}
+@media (prefers-color-scheme:dark){svg{--bg:#141713;--card:#1d211b;--ink:#e6eae2;--mut:#9aa293;--line:#3a4137;--pcb:#2b7a4e;--hat:#2a2e33}}
+text{font-family:system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+</style>
+<rect width="1200" height="330" fill="var(--bg)"/>
+<text x="30" y="40" font-size="22" text-anchor="start" font-weight="800" fill="var(--ink)">The build at a glance</text>
+<text x="30" y="64" font-size="14" text-anchor="start" font-weight="normal" fill="var(--mut)">Start the printer first. While it prints, set up the Pi and build the HAT.</text>
+<rect x="30" y="100" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="105" y="128" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">1  Parts</text>
+<text x="105" y="148" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">order, check the list</text>
+<rect x="230" y="100" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="305" y="128" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">2  Print</text>
+<text x="305" y="148" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">several hours</text>
+<rect x="230" y="210" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="305" y="238" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">3  Pi setup</text>
+<text x="305" y="258" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">SD card, software</text>
+<rect x="430" y="210" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="505" y="238" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">4  HAT</text>
+<text x="505" y="258" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">solder, test</text>
+<rect x="630" y="150" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="705" y="178" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">5  Camera</text>
+<text x="705" y="198" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">lens off, clean</text>
+<rect x="830" y="150" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="905" y="178" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">6  Assemble</text>
+<text x="905" y="198" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">parts, cables, tape</text>
+<rect x="1030" y="150" width="150" height="64" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5" />
+<text x="1105" y="178" font-size="15" text-anchor="middle" font-weight="800" fill="var(--ink)">7  Test</text>
+<text x="1105" y="198" font-size="12" text-anchor="middle" font-weight="normal" fill="var(--mut)">checks, calibrate</text>
+<polyline points="180,132 226,132" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="226.0,132.0 215.2,137.2 215.2,126.8" fill="var(--ink)"/>
+<polyline points="180,140 226,238" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="226.0,238.0 216.7,230.4 226.1,226.0" fill="var(--ink)"/>
+<polyline points="380,242 426,242" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="426.0,242.0 415.2,247.2 415.2,236.8" fill="var(--ink)"/>
+<polyline points="380,132 626,175" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="626.0,175.0 614.5,178.3 616.3,168.0" fill="var(--ink)"/>
+<polyline points="580,242 626,192" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="626.0,192.0 622.5,203.5 614.8,196.4" fill="var(--ink)"/>
+<polyline points="780,182 826,182" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="826.0,182.0 815.2,187.2 815.2,176.8" fill="var(--ink)"/>
+<polyline points="980,182 1026,182" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="1026.0,182.0 1015.2,187.2 1015.2,176.8" fill="var(--ink)"/>
+<text x="1105" y="250" font-size="14" text-anchor="middle" font-weight="700" fill="var(--ink)">then 8  Run it</text>
+</svg>

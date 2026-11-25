@@ -12,3 +12,4 @@ hwtest_*.jpg
 report/build/
 pi-backups/
 .report-base/
+site/

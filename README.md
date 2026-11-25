@@ -13,7 +13,7 @@ Today pollen is only counted at a few places, by hand, with expensive traps.
 **Status:** early prototype. The software runs, the electronics are being wired, and the
 3D printed parts are being designed. Nothing is calibrated yet.
 
-![wiring diagram](docs/wiring.svg)
+![The sampler (3D model)](docs/build/img/assembled.png)
 
 ## How it works
 
@@ -32,15 +32,19 @@ through it from above. Pollen grains show up as small shadows.
 
 ## Build one yourself
 
-Start with the [build guide](docs/build-guide.md). In short:
+Follow the **[build guide](https://deekahy.github.io/Pollen-Detector/)**
+(the same pages are in [`docs/build/`](docs/build/index.md)). It goes through:
 
-| Step | Where |
-|---|---|
-| Buy the parts | [hardware/bom.md](hardware/bom.md) |
-| Print the parts | [hardware/](hardware/) |
-| Wire it | [docs/wiring.md](docs/wiring.md) |
-| Install the software | [device/README.md](device/README.md) |
-| Set up a server for the pictures (optional) | [server/README.md](server/README.md) |
+1. Parts and tools
+2. Printing the 3D parts
+3. Setting up the Pi
+4. Soldering the HAT
+5. Preparing the camera
+6. Putting it together
+7. Testing and calibrating
+8. Running it
+
+Want your own server for the pictures? See [server/README.md](server/README.md).
 
 ## What's in this repo
 

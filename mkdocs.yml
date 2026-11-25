@@ -1,0 +1,69 @@
+# Build guide website. Preview: nix develop -c mkdocs serve   (then open http://127.0.0.1:8000)
+# CI (.github/workflows/guide.yml) publishes it to GitHub Pages on every push to main.
+site_name: Pollen sampler build guide
+site_description: How to build a low-cost automated pollen sampler
+repo_url: https://github.com/DeeKahy/Pollen-Detector
+edit_uri: edit/main/docs/
+docs_dir: docs
+copyright: Public domain (CC0 1.0)
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.footer
+    - navigation.top
+    - content.action.edit
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: amber
+      toggle: {icon: material/weather-night, name: Dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: amber
+      toggle: {icon: material/weather-sunny, name: Light mode}
+
+plugins:
+  - search
+  - callouts   # GitHub style "> [!WARNING]" boxes, so pages look right on github.com too
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tasklist: {custom_checkbox: true}
+  - toc: {permalink: true}
+
+nav:
+  - Start here: build/index.md
+  - Build:
+      - 1. Parts and tools: build/parts.md
+      - 2. Print the parts: build/print.md
+      - 3. Set up the Pi: build/pi-setup.md
+      - 4. Build the HAT: build/hat.md
+      - 5. Prepare the camera: build/camera.md
+      - 6. Put it together: build/assembly.md
+      - 7. Test and calibrate: build/first-run.md
+      - 8. Run it: build/run.md
+      - Troubleshooting: build/troubleshooting.md
+  - Background:
+      - Mechanical ideas: mechanical-ideas.md
+      - Direct cable to a laptop: direct-cable.md
+      - Old breadboard wiring: wiring.md
+      - References: references.md
+
+not_in_nav: |
+  build-guide.md
+  hat.md
+  userTest.md
+
+validation:
+  links:
+    not_found: info   # some pages link to code outside docs/, which is fine on GitHub
