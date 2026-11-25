@@ -136,12 +136,16 @@ back     = -pi_y0 + pi_size[0] + 4 - t;            // tray depth behind the fram
 front    = tape_y + tape_w / 2 + 6;                // tray depth in front of the frame (under the rolls)
 module tray_part() {
     rib = 6;
+    strip = 10;                                   // strip behind the wall, under the groove
+    pw = pi_size[1] + 8;                          // Pi arm: the Pi's width plus 4 mm each side
     difference() {
-        translate([0, -t - back, -t]) rbox([L, back + t + front, t], 3);
-        // weight saving: under the tape rolls, under the Pi, and the empty corner behind the roll
+        union() {
+            translate([0, -strip, -t]) rbox([L, strip + front, t], 3);                         // along the wall
+            translate([pi_x0 - 4, -t - back, -t]) rbox([pw, back + t - strip + 3, t], 3);    // Pi arm
+        }
+        // weight saving: under the tape rolls, and inside the Pi arm (the Pi rests on its posts)
         for (x = [x_sup, x_tak]) translate([x - 15, 4, -t - 1]) rbox([30, front - 10, t + 2], 3);
-        translate([pi_x0 + 10, pi_y0 - pi_size[0] + 12, -t - 1]) rbox([pi_size[1] - 20, pi_size[0] - 24, t + 2], 3);
-        translate([12, pi_y0 - pi_size[0] + 8, -t - 1]) rbox([pi_x0 - 24, pi_size[0] - 10, t + 2], 3);
+        translate([pi_x0 + 8, pi_y0 - pi_size[0] + 8, -t - 1]) rbox([pi_size[1] - 16, pi_size[0] - 16, t + 2], 3);
     }
     // groove the frame presses into
     for (y = [-t - press - 2, press]) translate([0, y, 0]) cube([L, 2, rib]);

@@ -54,7 +54,7 @@ ribbon goes up through the HAT slot and bends once towards the wall, never sidew
 | Part | File | Size (mm) | Print |
 |---|---|---|---|
 | Frame | `stl/frame.stl` | 214 × 66, 42 high | lying on its back, everything points up, no supports |
-| Tray | `stl/tray.stl` | 214 × 131 | flat. The frame presses into the groove |
+| Tray | `stl/tray.stl` | 214 × 134, T shape | flat. The frame presses into the groove |
 | LED tower | `stl/led_tower.stl` | 48 × 40 × 44 | top down. **Black** filament |
 | Camera plug | `stl/camera_plug.stl` | 48 × 7 × 7 | plate down |
 | Take-up spool | `stl/takeup_spool.stl` | Ø40 × 31 | flange down |
