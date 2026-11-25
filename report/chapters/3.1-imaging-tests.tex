@@ -61,7 +61,7 @@ so each point on the tape casts a soft shadow. A pinhole in front of the LED, or
 between LED and tape, should give a cleaner shadow. Putting the camera and LED inside the closed box
 should also help, because no room light will reach the sensor.
 The RGB LED was also dim, especially red and blue, so the exposure had to be long.
-For Test~3 we changed to a NeoPixel (Section~\ref{sec:electronics}).
+For Test~3 we changed to a brighter LED cut from a Christmas light string (Section~\ref{sec:electronics}).
 \future{Add a pinhole or a black tube in front of the LED and repeat the test.}
 \future{Repeat the test with the camera and LED inside the box, and without the IR filter.}
 
@@ -85,27 +85,24 @@ For Test~3 we changed to a NeoPixel (Section~\ref{sec:electronics}).
 \subsection{Test 3: flour, with the LED tower}\label{sec:imaging-test-3}
 % Draft by Claude 2026-11-05 from the pictures and settings of that day, edit freely.
 
-For the third test the NeoPixel sits in the LED tower (Section~\ref{sec:enclosure}), with its
-light shining through a \fillin{size}~mm hole about \fillin{height}~mm above the tape. As a
-stand-in for pollen we sprinkled wheat flour on half of the tape, because it was the closest
-thing to pollen we had \fillin{typical size of wheat flour particles, with a source}.
-The other half was left almost empty.
+For the third test the Christmas light LED sits in the LED tower (Section~\ref{sec:enclosure}), with its
+light shining through a 0.6~mm hole about 1 centimeter above the tape. As a
+replacement for pollen we sprinkled wheat flour on half of the tape, because it was the closest
+thing to non sticky pollen we had \fillin{typical size of wheat flour particles, with a source}.
+The other half was left almost empty. We did also run a test with real flower pollen \fillin{remember
+ to mention the real pollen pictures anywhere, also this isnt the pollen youd find commonly in the air iirc, idk source it}
 
 The flour grains are clearly visible (Figure~\ref{fig:flourtest}), but each one is a soft blob
 about 0.1 to 0.17~mm wide, several times the size of a pollen grain. We took the same picture
-with red, green and blue light, and found the blobs to be equally blurred in all three. If the
-blur came from diffraction, red light would blur more than blue. So the blur comes from the
-size of the light source: every point of the hole casts its own shadow, and these shadows are
-shifted a little. A dust speck lying right on the sensor glass is much sharper than the flour,
-which shows that the gap between tape and sensor matters as well.
-
-This tells us what to improve. The blur grows with the size of the hole and with the gap, and
-shrinks with the height of the hole above the tape. A smaller hole costs light, but the tape
-does not move during a picture, so a longer exposure is fine. We chose green light, because the
-colour filter on the sensor has twice as many green pixels as red or blue ones.
+with red, green and blue light, and found the blobs to be equally blurred in all three. The blur
+possibly grows with the size of the hole and with the gap, and shrinks with the height of the hole
+above the tape. A smaller hole means less light for the sensor, but the tape does not move during a picture, so a
+longer exposure would probably be fine. 
 \future{Repeat with the 1.5~mm hole, and later with real pollen.}
 \future{Try reconstructing sharper pictures in software from the shadow patterns (holographic
 reconstruction, as in the c-Air sampler~\cite{Wu2018}).}
+
+\fillin{I hate this section, its written awkwardly and doesnt nicely show good final results. (which havent even been written)}
 
 \begin{figure}[htbp]
   \centering

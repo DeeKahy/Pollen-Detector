@@ -3,7 +3,7 @@
 % This chapter is a snapshot up to a milestone, not a list of iterations. Keep adding to it
 % until the semester ends. For each part: what we did, and WHY.
 
-This chapter describes the prototype as it is on \fillin{milestone date}. Instead of listing
+This chapter describes the prototype as it is in Janurary \fillin{specefic date?}. Instead of listing
 every version, each section describes one part of the device: what it does now, and why we
 made it that way. Details of each printed version (photos, notes) are kept in the
 \texttt{iterations/} folder of the project repository.
@@ -43,14 +43,14 @@ hole at the bottom of the tower, because a small light source gives sharper shad
 (Section~\ref{sec:imaging-test-3}). The tape runs under the tower, between its legs, so nothing
 touches the sticky side. The tower snaps onto the camera box and hooks over the top of the frame.
 It can be pulled off and put back without taking the tape out, which we need often while testing.
-\future{Print the tower with a smaller hole (1.5~mm) and repeat the test.}
+Printing it in a way so that there is only a pinhole gap 0.6mm between the light source and the
+sensor, which is the smallest our printer is able do to, does seem to give better results.
 
 \paragraph{Blowing or sucking.}
 The reference trap sucks air through a narrow slit onto the tape. That gives a known airflow
 and a sharp, narrow line of particles, which is needed to report pollen per cubic metre of air.
 For the first prototype we chose to blow air onto the tape instead, because it is much simpler
-to build. A printed nozzle between fan and tape is a possible middle ground.
-\future{Measure the airflow, and decide whether to change to sucking through a slit.}
+to build. 
 
 \section{Electronics}\label{sec:electronics}
 
@@ -61,9 +61,8 @@ to build. A printed nozzle between fan and tape is a possible middle ground.
   fan directly. A diode protects the MOSFET.
   \item \textbf{Camera.} The Raspberry Pi HQ camera with the lens removed
   (Section~\ref{sec:imaging-tests}).
-  \item \textbf{LED.} A single LED cut from a chained string of Christmas lights. It is a
-  NeoPixel: a colour LED with its own small controller chip, so it needs only one data wire
-  from the Pi.
+  \item \textbf{LED.} One LED cut from a string of colour Christmas lights we had at home.
+  See the light source below.
 \end{itemize}
 
 \paragraph{Light source.}
@@ -75,8 +74,13 @@ We changed the light twice. Each time the pictures told us why.
   \item \textbf{RGB 5~mm LED} (Test~2). Each colour has its own Pi pin, so the software can
   choose the colour. But it was dim. A Pi pin gives only 3.3~V, and the green and blue parts
   need most of that just to light up, so very little current is left.
-  \item \textbf{NeoPixel} (Test~3). One LED cut from a string of Christmas lights. It takes its
-  power from the 5~V supply, so it is brighter, and its own chip sets the colour. It needs only
-  one data wire. \fillin{Why a NeoPixel? For example: we already had the light string.}
+  \item \textbf{Christmas light} (Test~3). One LED cut from a chain of Christmas
+  lights. The nice part is that the LED only needs power
+  from the 5~V supply, ground, and one data wire from the Pi. It is much brighter than the
+  RGB LED. The LED is also surrounded in a slightly cloudy, rubbery material that difuses the
+  light. This mixes the three colours a little bit before they reach the sensor, so a mixed colour such as
+  white seems to cast one shadow instead of two or three shifted shadows.
+  \future{Check this with a white-light picture.}
+  We used it because we had it. A future kit should use a proper part of the same kind (an
+  addressable RGB LED, such as the WS2812, with a diffuser), which is cheap and easy to buy.
 \end{enumerate}
-The colour can be chosen in the web page with all three (Section~\ref{sec:control-software}).

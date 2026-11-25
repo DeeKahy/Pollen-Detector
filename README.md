@@ -72,10 +72,9 @@ Ideas, test results and photos are very welcome. If you build one, add a folder 
 
 ## License
 
-- **Software** (everything except `hardware/` and `report/`): [GNU AGPL v3](LICENSE).
-  You can use, change and share it. If you share it, or run a changed version as a
-  service others use over a network, you must also share your source under the AGPL.
-- **3D models and hardware files** (`hardware/`): public domain, [CC0 1.0](hardware/LICENSE).
-  Do whatever you want with them. No credit needed.
-- **Report** (`report/`): built on the AAU template (BSD 3-Clause, `report/LICENSE-template`).
-  The license for our own text is not decided yet.
+Everything we made is public domain, [CC0 1.0](LICENSE): the software, the 3D models, the
+report text, the photos and the collected data. Use it for anything, no credit needed.
+By contributing you agree to release your work under CC0.
+
+The only exception is the AAU report template that `report/` is built on. It has its own
+BSD 3-Clause license (`report/LICENSE-template`).

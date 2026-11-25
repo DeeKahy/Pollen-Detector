@@ -205,7 +205,6 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 - Which Pi for deployment (3 B+, 4, 5, Zero 2 W)?
 - Who are the biology/aerobiology partners? (Astma-Allergi Danmark, university botany/
   aerobiology groups, DMI for forecasting.)
-- Licensing for docs, photos and collected data (code and hardware are decided)?
 
 ## 10. Decisions log
 
@@ -217,7 +216,8 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 | 2026-10-03 | Pin assignment (BCM): stepper IN1-4 = GPIO17/27/22/23, fan MOSFET = GPIO18, LED = GPIO24. | See `docs/wiring.md`. |
 | 2026-10-07 | LED runs straight from GPIO24 through a 47 Ω resistor (150 Ω for red/green) to GND pin 20. No MOSFET for the LED. Only the fan uses a MOSFET. | Simpler. A dim LED is fine, use longer exposure. |
 | 2026-10-20 | Project moved to GitHub (DeeKahy/Pollen-Detector). Added README, build guide, parts list, iterations log. | So others can build it. |
-| 2026-10-20 | License: software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
+| 2026-11-24 | **Everything public domain (CC0 1.0)**: software, 3D models, report text, photos and data. `LICENSE` is now CC0 (was AGPL-3.0). Only the AAU report template keeps its BSD license. | The goal is many builders and freely usable data, not protection. AI-written code may not be covered by copyright anyway, so AGPL could not be fully enforced. |
+| 2026-10-20 | License (replaced 2026-11-24): software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
 | 2026-10-20 | Report moved from Overleaf to `report/` in this repo. Write via PRs; CI builds the PDF. | Easier for two people to write in parallel and review changes. |
 | 2026-10-26 | Every capture gets a JSON sidecar (note, requested settings, sensor metadata, an `about` text) so people and AI tools can read it. Web UI can edit notes and delete pictures; more camera settings, kept across restarts. | Getting a good picture takes many tries; the data should explain itself. |
 | 2026-10-26 | Full-size images stay out of git. Git gets 1500 px JPEGs, 1:1 crops and JSON; originals go in a GitHub release (`data-YYYY-MM-DD`). | 18.5 MB per PNG. |
