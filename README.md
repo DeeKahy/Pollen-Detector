@@ -13,7 +13,7 @@ Today pollen is only counted at a few places, by hand, with expensive traps.
 **Status:** early prototype. The software runs, the electronics are being wired, and the
 3D printed parts are being designed. Nothing is calibrated yet.
 
-![wiring diagram](docs/wiring.svg)
+![The sampler (3D model)](docs/build/img/assembled.png)
 
 ## How it works
 
@@ -32,15 +32,19 @@ through it from above. Pollen grains show up as small shadows.
 
 ## Build one yourself
 
-Start with the [build guide](docs/build-guide.md). In short:
+Follow the **[build guide](https://deekahy.github.io/Pollen-Detector/)**
+(the same pages are in [`docs/build/`](docs/index.md)). It goes through:
 
-| Step | Where |
-|---|---|
-| Buy the parts | [hardware/bom.md](hardware/bom.md) |
-| Print the parts | [hardware/](hardware/) |
-| Wire it | [docs/wiring.md](docs/wiring.md) |
-| Install the software | [device/README.md](device/README.md) |
-| Set up a server for the pictures (optional) | [server/README.md](server/README.md) |
+1. Parts and tools
+2. Printing the 3D parts
+3. Setting up the Pi
+4. Soldering the HAT
+5. Preparing the camera
+6. Putting it together
+7. Testing and calibrating
+8. Running it
+
+Want your own server for the pictures? See [server/README.md](server/README.md).
 
 ## What's in this repo
 
@@ -53,7 +57,7 @@ Start with the [build guide](docs/build-guide.md). In short:
 | `iterations/` | Photos and notes from each version we build |
 | `ml/` | Pollen recognition (not started yet) |
 | `report/` | Our project report in LaTeX. See [report/README.md](report/README.md) |
-| `CLAUDE.md` | Full project notes and decisions. Also used as context for AI assistants |
+| `AGENTS.md` | Full project notes and decisions. Also used as context for AI assistants |
 
 ## Contributing
 
@@ -68,10 +72,9 @@ Ideas, test results and photos are very welcome. If you build one, add a folder 
 
 ## License
 
-- **Software** (everything except `hardware/` and `report/`): [GNU AGPL v3](LICENSE).
-  You can use, change and share it. If you share it, or run a changed version as a
-  service others use over a network, you must also share your source under the AGPL.
-- **3D models and hardware files** (`hardware/`): public domain, [CC0 1.0](hardware/LICENSE).
-  Do whatever you want with them. No credit needed.
-- **Report** (`report/`): built on the AAU template (BSD 3-Clause, `report/LICENSE-template`).
-  The license for our own text is not decided yet.
+Everything we made is public domain, [CC0 1.0](LICENSE): the software, the 3D models, the
+report text, the photos and the collected data. Use it for anything, no credit needed.
+By contributing you agree to release your work under CC0.
+
+The only exception is the AAU report template that `report/` is built on. It has its own
+BSD 3-Clause license (`report/LICENSE-template`).

@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS captures (
 );
 CREATE INDEX IF NOT EXISTS captures_pending ON captures(uploaded_at);
 CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT);
+-- Pictures deleted here after they were uploaded: the server should delete them too.
+CREATE TABLE IF NOT EXISTS remote_deletes (path TEXT PRIMARY KEY, queued_at TEXT NOT NULL);
 """
 
 SIDECAR_ABOUT = (
@@ -59,7 +61,11 @@ class Store:
         self.db = sqlite3.connect(self.dir / "pollen.db", check_same_thread=False)
         self.db.row_factory = sqlite3.Row
         self.db.executescript(SCHEMA)
+        cols = [r[1] for r in self.db.execute("PRAGMA table_info(captures)")]
+        if "meta_dirty" not in cols:  # 1 = note changed after upload, send the new metadata
+            self.db.execute("ALTER TABLE captures ADD COLUMN meta_dirty INTEGER DEFAULT 0")
         self.db.commit()
+        self.on_change = lambda: None  # set by main: wakes the uploader
 
     def _exec(self, sql, args=()):
         with self.lock:
@@ -113,6 +119,7 @@ class Store:
         cur = self._exec(
             "INSERT INTO captures(ts, kind, sample_id, path, meta) VALUES (?, ?, ?, ?, ?)",
             (iso(ts), kind, sample_id, str(rel_path), json.dumps(meta)))
+        self.on_change()
         return cur.lastrowid
 
     def sidecar_path(self, rel):
@@ -134,8 +141,9 @@ class Store:
             return None
         meta = json.loads(row["meta"])
         meta["note"] = note
-        self._exec("UPDATE captures SET meta=? WHERE id=?", (json.dumps(meta), capture_id))
+        self._exec("UPDATE captures SET meta=?, meta_dirty=1 WHERE id=?", (json.dumps(meta), capture_id))
         self.write_sidecar(capture_id, row["path"], meta)
+        self.on_change()
         return meta
 
     def delete_capture(self, capture_id):
@@ -148,6 +156,10 @@ class Store:
                   self.images / rel.with_suffix(".dng")):
             p.unlink(missing_ok=True)
         self._exec("DELETE FROM captures WHERE id=?", (capture_id,))
+        if row["uploaded_at"]:
+            self._exec("INSERT OR REPLACE INTO remote_deletes(path, queued_at) VALUES (?, ?)",
+                       (row["path"], iso(utcnow())))
+            self.on_change()
         return True
 
     def recent_captures(self, limit=24):
@@ -157,7 +169,33 @@ class Store:
         return self._all("SELECT * FROM captures WHERE uploaded_at IS NULL ORDER BY id LIMIT ?", (limit,))
 
     def mark_uploaded(self, capture_id):
-        self._exec("UPDATE captures SET uploaded_at=?, last_error=NULL WHERE id=?", (iso(utcnow()), capture_id))
+        self._exec("UPDATE captures SET uploaded_at=?, meta_dirty=0, last_error=NULL WHERE id=?",
+                   (iso(utcnow()), capture_id))
+
+    def pending_meta(self, limit=50):
+        """Uploaded captures whose note changed since."""
+        return self._all("SELECT * FROM captures WHERE uploaded_at IS NOT NULL AND meta_dirty=1 ORDER BY id LIMIT ?",
+                         (limit,))
+
+    def mark_meta_synced(self, capture_id):
+        self._exec("UPDATE captures SET meta_dirty=0 WHERE id=?", (capture_id,))
+
+    def mark_not_uploaded(self, capture_id):
+        """The server does not have it (any more): upload the whole picture again."""
+        self._exec("UPDATE captures SET uploaded_at=NULL, meta_dirty=0 WHERE id=?", (capture_id,))
+
+    def pending_deletes(self, limit=50):
+        return [r["path"] for r in self._all("SELECT path FROM remote_deletes ORDER BY queued_at LIMIT ?", (limit,))]
+
+    def mark_delete_done(self, rel):
+        self._exec("DELETE FROM remote_deletes WHERE path=?", (rel,))
+
+    def upload_doc(self, row):
+        """What the server gets as metadata: the JSON sidecar, or the database copy if the file is gone."""
+        try:
+            return self.sidecar_path(row["path"]).read_text()
+        except OSError:
+            return json.dumps({"capture_id": row["id"], **json.loads(row["meta"])})
 
     def mark_failed(self, capture_id, error):
         self._exec("UPDATE captures SET attempts=attempts+1, last_error=? WHERE id=?", (str(error)[:500], capture_id))
@@ -166,5 +204,8 @@ class Store:
         with self.lock:
             total = self.db.execute("SELECT COUNT(*) FROM captures").fetchone()[0]
             pending = self.db.execute("SELECT COUNT(*) FROM captures WHERE uploaded_at IS NULL").fetchone()[0]
+            pending += self.db.execute("SELECT COUNT(*) FROM captures WHERE uploaded_at IS NOT NULL "
+                                       "AND meta_dirty=1").fetchone()[0]
+            pending += self.db.execute("SELECT COUNT(*) FROM remote_deletes").fetchone()[0]
             samples = self.db.execute("SELECT COUNT(*) FROM samples").fetchone()[0]
         return {"captures": total, "pending_upload": pending, "samples": samples}

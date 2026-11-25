@@ -41,6 +41,7 @@ Biologists / aerobiologists and reference data are needed for labelling and cali
 | **Raspberry Pi 3 B+** (others available) | Enough for capture + scheduling + upload. Marginal for on-device CNN inference on full-res HQ images (1 GB RAM). Pi 4/5 recommended if inference runs on device. |
 | **Raspberry Pi HQ Camera (IMX477, CS mount)** | 12.3 MP, 1.55 µm pixels, sensor ~6.29 × 4.71 mm. Colour (Bayer) sensor. Lens off. **IR-cut filter removed** (after the 2026-10-26 tests). The sensor still has its own bonded cover glass. Sensor now exposed: plan is a #1 microscope **coverslip** (~0.15 mm) lying on the sensor cover glass as a dust cover. 22×22 mm likely won't fit down the mount opening: measure it first, or take the mount housing off. |
 | **RGB LED, 5 mm, common anode** (4 legs) | Replaces the single LED. Long leg = shared + to 3.3V (pin 17). Red GPIO24 / 220 Ω, green GPIO25 / 100 Ω, blue GPIO5 / 47 Ω. Pin LOW = on. Diode test: R 1.72 V, G 2.28 V, B 2.48 V. See `docs/wiring.md`. Software: `RgbLed` in `hardware.py`, config `pins.led` {red, green, blue} + `led_active_low`; `camera.led_rgb` [r,g,b] 0..1 is the colour (live view and pictures), PWM at 1 kHz. Web UI: colour wheel + intensity + RGB boxes, and a camera calibration (LED off/R/G/B frames → 3×3 matrix, inverted so the picked colour is what the camera sees). Blue moved from 100 Ω to 47 Ω on 2026-10-27 (barely visible before: its Vf is close to 3.3 V); current not measured yet. |
+| **NeoPixel string** (WS2811/WS2812 Christmas lights, 3 wires) | Added 2026-11-05 to replace the RGB LED (brighter, own PWM). Data on GPIO10 / SPI MOSI (pin 19), 5V pin 4, GND. Software: `PixelLight` in `hardware.py`, config `led.type: neopixel`, `led.count/order/max_ma`, `camera.led_pixels` (which pixels light). Needs SPI on and `python3-spidev`. Not yet tested on the real string. See `docs/wiring.md`. |
 | Clear adhesive tape (roll) | Initial collection medium. |
 | Multimeter (Biltema, autoranging) | Diode test: dial on Ω/CAP, MODE until ▶|, black in COM, red in VΩ. |
 
@@ -204,7 +205,6 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 - Which Pi for deployment (3 B+, 4, 5, Zero 2 W)?
 - Who are the biology/aerobiology partners? (Astma-Allergi Danmark, university botany/
   aerobiology groups, DMI for forecasting.)
-- Licensing for docs, photos and collected data (code and hardware are decided)?
 
 ## 10. Decisions log
 
@@ -216,7 +216,9 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 | 2026-10-03 | Pin assignment (BCM): stepper IN1-4 = GPIO17/27/22/23, fan MOSFET = GPIO18, LED = GPIO24. | See `docs/wiring.md`. |
 | 2026-10-07 | LED runs straight from GPIO24 through a 47 Ω resistor (150 Ω for red/green) to GND pin 20. No MOSFET for the LED. Only the fan uses a MOSFET. | Simpler. A dim LED is fine, use longer exposure. |
 | 2026-10-20 | Project moved to GitHub (DeeKahy/Pollen-Detector). Added README, build guide, parts list, iterations log. | So others can build it. |
-| 2026-10-20 | License: software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
+| 2026-11-25 | Tray: breadboard pocket replaced by a Pi mount: 4 posts with 2.4 mm pins in the 58 × 49 holes (fits 3B, 3B+, 4, 5). Pi turned so USB points away from the wall and the CSI connector (`pi_csi` = 13.5 mm from the HDMI edge, from the HAT drawing, check) is under the wall's ribbon slot. 6 mm gap to the wall for the SD card. Not printed yet. | Breadboard replaced by the Proto HAT. User wants any Pi to drop in, and the ribbon to bend only up/down. |
+| 2026-11-24 | **Everything public domain (CC0 1.0)**: software, 3D models, report text, photos and data. `LICENSE` is now CC0 (was AGPL-3.0). Only the AAU report template keeps its BSD license. | The goal is many builders and freely usable data, not protection. AI-written code may not be covered by copyright anyway, so AGPL could not be fully enforced. |
+| 2026-10-20 | License (replaced 2026-11-24): software AGPL-3.0 (`LICENSE`), 3D models and hardware files in `hardware/` public domain CC0 1.0 (`hardware/LICENSE`). | Keep the code open, including when run as a service. Let anyone reuse the 3D files freely. |
 | 2026-10-20 | Report moved from Overleaf to `report/` in this repo. Write via PRs; CI builds the PDF. | Easier for two people to write in parallel and review changes. |
 | 2026-10-26 | Every capture gets a JSON sidecar (note, requested settings, sensor metadata, an `about` text) so people and AI tools can read it. Web UI can edit notes and delete pictures; more camera settings, kept across restarts. | Getting a good picture takes many tries; the data should explain itself. |
 | 2026-10-26 | Full-size images stay out of git. Git gets 1500 px JPEGs, 1:1 crops and JSON; originals go in a GitHub release (`data-YYYY-MM-DD`). | 18.5 MB per PNG. |
@@ -230,6 +232,12 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
 | 2026-10-28 | LED calibration cleared on the Pi: direct pin control gives better results. Added "Auto setup" (per colour: exposure for 95th percentile ≈ 150, score = 99.5th percentile gradient / median; keep best). | Setup changes often (camera knocked, tape moved); a one-button search beats hand tuning. |
 | 2026-10-28 | Report CI also builds a "changes marked" PDF for PRs (`report/diff.sh`: latexpand both versions, latexdiff UNDERLINE, `\fillin`/`\future` treated as text so marks wrap). | Faster review between the two authors. |
 | 2026-10-28 | Supervisor reviews every 1–2 weeks: a frozen `review/YYYY-MM-DD` branch from `main` gets a PR into `supervisor-reviewed`; CI's changes-marked PDF then shows what is new since the last review. Merge (merge commit) when the feedback is in. Report stays in git, not Overleaf. Steps in `report/README.md`. | Supervisor gets a PDF plus a diff without using git; feedback by PDF notes, email or PR comments. |
+| 2026-10-29 | CAD in OpenSCAD (`hardware/tape-deck/`). A first enclosed design was too much ("overkill"); replaced by a simple prototype frame based on the user's own design: roll slides onto a tilted 26 mm peg in open air, fan shelf, camera slides into a small box closed by a plug, motor pulls the tape in, LED tower kept. Pi and breadboard on a tray behind the wall. | Keep it a prototype: little material, few parts, no enclosure or weatherproofing yet; fix the cable mess by putting the electronics right behind the wall. |
+| 2026-10-30 | First print showed: motor hub too tight, LED tower hit the fan shelf, plug could not enter past the camera rails, and the tower skirts crossed the tape path. Fixed: `shaft_fit`/`clip` tolerances, camera moved away from the fan (fan to camera now 46.2 mm), plug is a cap over the box, skirts only beside the legs, open tape channel. New `tape_check` part must render empty. Fan assumed a Pi case fan (30 mm). Not reprinted yet. | Printed holes come out small, and the sticky side must never touch anything. |
+| 2026-11-11 | Pins moved for the Proto HAT: stepper IN1-4 = GPIO18/27/22/23 (one row of 4 on the HAT), fan MOSFET = GPIO17. Layout in `docs/hat.md` / `hat.svg` (`make_hat_svg.py`). | A single 4-pin header for the motor. GPIO17 (not GPIO4) for the fan because GPIO0-8 are pulled high at boot, which could half turn on the MOSFET. |
+| 2026-11-05 | NeoPixel string driven over SPI (GPIO10), our own encoder with `spidev` (no pip, no root). Light only chosen pixels; software caps the estimated current at `led.max_ma` (400 mA). The 5 mm RGB LED stays supported (`led.type: rgb`). | GPIO18 (the usual NeoPixel pin) is the fan; rpi_ws281x needs root and pip. One pixel = smallest light source = sharpest shadow. |
+| 2026-11-05 | Auto setup v2: measure R, G, B alone (+ dark frames), model ~150 mixes as weighted sums in linear light (gamma 2.2 undone), photograph the best 3, keep the best real score. Mixes use whole 1 ms PWM periods. | User wanted more colours than 4. Light is additive, so mixes can be computed instead of photographed. Not yet run on the real camera. |
+| 2026-11-09 | Pictures are uploaded to **pollen-gallery** at https://pollen.smallapp.cc (Go + htmx, on the user's own server, code not on GitHub yet). The Pi uploader sends every picture + JSON sidecar when it has internet, plus note edits and deletes. Gallery password and upload token: `/var/lib/selfhosted/pollen-gallery.env` on the `agent` server. | The user forgets the Pi at home and wanted to see the pictures at school. |
 | 2026-10-03 | Software: Python, apt packages only on the Pi (no venv), Flask debug UI on :8080, SQLite queue, HTTP upload with per-device bearer token to a minimal Flask server. Mock mode for laptop dev. Inference server-side later. | Simple, debuggable, robust to network outages. |
 
 ## 11. Repo layout
@@ -243,13 +251,19 @@ Tape now lies on the IR filter about 1 mm above the sensor. Same brown hair.
     distance in pitches; a persistent `pipeline` queue links each image to its sample (blow period).
     Image kinds: `sample`, `untracked`, `manual`.
 - `server/`: minimal Flask ingest server (`POST /api/v1/upload`, `/api/v1/heartbeat`, overview page).
-- `docs/`: `build-guide.md`, `wiring.md` + `wiring.svg` (generated by `make_wiring_svg.py`), `resistors.svg` (colour codes), `direct-cable.md` (SSH, web UI and internet sharing over a laptop cable), `mechanical-ideas.md`, `references.md`.
-- `hardware/`: `bom.md` parts list. CAD (STL + source), one folder per part. To be added by the team.
+- `docs/`: `build/` (the build guide, see `mkdocs.yml`), `build-guide.md` (pointer), `wiring.md` + `wiring.svg` (generated by `make_wiring_svg.py`), `resistors.svg` (colour codes), `direct-cable.md` (SSH, web UI and internet sharing over a laptop cable), `mechanical-ideas.md`, `references.md`.
+- `hardware/`: `bom.md` parts list. CAD (STL + source), one folder per part.
+  `hardware/tape-deck/`: simple parametric OpenSCAD frame (5 parts): one flat wall printed on its back, with
+  tilted 26 mm roll peg, fan shelf + ledge, front-loading camera box (rails, roof window, plug with ribbon
+  slit), LED tower; motor on the back; tray with groove and 4 posts with pins for any full-size Pi (USB end away from the wall, camera connector behind the ribbon slot; `pi_clash` must render empty).
+  No Pi mount (user: the Pi can just sit behind it for now).
+  **No glue or screws** (user wish): every mount is a press or snap fit (`press` = 0.1, `fit` = 0.3). Measurements to
+  check are at the top of `tape_deck.scad`. Render with `nix shell nixpkgs#openscad` (2021.01).
 - `iterations/`: one folder per built version with photos, example pictures and notes (`_template.md`).
 - `ml/`: recognition plan. Not started. Large datasets stay out of git.
 - `flake.nix` / `.envrc`: Nix dev shell (`nix develop`). `pi-backups/`: local copies of the Pi's data dir (git-ignored).
 - `report/`: the project report (LaTeX, AAU template). Files in `report/chapters/` are auto-included in number order (`1.0-intro.tex`, `1.1-...`, `2.0-...`) by `report/latexmkrc`. CI (`.github/workflows/report.yml`) builds the PDF on every PR and links it in a comment. `main` is protected.
-  Current chapters: `1.0-introduction` (problem, vision, research question), `2.0-prototype` ("The prototype so far": how it works, enclosure, electronics), `2.1-imaging-tests` (Test 1 room light/blue LED, Test 2 RGB LED), `2.2-control-software` (web UI: overall functionality and why, not every button), `3.0-conclusion` (placeholder).
+  Current chapters: `1.0-introduction` (problem, vision, research question), `2.0-experts` (planned: written questions to Astma-Allergi Danmark; no user studies this semester), `3.0-prototype` ("The prototype so far": how it works, enclosure, electronics), `3.1-imaging-tests` (Test 1 room light/blue LED, Test 2 RGB LED), `3.2-control-software` (web UI: overall functionality and why, not every button), `4.0-conclusion` (placeholder). Appendix: `A.0-expert-questions`.
 - `README.md`: public front page of the repo.
 
 ## 12. Next steps
@@ -296,7 +310,7 @@ The Pi's `~/pollen/config.yaml` is not synced; a backup from before the RGB chan
 
 **Talking to the device.** Everything the web UI does is a JSON API (`device/README.md` has the table).
 Useful: `GET /api/status`, `GET /api/preview.jpg`, `POST /api/led {"rgb":[r,g,b],"on":true}` or
-`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~15 s), `POST /api/camera/settings {...}`,
+`{"colour":"green"}`, `POST /api/led/auto` (auto setup, ~30 s), `POST /api/camera/settings {...}`,
 `POST /api/capture {"note":"..."}` (full res PNG + JSON sidecar under `/images/<path>`).
 Don't leave test pictures behind on the Pi without a note saying they were tests.
 

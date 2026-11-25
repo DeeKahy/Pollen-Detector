@@ -59,6 +59,7 @@ def main(argv=None):
     ctl = Controller(cfg, hw, store)
     app = None
     uploader = Uploader(cfg, store, lambda: app.config["status_fn"]())
+    store.on_change = uploader.kick  # new picture, note edit or delete: sync now, not in interval_s
     app = create_app(cfg, ctl, hw, store, uploader, logbuf)
 
     def on_signal(signum, _frame):

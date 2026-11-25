@@ -199,19 +199,165 @@ def calibrated_duties(target, matrix):
     return [v / top for v in d] if top > 1 else d
 
 
-class RgbLed:
-    """Common-anode RGB LED: the long leg on 3.3 V, one GPIO pin per colour, pin LOW = on.
+class PinLight:
+    """Common-anode 5 mm RGB LED: the long leg on 3.3 V, one GPIO pin per colour, pin LOW = on.
+    Each colour is dimmed by PWM: the pin flicks on and off pwm_frequency times a second."""
 
-    The colour is `settings["led_rgb"]` (the camera settings dict, so it is saved with every
-    picture). Each colour is dimmed by PWM: the pin flicks on and off pwm_frequency times a
-    second. At 0 or 1 there is no flicker. With a calibration (see Controller.calibrate_led)
-    led_rgb is the colour the camera sees, not the raw pin duty."""
+    kind = "rgb"
 
-    def __init__(self, pins, mock, settings, active_low=True, pwm_frequency=1000):
-        self.settings = settings
+    def __init__(self, pins, mock, active_low=True, pwm_frequency=1000):
+        self.pwm_hz = pwm_frequency
         self.parts = {c: Output(f"LED {c}", pins[c], mock, pwm=True, pwm_frequency=pwm_frequency,
                                 active_high=not active_low)
                       for c in LED_COLOURS}
+
+    def write(self, duties, quiet=False):
+        for c, o in self.parts.items():
+            o.set(duties.get(c, 0), quiet=quiet)
+
+    def levels(self):
+        return {c: round(o.value, 3) for c, o in self.parts.items()}
+
+    def info(self):
+        return {"type": self.kind}
+
+    def close(self):
+        for o in self.parts.values():
+            o.close()
+
+
+def parse_pixels(spec, count):
+    """Which pixels to light: "all", "0", "3-5", "0,2,10-12" (numbered from 0). Returns a sorted list."""
+    spec = str(spec).strip().lower().replace(" ", "")
+    if spec in ("all", "*"):
+        return list(range(count))
+    out = set()
+    for part in filter(None, spec.split(",")):
+        a, _, b = part.partition("-")
+        lo, hi = int(a), int(b or a)
+        if lo > hi or lo < 0:
+            raise ValueError(f"bad pixel range {part!r}")
+        out.update(range(lo, hi + 1))
+    if not out:
+        raise ValueError("no pixels given (use e.g. 0, 0-4 or all)")
+    if max(out) >= count:
+        raise ValueError(f"pixel {max(out)} does not exist: the string has {count} (0..{count - 1})")
+    return sorted(out)
+
+
+class PixelLight:
+    """A string of WS2811/WS2812 ("NeoPixel") pixels on one data wire, driven over SPI.
+
+    The data pin is SPI MOSI (GPIO10, physical pin 19), so no root is needed, only the `spi`
+    group and SPI switched on (raspi-config). Each data bit becomes one SPI byte at 6.4 MHz:
+    a short pulse (0b11000000) is a 0, a long one (0b11110000) a 1. A pause of >300 us
+    afterwards latches the colours.
+
+    Only the pixels in `settings["led_pixels"]` light up, all in the same colour. Each pixel
+    dims its own colours (8 bit, its own PWM). `max_ma` caps the estimated current
+    (~20 mA per colour at full) by dimming everything, so the Pi's 5 V pin is not overloaded."""
+
+    kind = "neopixel"
+    SPI_HZ = 6_400_000
+    ZERO, ONE = 0b11000000, 0b11110000
+    MA_PER_COLOUR = 20.0
+    # One SPI byte per data bit: look-up table byte value -> 8 SPI bytes.
+    _TABLE = [bytes(0b11110000 if (v >> (7 - i)) & 1 else 0b11000000 for i in range(8))
+              for v in range(256)]
+
+    def __init__(self, cfg, mock, settings):
+        self.settings = settings
+        self.count = int(cfg["count"])
+        self.order = str(cfg["order"]).upper()
+        if sorted(self.order) != ["B", "G", "R"]:
+            raise ValueError(f"led.order must be RGB, GRB, BRG... not {self.order!r}")
+        self.max_ma = float(cfg["max_ma"])
+        self.pwm_hz = None  # the pixels' own PWM; unknown and fast enough not to matter much
+        self._levels = {c: 0.0 for c in LED_COLOURS}
+        self._lit = []
+        self.spi = None
+        if not mock:
+            import spidev
+            bus, dev = cfg["spi"]
+            self.spi = spidev.SpiDev()
+            try:
+                self.spi.open(int(bus), int(dev))
+            except FileNotFoundError:
+                raise RuntimeError(f"/dev/spidev{bus}.{dev} missing: switch SPI on with "
+                                   "'sudo raspi-config nonint do_spi 0' and reboot") from None
+            self.spi.max_speed_hz = self.SPI_HZ
+            self.spi.mode = 0
+        self.write({}, quiet=True)  # all dark: the string shows random colours at power-up
+
+    def pixels(self):
+        try:
+            return parse_pixels(self.settings.get("led_pixels", "0"), self.count)
+        except ValueError as e:  # e.g. a saved setting from a longer string
+            log.warning("LED pixels: %s - lighting pixel 0", e)
+            return [0]
+
+    def current_ma(self, duties, n):
+        return n * self.MA_PER_COLOUR * sum(duties.get(c, 0) for c in LED_COLOURS)
+
+    def write(self, duties, quiet=False):
+        d = {c: max(0.0, min(1.0, float(duties.get(c, 0)))) for c in LED_COLOURS}
+        lit = self.pixels()
+        ma = self.current_ma(d, len(lit))
+        if ma > self.max_ma:
+            k = self.max_ma / ma
+            if not quiet:
+                log.warning("LED: %d pixels would draw ~%.0f mA, dimmed to max_ma %.0f", len(lit), ma, self.max_ma)
+            d = {c: v * k for c, v in d.items()}
+        value = {"R": round(d["red"] * 255), "G": round(d["green"] * 255), "B": round(d["blue"] * 255)}
+        on = bytes(value[ch] for ch in self.order)
+        off = bytes(3)
+        lit_set = set(lit)
+        data = b"".join(on if i in lit_set else off for i in range(self.count))
+        if self.spi is not None:
+            # Leading zero byte: the first SPI bit can glitch. Trailing zeros: the >300 us latch.
+            buf = bytes(1) + b"".join(self._TABLE[b] for b in data) + bytes(300)
+            self.spi.writebytes2(buf)
+        if not quiet and (d != self._levels or lit != self._lit):
+            log.info("LED pixels %s -> R %.2f G %.2f B %.2f", _ranges(lit), d["red"], d["green"], d["blue"])
+        self._levels, self._lit = d, lit
+
+    def levels(self):
+        return {c: round(v, 3) for c, v in self._levels.items()}
+
+    def info(self):
+        lit = self._lit
+        return {"type": self.kind, "count": self.count, "pixels": self.settings.get("led_pixels", "0"),
+                "lit": len(lit), "ma": round(self.current_ma(self._levels, len(lit))), "max_ma": self.max_ma}
+
+    def close(self):
+        self.write({}, quiet=True)
+        if self.spi is not None:
+            self.spi.close()
+
+
+def _ranges(nums):
+    """[0, 1, 2, 5] -> "0-2,5"."""
+    out, start = [], None
+    for i, n in enumerate(nums):
+        if start is None:
+            start = n
+        if i + 1 == len(nums) or nums[i + 1] != n + 1:
+            out.append(str(start) if start == n else f"{start}-{n}")
+            start = None
+    return ",".join(out) or "none"
+
+
+class RgbLed:
+    """The light above the tape: a 5 mm RGB LED on three pins (PinLight) or a NeoPixel string
+    (PixelLight). Both take a duty 0..1 per colour.
+
+    The colour is `settings["led_rgb"]` (the camera settings dict, so it is saved with every
+    picture). With a calibration (see Controller.calibrate_led) led_rgb is the colour the
+    camera sees, not the raw duty."""
+
+    def __init__(self, light, settings):
+        self.settings = settings
+        self.out = light
         self.lit = False
         self.calibration = None  # {"matrix": [[...]], ...} or None
         self._raw = None         # fixed duties that bypass the colour (calibration, hwtest)
@@ -237,11 +383,11 @@ class RgbLed:
     @property
     def value(self):
         """1 if the LED is on (the old single-LED interface)."""
-        return 1.0 if any(o.value for o in self.parts.values()) else 0.0
+        return 1.0 if any(self.out.levels().values()) else 0.0
 
     def levels(self):
-        """What each pin really does right now: 0 = off, 1 = fully on, in between = dimmed."""
-        return {c: round(o.value, 3) for c, o in self.parts.items()}
+        """What each colour really does right now: 0 = off, 1 = fully on, in between = dimmed."""
+        return self.out.levels()
 
     def refresh(self):
         """Send the current colour (or raw duties) to the pins."""
@@ -252,8 +398,7 @@ class RgbLed:
                 return  # the effect thread drives the pins
             else:
                 d = self.duties() if self.lit else {}
-            for c, o in self.parts.items():
-                o.set(d.get(c, 0))
+            self.out.write(d)
 
     def set_on(self, on):
         if not on:
@@ -292,8 +437,7 @@ class RgbLed:
             with self._pins:
                 if self._raw is not None or self._hold:
                     continue
-                for c, o in self.parts.items():
-                    o.set(d[c], quiet=True)
+                self.out.write(d, quiet=True)
 
     def hold(self, on):
         """Pause an effect and show the fixed colour (for a picture), or resume it."""
@@ -330,8 +474,13 @@ class RgbLed:
 
     def close(self):
         self.stop_effect()
-        for o in self.parts.values():
-            o.close()
+        self.out.close()
+
+
+def _pixels(v):
+    v = str(v).strip().lower().replace(" ", "")
+    parse_pixels(v, 10**6)  # syntax check; the pixel count is checked when it is used
+    return v
 
 
 def _rgb(v):
@@ -354,6 +503,7 @@ SETTING_TYPES = {
     "sharpness": float,          # 0..16, 1 = normal, 0 = no sharpening
     "noise_reduction": str,      # off | fast | high_quality
     "led_rgb": _rgb,             # LED colour [r, g, b] 0..1 (PWM), for live view and pictures
+    "led_pixels": _pixels,       # NeoPixel string only: which pixels light, e.g. "0", "3-5", "all"
     "led_settle_s": float,
     "save_dng": bool,
 }
@@ -590,8 +740,12 @@ class Hardware:
                           pwm_frequency=cfg["fan"]["pwm_frequency"])
         self.camera = Camera(cfg["camera"], mock)
         # The LED colour lives in the camera settings, so it is saved with every picture.
-        self.led = RgbLed(pins["led"], mock, cfg["camera"], active_low=pins["led_active_low"],
-                          pwm_frequency=pins["led_pwm_frequency"])
+        if cfg["led"]["type"] == "neopixel":
+            light = PixelLight(cfg["led"], mock, cfg["camera"])
+        else:
+            light = PinLight(pins["led"], mock, active_low=pins["led_active_low"],
+                             pwm_frequency=pins["led_pwm_frequency"])
+        self.led = RgbLed(light, cfg["camera"])
         self.camera.mock_light = self._mock_light  # only used while there is no real camera
 
     # Made-up camera response to each LED colour (rows: camera R, G, B; columns: LED r, g, b),

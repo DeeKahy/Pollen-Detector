@@ -26,6 +26,8 @@
             pyyaml
             pillow
             numpy
+            mkdocs-material   # build guide website: mkdocs serve
+            mkdocs-callouts
           ]);
           # TeX Live "medium" plus what the AAU template in report/setup/preamble.tex loads.
           # CI uses a full TeX Live, so if CI builds and this does not, add the missing package here.

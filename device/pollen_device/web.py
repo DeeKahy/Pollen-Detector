@@ -9,7 +9,7 @@ from flask import Flask, Response, abort, jsonify, request, send_from_directory
 
 from . import checks
 from .cycle import Busy
-from .hardware import LED_COLOURS, LED_PRESETS
+from .hardware import LED_COLOURS, LED_PRESETS, parse_pixels
 
 log = logging.getLogger("pollen.web")
 START = time.time()
@@ -33,6 +33,8 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
     hw.led.refresh()
 
     def set_camera(new):
+        if new.get("led_pixels") is not None and hw.led.out.kind == "neopixel":
+            parse_pixels(new["led_pixels"], hw.led.out.count)  # ValueError before anything changes
         hw.camera.apply_settings(new)
         hw.led.refresh()  # a new LED colour applies to a lit LED straight away
         store.set_state("camera_settings", hw.camera.settings())
@@ -89,8 +91,8 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
 
     def led_status():
         return {"on": hw.led.lit, "rgb": hw.led.target(), "effect": hw.led.effect,
-                "duty": hw.led.levels() if hw.led.effect else hw.led.duties(),
-                "pwm_hz": cfg["pins"]["led_pwm_frequency"], "calibration": hw.led.calibration}
+                "duty": hw.led.levels() if (hw.led.effect or hw.led.lit) else hw.led.duties(),
+                "pwm_hz": hw.led.out.pwm_hz, "calibration": hw.led.calibration, **hw.led.out.info()}
 
     @app.post("/api/led")
     def api_led():
@@ -99,6 +101,8 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
         # old {"value": 1} still works. The colour is saved like the camera settings.
         body = request.json or {}
         try:
+            if "pixels" in body:
+                set_camera({"led_pixels": body["pixels"]})
             if "rgb" in body:
                 hw.led.stop_effect()
                 set_camera({"led_rgb": body["rgb"]})
@@ -127,15 +131,17 @@ def create_app(cfg, ctl, hw, store, uploader, logbuf):
 
     @app.post("/api/led/auto")
     def api_led_auto():
-        """Try each LED colour with a matching exposure; keep the one with the crispest picture."""
-        results = ctl.auto_setup()
+        """Measure red, green and blue, model all mixes, photograph the best few; keep the crispest."""
+        out = ctl.auto_setup()
+        results = out["results"]
         best = results[0]
         hw.led.stop_effect()
-        set_camera({"led_rgb": best["rgb"], "exposure_us": best["exposure_us"],
+        set_camera({"led_rgb": best["duty"], "exposure_us": best["exposure_us"],
                     "analogue_gain": best["analogue_gain"], "awb": False})
         ctl.set_led(True)
         log.info("Auto setup chose %s", best)
-        return jsonify(ok=True, results=results, led=led_status(), settings=hw.camera.settings())
+        return jsonify(ok=True, results=results, model=out["model"], led=led_status(),
+                       settings=hw.camera.settings())
 
     @app.post("/api/led/calibration/clear")
     def api_led_calibration_clear():
@@ -364,15 +370,18 @@ select{font:inherit;padding:4px;border-radius:6px;border:1px solid var(--line);b
   G <input id="gv" type="number" min="0" max="255" onchange="pickRgb()">
   B <input id="bv" type="number" min="0" max="255" onchange="pickRgb()"></div>
  <div class="row" id="presets">PRESETS</div>
+ <div class="row" id="pixrow" hidden>pixels lit <input id="pixels" style="width:110px" placeholder="0, 3-5, all" onchange="setPixels()">
+  <button onclick="setPixels()">Set</button> <span class="hint" id="pixinfo"></span></div>
+ <p class="hint" id="pixhint" hidden>Pixels are numbered from 0 at the input end. One pixel is the sharpest (smallest light source); more pixels give more light but blurrier shadows.</p>
  <div class="row"><button class="p" id="autobtn" onclick="autoSetup()">🎯 Auto setup</button>
-  <span class="hint">tries blue, green, red and white, sets the exposure for each and keeps the sharpest</span></div>
+  <span class="hint">measures red, green and blue, computes ~150 mixes, photographs the best 3 and keeps the sharpest (~30 s)</span></div>
  <div id="autorun" hidden><div class="pbar"><div id="autofill"></div></div><div class="hint" id="autoprog"></div></div>
  <table id="autotab"></table>
  <div class="row"><button id="pulsebtn" onclick="pulseToggle()">✨ Pulse</button></div>
  <div class="row hint">breathe every <input id="pper" type="number" min="0.5" step="0.5" value="4" style="width:56px"> s,
   colours every <input id="phue" type="number" min="2" step="5" value="40" style="width:56px"> s,
   lowest <input id="plow" type="number" min="5" max="100" step="5" value="20" style="width:56px"> %</div>
- <p class="hint">Pictures use this colour too. Below full brightness each colour flickers PWM_HZ times a second: use an exposure in whole PERIOD µs steps (not auto) to avoid faint stripes.</p>
+ <p class="hint" id="pwmhint">Pictures use this colour too. Below full brightness each colour flickers PWM_HZ times a second: use an exposure in whole PERIOD µs steps (not auto) to avoid faint stripes.</p>
  <details id="caldet"><summary>Calibrate with the camera <span id="calst"></span></summary>
   <ol class="hint"><li>Take the tape out.</li><li>Point the LED at the camera, from where it normally sits.</li>
    <li>Dim the room. Set the exposure and white balance you will use for pictures (auto white balance off is best).</li>
@@ -448,6 +457,7 @@ function pickRgb(){const c=['rv','gv','bv'].map(id=>Math.max(0,Math.min(255,+$(i
 function pickPreset(c){hsv=rgb2hsv(...c);showPick();sendRgb()}
 function pulseToggle(){ledPostT=Date.now();post('/api/led',ledFx?{effect:null}:
  {effect:'pulse',period_s:+$('pper').value,hue_s:+$('phue').value,low:$('plow').value/100}).then(ledResp)}
+function setPixels(){ledPostT=Date.now();post('/api/led',{pixels:$('pixels').value}).then(j=>{if(j.error)alert(j.error);ledResp(j)})}
 function ledToggle(){ledPostT=Date.now();post('/api/led',{on:!ledOn}).then(ledResp)}
 // Auto setup: same pattern as the calibration (blocking POST, poll status for progress).
 let autoPoll=null;
@@ -455,8 +465,10 @@ async function autoSetup(){$('autobtn').disabled=true;$('autotab').innerHTML='';
  autoPoll=setInterval(async()=>{try{showAuto((await (await fetch('/api/status')).json()).controller.auto_setup)}catch(e){}},300);
  try{const j=await post('/api/led/auto');
   if(j.results){ledFilled=false;ledResp(j);fillCam(j.settings);
-   $('autotab').innerHTML='<tr><td>colour</td><td>exposure</td><td>detail</td></tr>'+j.results.map((r,i)=>
-    `<tr><td>${i?'':'✓ '}${r.colour}</td><td>${r.exposure_us} µs${r.analogue_gain>1?' × gain '+r.analogue_gain:''}</td><td>${r.detail}</td></tr>`).join('')}}
+   const sw=r=>`<span class="chip" style="display:inline-block;width:12px;height:12px;vertical-align:middle;background:rgb(${r.rgb.map(v=>Math.round(v*255))})"></span>`;
+   $('autotab').innerHTML='<tr><td>colour</td><td>how</td><td>exposure</td><td>detail</td><td>model said</td></tr>'+j.results.map((r,i)=>
+    `<tr><td>${i?'':'✓ '}${sw(r)} ${r.colour}</td><td>${r.kind}</td><td>${r.exposure_us} µs${r.analogue_gain>1?' × gain '+r.analogue_gain:''}</td><td>${r.detail}</td><td>${r.predicted??''}</td></tr>`).join('')
+    +(j.model?`<tr><td colspan="5" class="hint">model top 5: ${j.model.slice(0,5).map(m=>sw(m)+' '+m.colour+' '+m.predicted).join(' · ')}</td></tr>`:'')}}
  finally{clearInterval(autoPoll);autoPoll=null;showAuto(null);$('autobtn').disabled=false}}
 function showAuto(p){$('autorun').hidden=!p;if(!p)return;
  const into=Math.min(0.95,Math.max(0,1-(p.left_s-(p.steps-p.step-1)*p.step_s)/p.step_s));
@@ -480,7 +492,10 @@ function ledResp(j){if(!j||!j.led)return;const l=j.led,wasFx=ledFx;ledOn=l.on;le
  else if(wasFx)showPick();  // back to the picked colour
  if(!ledFilled){const n=rgb2hsv(...l.rgb);if(n[1]>0)hsv[0]=n[0];hsv=[hsv[0],n[1],n[2]];ledFilled=true;showPick()}
  $('ledon').textContent=l.on?'Turn off':'Turn on';$('ledon').className=l.on?'':'p';
- $('pins').innerHTML=(l.on?(ledFx?'● pulsing':'● on'):'○ off')+'<br>pins: '+['red','green','blue'].map(k=>k[0].toUpperCase()+' '+Math.round(l.duty[k]*100)+'%').join(' · ')
+ const px=l.type==='neopixel';$('pixrow').hidden=$('pixhint').hidden=!px;$('pwmhint').hidden=px;
+ if(px){if(document.activeElement!==$('pixels'))$('pixels').value=l.pixels;
+  $('pixinfo').textContent=`${l.lit} of ${l.count} · about ${l.ma} mA (limit ${l.max_ma})`}
+ $('pins').innerHTML=(l.on?(ledFx?'● pulsing':'● on'):'○ off')+'<br>'+(px?'drive':'pins')+': '+['red','green','blue'].map(k=>k[0].toUpperCase()+' '+Math.round(l.duty[k]*100)+'%').join(' · ')
   +'<br>'+(l.calibration?'calibrated'+(l.calibration.mock?' (simulated)':''):'not calibrated');
  const cal=l.calibration;$('calst').textContent=cal?'· done '+cal.ts.slice(0,16).replace('T',' '):'· not done';
  $('caltab').innerHTML=cal?rows0({'exposure':cal.exposure_us+' µs, gain '+cal.analogue_gain,
@@ -539,5 +554,5 @@ INDEX_HTML = INDEX_HTML.replace("PRESETS", "".join(
 
 
 def index_html(cfg):
-    hz = cfg["pins"]["led_pwm_frequency"]
+    hz = cfg["pins"]["led_pwm_frequency"]  # only shown for the 5 mm RGB LED
     return INDEX_HTML.replace("PWM_HZ", str(hz)).replace("PERIOD", str(round(1e6 / hz)))

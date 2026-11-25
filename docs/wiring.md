@@ -2,6 +2,10 @@
 
 ![wiring diagram](wiring.svg)
 
+> [!NOTE]
+> This page is the **old breadboard version** with the 5 mm RGB LED. The current build uses the
+> Proto HAT and a NeoPixel light: see [4. Build the HAT](build/hat.md). The pin numbers are the same.
+
 `wiring.svg` is made by `make_wiring_svg.py`. If you change a pin, change it there and run the script again.
 
 ## Which wire goes where
@@ -11,11 +15,11 @@
 | 2 | 5V | driver board `+` |
 | 4 | 5V | fan red wire |
 | 6 | GND | driver board `−` |
-| 11 | GPIO17 | driver board IN1 |
+| 12 | GPIO18 | driver board IN1 |
 | 13 | GPIO27 | driver board IN2 |
 | 15 | GPIO22 | driver board IN3 |
 | 16 | GPIO23 | driver board IN4 |
-| 12 | GPIO18 | fan MOSFET, through a 220 Ω resistor |
+| 11 | GPIO17 | fan MOSFET, through a 220 Ω resistor |
 | 14 | GND | fan MOSFET |
 | 17 | 3.3V | RGB LED long leg (shared +) |
 | 18 | GPIO24 | RGB LED red leg, through a 220 Ω resistor |
@@ -24,7 +28,7 @@
 | CAMERA port | | HQ camera ribbon, blue side facing the USB ports |
 | 1, 3, 5, 9 | | BME280 sensor (optional) |
 
-The numbers in `device/config.yaml` are GPIO numbers (17, 27, ...), not pin numbers.
+The numbers in `device/config.yaml` are GPIO numbers (18, 27, ...), not pin numbers.
 
 ## The motor
 
@@ -37,7 +41,7 @@ The fan needs more current than a GPIO pin can give, so a MOSFET switches it.
 
 - Fan red wire to 5V (pin 4). Fan black wire to the MOSFET's D leg.
 - MOSFET S leg to GND (pin 14).
-- GPIO18 (pin 12) to a 220 Ω resistor, then to the MOSFET's G leg.
+- GPIO17 (pin 11) to a 220 Ω resistor, then to the MOSFET's G leg.
 - A 100 kΩ resistor from the G leg to GND. This keeps the fan off while the Pi starts.
 - A diode across the fan, with the stripe on the 5V side. This protects the MOSFET.
 
@@ -79,6 +83,48 @@ The LED sits about 30 cm above the tape in the current tests. Further away, or a
 under it (foil poked with a needle), makes the lensless pictures sharper.
 
 Resistor colour codes are in [resistors.svg](resistors.svg).
+
+## NeoPixel string (instead of the RGB LED)
+
+A string of WS2811/WS2812 pixels ("NeoPixels", often sold as Christmas lights) can replace
+the RGB LED. It is brighter (about 20 mA per colour) and each pixel dims itself, so there is
+no PWM flicker from the Pi. It has 3 wires and one data line for the whole string.
+
+| String wire | Goes to | Notes |
+|---|---|---|
+| +5V | 5V (pin 4, or pin 2) | or an external 5 V supply if many pixels are lit |
+| GND | GND (pin 6, 9, 14...) | always shared with the Pi, also with an external supply |
+| DI / DIN (data in) | GPIO10 / SPI MOSI (pin 19) | through a 220–470 Ω resistor, close to the Pi |
+
+- Use the **input end** of the string. There is usually a small arrow on the pixels pointing
+  away from the input. The other end has DO (data out) and does nothing on its own.
+  Wire colours are not standard. Read the labels on the first pixel, or follow the arrow.
+- Pixel 0 is the one nearest the input. The software lights only the pixels you choose
+  (`camera.led_pixels`, or "pixels lit" in the web UI). One pixel is the sharpest light source.
+- **Power.** Each pixel draws up to ~60 mA at full white, ~20 mA for one colour. A 50-pixel
+  string at full white would want 3 A: far too much for the Pi. The software dims everything if the
+  lit pixels would draw more than `led.max_ma` (400 mA). Unlit pixels draw about 1 mA each.
+- **Data level.** The Pi sends 3.3 V; a pixel on 5 V wants at least about 3.5 V. It often
+  works anyway. If pixels flicker or show random colours, put a diode (1N4001) in the +5V wire
+  to the string: it drops the string to ~4.3 V, and then 3.3 V is enough. A level shifter
+  (74AHCT125) is the clean fix.
+- **SPI must be on** (once): `sudo raspi-config nonint do_spi 0`, then reboot. Check that
+  `/dev/spidev0.0` exists. The software uses SPI (not GPIO18) because GPIO18 drives the motor
+  and SPI needs no root.
+
+In `config.yaml`:
+
+```yaml
+led:
+  type: neopixel
+  count: 50      # pixels in the string
+  order: RGB     # if "red" lights green, try GRB
+camera:
+  led_pixels: "0"
+```
+
+Take the RGB LED and its three resistors out, or leave them: with `type: neopixel` the software
+does not touch GPIO24/25/5.
 
 ## What to buy
 

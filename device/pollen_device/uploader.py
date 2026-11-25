@@ -1,7 +1,8 @@
 """Background uploader: pushes queued captures to the server and sends heartbeats.
 
 Captures stay in the local queue until the server answers 2xx, so network outages
-just delay uploads.
+just delay uploads. Note edits and deletes of uploaded captures are sent too, so the
+server (the pollen-gallery) shows the same pictures and notes as the Pi.
 """
 import json
 import logging
@@ -72,8 +73,8 @@ class Uploader(threading.Thread):
                             self._url("/api/v1/upload"),
                             headers=self._headers(),
                             files={"image": (path.name, f, "image/png")},
-                            data={"meta": row["meta"], "capture_id": row["id"],
-                                  "device_id": self.cfg["device_id"]},
+                            data={"meta": self.store.upload_doc(row), "capture_id": row["id"],
+                                  "path": row["path"], "device_id": self.cfg["device_id"]},
                             timeout=float(self.ucfg["timeout_s"]),
                         )
                 except requests.RequestException as e:
@@ -92,10 +93,45 @@ class Uploader(threading.Thread):
                     log.warning("Upload of #%d rejected: HTTP %d %s", row["id"], r.status_code, r.text[:200])
                     if r.status_code in (401, 403):
                         break  # wrong token - no point continuing
+            try:
+                synced = self.sync_changes()
+            except requests.RequestException as e:
+                self.last_result = {"ts": iso(utcnow()), "ok": ok, "failed": failed, "error": str(e)}
+                log.warning("Sync of notes/deletes failed (network): %s", e)
+                return self.last_result
+            ok += synced
             self.last_result = {"ts": iso(utcnow()), "ok": ok, "failed": failed, "error": None}
             if ok or failed:
                 log.info("Upload round: %d ok, %d failed", ok, failed)
             return self.last_result
+
+    def _post_json(self, endpoint, body):
+        return requests.post(self._url(endpoint), headers=self._headers(), json=body,
+                             timeout=float(self.ucfg["timeout_s"]))
+
+    def sync_changes(self):
+        """Send note edits and deletes of pictures the server already has. Returns how many went through.
+        Servers without these endpoints (the old Flask server in server/) answer 404/405: then nothing is sent."""
+        done = 0
+        for row in self.store.pending_meta():
+            r = self._post_json("/api/v1/meta", {"path": row["path"], "meta": json.loads(self.store.upload_doc(row))})
+            if r.status_code == 404 and r.text.startswith("no such image"):
+                self.store.mark_not_uploaded(row["id"])  # server lost it: upload the whole picture next round
+            elif r.ok:
+                self.store.mark_meta_synced(row["id"])
+                done += 1
+            else:
+                log.warning("Note sync of #%d rejected: HTTP %d %s", row["id"], r.status_code, r.text[:200])
+                break
+        for rel in self.store.pending_deletes():
+            r = self._post_json("/api/v1/delete", {"path": rel})
+            if r.ok:
+                self.store.mark_delete_done(rel)
+                done += 1
+            else:
+                log.warning("Delete of %s rejected: HTTP %d %s", rel, r.status_code, r.text[:200])
+                break
+        return done
 
     def heartbeat(self):
         try:
